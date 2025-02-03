@@ -1,0 +1,56 @@
+# Project specific
+.idea/
+
+# Environment files
+**/.env
+**/.env.*
+!**/.env.example
+
+# Cursor
+.cursor/
+.cursorrules
+.cursorignore
+.cursorconfig
+.cursorrules
+.cursorignore
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Xcode
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.xccheckout
+*.xcscmblueprint
+
+# Build artifacts
+DerivedData/
+build/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# CocoaPods
+Pods/
+
+# Carthage
+Carthage/Build/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+
+# Bundler
+.bundle/
+
