@@ -15,5 +15,6 @@
 	"workspace": "/Users/brett/Library/CloudStorage/Dropbox/Docs/Work/Github/ReelAI/ReelAI.xcodeproj/project.xcworkspace",
 	"build_root": "/Users/brett/Library/Developer/Xcode/DerivedData/ReelAI-angwaxldzayjddaefgcwuvyhvcyj",
 	"scheme": "ReelAI",
-	"kind": "xcode"
+	"kind": "xcode",
+	"swift_version": "6.0"
 }

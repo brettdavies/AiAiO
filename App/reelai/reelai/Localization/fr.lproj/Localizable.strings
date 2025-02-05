@@ -1,0 +1,6 @@
+/* French Localization */
+"welcome_message" = "Bienvenue sur ReelAI";
+"auth_sign_in" = "Connexion";
+"auth_sign_up" = "Inscription";
+"upload_in_progress" = "Téléchargement en cours...";
+"upload_error" = "Une erreur est survenue lors du téléchargement. Veuillez réessayer.";

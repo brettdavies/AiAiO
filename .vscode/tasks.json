@@ -1,0 +1,29 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "sweetpad: Build",
+            "type": "shell",
+            "command": "xcodebuild",
+            "args": [
+                "-scheme",
+                "reelai",
+                "-configuration",
+                "Debug",
+                "-workspace",
+                "${workspaceFolder}/App/reelai/reelai.xcodeproj/project.xcworkspace",
+                "-destination",
+                "platform=iOS Simulator,id=E42F27EF-8816-4A51-99A9-80645B7B61CD",
+                "-resultBundlePath",
+                "'${workspaceFolder}/.build/sweetpad/bundle/reelai'",
+                "-allowProvisioningUpdates",
+                "build"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}

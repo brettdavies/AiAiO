@@ -1,0 +1,6 @@
+/* German Localization */
+"welcome_message" = "Willkommen bei ReelAI";
+"auth_sign_in" = "Anmelden";
+"auth_sign_up" = "Registrieren";
+"upload_in_progress" = "Hochladen...";
+"upload_error" = "Es gab einen Fehler beim Hochladen. Bitte versuchen Sie es erneut.";

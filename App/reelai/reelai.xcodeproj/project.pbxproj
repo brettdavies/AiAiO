@@ -1,0 +1,714 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		8B4E1C4A2D52793C003EF58D /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 8B4E1C492D52793C003EF58D /* FirebaseAnalytics */; };
+		8B4E1C4C2D52793C003EF58D /* FirebaseAnalyticsOnDeviceConversion in Frameworks */ = {isa = PBXBuildFile; productRef = 8B4E1C4B2D52793C003EF58D /* FirebaseAnalyticsOnDeviceConversion */; };
+		8B4E1C4E2D52793C003EF58D /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 8B4E1C4D2D52793C003EF58D /* FirebaseAnalyticsWithoutAdIdSupport */; };
+		8B4E1C502D52793C003EF58D /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 8B4E1C4F2D52793C003EF58D /* FirebaseAppCheck */; };
+		8B4E1C522D52793C003EF58D /* FirebaseAppDistribution-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = 8B4E1C512D52793C003EF58D /* FirebaseAppDistribution-Beta */; };
+		8B4E1C582D52BE6F003EF58D /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 8B4E1C572D52BE6F003EF58D /* FirebaseCrashlytics */; };
+		8B4E1C5A2D52BE93003EF58D /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8B4E1C592D52BE93003EF58D /* FirebaseAuth */; };
+		8B4E1C5C2D52BE93003EF58D /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 8B4E1C5B2D52BE93003EF58D /* FirebaseDatabase */; };
+		8B4E1C5E2D52BE93003EF58D /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 8B4E1C5D2D52BE93003EF58D /* FirebaseFirestore */; };
+		8B4E1C602D52BE93003EF58D /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 8B4E1C5F2D52BE93003EF58D /* FirebaseFunctions */; };
+		8B4E1C622D52BE93003EF58D /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 8B4E1C612D52BE93003EF58D /* FirebaseStorage */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		8B4E1C262D526FB5003EF58D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B4E1C0A2D526FB3003EF58D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8B4E1C112D526FB3003EF58D;
+			remoteInfo = reelai;
+		};
+		8B4E1C302D526FB5003EF58D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B4E1C0A2D526FB3003EF58D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8B4E1C112D526FB3003EF58D;
+			remoteInfo = reelai;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		8B4E1C122D526FB3003EF58D /* reelai.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = reelai.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8B4E1C252D526FB5003EF58D /* reelaiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = reelaiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8B4E1C2F2D526FB5003EF58D /* reelaiUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = reelaiUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		8B4E1C142D526FB3003EF58D /* reelai */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = reelai;
+			sourceTree = "<group>";
+		};
+		8B4E1C282D526FB5003EF58D /* reelaiTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = reelaiTests;
+			sourceTree = "<group>";
+		};
+		8B4E1C322D526FB5003EF58D /* reelaiUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = reelaiUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8B4E1C0F2D526FB3003EF58D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8B4E1C502D52793C003EF58D /* FirebaseAppCheck in Frameworks */,
+				8B4E1C4A2D52793C003EF58D /* FirebaseAnalytics in Frameworks */,
+				8B4E1C522D52793C003EF58D /* FirebaseAppDistribution-Beta in Frameworks */,
+				8B4E1C582D52BE6F003EF58D /* FirebaseCrashlytics in Frameworks */,
+				8B4E1C4E2D52793C003EF58D /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
+				8B4E1C5E2D52BE93003EF58D /* FirebaseFirestore in Frameworks */,
+				8B4E1C5A2D52BE93003EF58D /* FirebaseAuth in Frameworks */,
+				8B4E1C602D52BE93003EF58D /* FirebaseFunctions in Frameworks */,
+				8B4E1C622D52BE93003EF58D /* FirebaseStorage in Frameworks */,
+				8B4E1C5C2D52BE93003EF58D /* FirebaseDatabase in Frameworks */,
+				8B4E1C4C2D52793C003EF58D /* FirebaseAnalyticsOnDeviceConversion in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8B4E1C222D526FB5003EF58D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8B4E1C2C2D526FB5003EF58D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		8B4E1C092D526FB3003EF58D = {
+			isa = PBXGroup;
+			children = (
+				8B4E1C142D526FB3003EF58D /* reelai */,
+				8B4E1C282D526FB5003EF58D /* reelaiTests */,
+				8B4E1C322D526FB5003EF58D /* reelaiUITests */,
+				8B4E1C562D52BE6F003EF58D /* Frameworks */,
+				8B4E1C132D526FB3003EF58D /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		8B4E1C132D526FB3003EF58D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8B4E1C122D526FB3003EF58D /* reelai.app */,
+				8B4E1C252D526FB5003EF58D /* reelaiTests.xctest */,
+				8B4E1C2F2D526FB5003EF58D /* reelaiUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		8B4E1C562D52BE6F003EF58D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8B4E1C112D526FB3003EF58D /* reelai */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8B4E1C392D526FB5003EF58D /* Build configuration list for PBXNativeTarget "reelai" */;
+			buildPhases = (
+				8B4E1C0E2D526FB3003EF58D /* Sources */,
+				8B4E1C0F2D526FB3003EF58D /* Frameworks */,
+				8B4E1C102D526FB3003EF58D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				8B4E1C142D526FB3003EF58D /* reelai */,
+			);
+			name = reelai;
+			packageProductDependencies = (
+				8B4E1C492D52793C003EF58D /* FirebaseAnalytics */,
+				8B4E1C4B2D52793C003EF58D /* FirebaseAnalyticsOnDeviceConversion */,
+				8B4E1C4D2D52793C003EF58D /* FirebaseAnalyticsWithoutAdIdSupport */,
+				8B4E1C4F2D52793C003EF58D /* FirebaseAppCheck */,
+				8B4E1C512D52793C003EF58D /* FirebaseAppDistribution-Beta */,
+				8B4E1C572D52BE6F003EF58D /* FirebaseCrashlytics */,
+				8B4E1C592D52BE93003EF58D /* FirebaseAuth */,
+				8B4E1C5B2D52BE93003EF58D /* FirebaseDatabase */,
+				8B4E1C5D2D52BE93003EF58D /* FirebaseFirestore */,
+				8B4E1C5F2D52BE93003EF58D /* FirebaseFunctions */,
+				8B4E1C612D52BE93003EF58D /* FirebaseStorage */,
+			);
+			productName = reelai;
+			productReference = 8B4E1C122D526FB3003EF58D /* reelai.app */;
+			productType = "com.apple.product-type.application";
+		};
+		8B4E1C242D526FB5003EF58D /* reelaiTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8B4E1C3C2D526FB5003EF58D /* Build configuration list for PBXNativeTarget "reelaiTests" */;
+			buildPhases = (
+				8B4E1C212D526FB5003EF58D /* Sources */,
+				8B4E1C222D526FB5003EF58D /* Frameworks */,
+				8B4E1C232D526FB5003EF58D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8B4E1C272D526FB5003EF58D /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				8B4E1C282D526FB5003EF58D /* reelaiTests */,
+			);
+			name = reelaiTests;
+			packageProductDependencies = (
+			);
+			productName = reelaiTests;
+			productReference = 8B4E1C252D526FB5003EF58D /* reelaiTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		8B4E1C2E2D526FB5003EF58D /* reelaiUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8B4E1C3F2D526FB5003EF58D /* Build configuration list for PBXNativeTarget "reelaiUITests" */;
+			buildPhases = (
+				8B4E1C2B2D526FB5003EF58D /* Sources */,
+				8B4E1C2C2D526FB5003EF58D /* Frameworks */,
+				8B4E1C2D2D526FB5003EF58D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8B4E1C312D526FB5003EF58D /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				8B4E1C322D526FB5003EF58D /* reelaiUITests */,
+			);
+			name = reelaiUITests;
+			packageProductDependencies = (
+			);
+			productName = reelaiUITests;
+			productReference = 8B4E1C2F2D526FB5003EF58D /* reelaiUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8B4E1C0A2D526FB3003EF58D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1620;
+				TargetAttributes = {
+					8B4E1C112D526FB3003EF58D = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					8B4E1C242D526FB5003EF58D = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 8B4E1C112D526FB3003EF58D;
+					};
+					8B4E1C2E2D526FB5003EF58D = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 8B4E1C112D526FB3003EF58D;
+					};
+				};
+			};
+			buildConfigurationList = 8B4E1C0D2D526FB3003EF58D /* Build configuration list for PBXProject "reelai" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				fr,
+				de,
+			);
+			mainGroup = 8B4E1C092D526FB3003EF58D;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				8B4E1C482D52793C003EF58D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 8B4E1C132D526FB3003EF58D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8B4E1C112D526FB3003EF58D /* reelai */,
+				8B4E1C242D526FB5003EF58D /* reelaiTests */,
+				8B4E1C2E2D526FB5003EF58D /* reelaiUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8B4E1C102D526FB3003EF58D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8B4E1C232D526FB5003EF58D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8B4E1C2D2D526FB5003EF58D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8B4E1C0E2D526FB3003EF58D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8B4E1C212D526FB5003EF58D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8B4E1C2B2D526FB5003EF58D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		8B4E1C272D526FB5003EF58D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8B4E1C112D526FB3003EF58D /* reelai */;
+			targetProxy = 8B4E1C262D526FB5003EF58D /* PBXContainerItemProxy */;
+		};
+		8B4E1C312D526FB5003EF58D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8B4E1C112D526FB3003EF58D /* reelai */;
+			targetProxy = 8B4E1C302D526FB5003EF58D /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		8B4E1C372D526FB5003EF58D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		8B4E1C382D526FB5003EF58D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		8B4E1C3A2D526FB5003EF58D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = reelai/reelai.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"reelai/Preview Content\"";
+				DEVELOPMENT_TEAM = 4VKMZM6785;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = gauntlet.reelai;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				XROS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = Debug;
+		};
+		8B4E1C3B2D526FB5003EF58D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = reelai/reelai.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"reelai/Preview Content\"";
+				DEVELOPMENT_TEAM = 4VKMZM6785;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = gauntlet.reelai;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				XROS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = Release;
+		};
+		8B4E1C3D2D526FB5003EF58D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4VKMZM6785;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = gauntlet.reelaiTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/reelai.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/reelai";
+				XROS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = Debug;
+		};
+		8B4E1C3E2D526FB5003EF58D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4VKMZM6785;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = gauntlet.reelaiTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/reelai.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/reelai";
+				XROS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = Release;
+		};
+		8B4E1C402D526FB5003EF58D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4VKMZM6785;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = gauntlet.reelaiUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_TARGET_NAME = reelai;
+				XROS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = Debug;
+		};
+		8B4E1C412D526FB5003EF58D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4VKMZM6785;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = gauntlet.reelaiUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_TARGET_NAME = reelai;
+				XROS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		8B4E1C0D2D526FB3003EF58D /* Build configuration list for PBXProject "reelai" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8B4E1C372D526FB5003EF58D /* Debug */,
+				8B4E1C382D526FB5003EF58D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8B4E1C392D526FB5003EF58D /* Build configuration list for PBXNativeTarget "reelai" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8B4E1C3A2D526FB5003EF58D /* Debug */,
+				8B4E1C3B2D526FB5003EF58D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8B4E1C3C2D526FB5003EF58D /* Build configuration list for PBXNativeTarget "reelaiTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8B4E1C3D2D526FB5003EF58D /* Debug */,
+				8B4E1C3E2D526FB5003EF58D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8B4E1C3F2D526FB5003EF58D /* Build configuration list for PBXNativeTarget "reelaiUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8B4E1C402D526FB5003EF58D /* Debug */,
+				8B4E1C412D526FB5003EF58D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		8B4E1C482D52793C003EF58D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.8.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8B4E1C492D52793C003EF58D /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B4E1C482D52793C003EF58D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		8B4E1C4B2D52793C003EF58D /* FirebaseAnalyticsOnDeviceConversion */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B4E1C482D52793C003EF58D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsOnDeviceConversion;
+		};
+		8B4E1C4D2D52793C003EF58D /* FirebaseAnalyticsWithoutAdIdSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B4E1C482D52793C003EF58D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsWithoutAdIdSupport;
+		};
+		8B4E1C4F2D52793C003EF58D /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B4E1C482D52793C003EF58D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAppCheck;
+		};
+		8B4E1C512D52793C003EF58D /* FirebaseAppDistribution-Beta */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B4E1C482D52793C003EF58D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = "FirebaseAppDistribution-Beta";
+		};
+		8B4E1C572D52BE6F003EF58D /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B4E1C482D52793C003EF58D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
+		};
+		8B4E1C592D52BE93003EF58D /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B4E1C482D52793C003EF58D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		8B4E1C5B2D52BE93003EF58D /* FirebaseDatabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B4E1C482D52793C003EF58D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseDatabase;
+		};
+		8B4E1C5D2D52BE93003EF58D /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B4E1C482D52793C003EF58D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		8B4E1C5F2D52BE93003EF58D /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B4E1C482D52793C003EF58D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFunctions;
+		};
+		8B4E1C612D52BE93003EF58D /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B4E1C482D52793C003EF58D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 8B4E1C0A2D526FB3003EF58D /* Project object */;
+}
