@@ -14,6 +14,24 @@
 .cursorrules
 .cursorignore
 
+# Firebase
+**/GoogleService-Info.plist
+**/firebase-debug.log
+**/firebase-debug.*.log*
+**/.firebase/
+Firebase/Config/api-keys.env
+**/ServiceAccount.json
+**/*-service-account.json
+**/.runtimeconfig.json
+
+# Firebase Functions
+Firebase/functions/lib/**/*.js
+Firebase/functions/lib/**/*.js.map
+Firebase/functions/typings/
+**/node_modules/
+Firebase/functions/*.log
+Firebase/functions/npm-debug.log*
+
 # macOS
 .DS_Store
 .AppleDouble

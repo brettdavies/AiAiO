@@ -1,0 +1,30 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isValidEmail() {
+      return request.resource.data.email.matches('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$');
+    }
+    
+    // User collection rules
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isAuthenticated() 
+        && isOwner(userId)
+        && isValidEmail();
+      allow update: if isOwner(userId)
+        && (!request.resource.data.diff(resource.data).affectedKeys()
+            .hasAny(['createdAt', 'email']));
+      allow delete: if false;
+    }
+  }
+} 

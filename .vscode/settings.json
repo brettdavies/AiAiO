@@ -6,5 +6,6 @@
         "editor.defaultFormatter": "sswg.swift-lang",
         "editor.formatOnSave": true
     },
-    "sweetpad.build.xcodeWorkspacePath": "App/reelai/reelai.xcodeproj/project.xcworkspace"
+    "sweetpad.build.xcodeWorkspacePath": "App/reelai/reelai.xcodeproj/project.xcworkspace",
+    "git.ignoreLimitWarning": true
 }
