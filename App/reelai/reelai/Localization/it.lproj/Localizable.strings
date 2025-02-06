@@ -1,0 +1,65 @@
+/* Italian Localization */
+
+/* Authentication - Common */
+"auth.email.placeholder" = "Indirizzo email";
+"auth.password.placeholder" = "Password";
+"auth.confirm_password.placeholder" = "Conferma password";
+"auth.error.title" = "Errore di autenticazione";
+"auth.error.generic" = "Si è verificato un errore. Riprova.";
+"common.ok" = "OK";
+"common.cancel" = "Annulla";
+
+/* Authentication - Sign Up */
+"auth.signup.title" = "Crea account";
+"auth.signup.button" = "Registrati";
+"auth.signup.credentials.header" = "Crea il tuo account";
+"auth.signup.create_account" = "Crea nuovo account";
+"auth.signup.existing_account" = "Hai già un account?";
+"auth.signup.terms" = "Registrandoti, accetti i nostri Termini di servizio";
+
+/* Authentication - Sign In */
+"auth.signin.title" = "Accedi";
+"auth.signin.button" = "Accedi";
+"auth.signin.credentials.header" = "Accedi con la tua email";
+"auth.signin.social.header" = "Oppure accedi con";
+"auth.signin.existing_account" = "Hai già un account?";
+"auth.signin.no_account" = "Non hai un account?";
+
+/* Authentication - Password Reset */
+"auth.password.reset" = "Password dimenticata?";
+"auth.password.reset.title" = "Reimposta password";
+"auth.password.reset.message" = "Inserisci il tuo indirizzo email e ti invieremo un link per reimpostare la password.";
+"auth.password.reset.send" = "Invia link";
+
+/* Authentication - Validation Errors */
+"auth.validation.email.invalid" = "Inserisci un indirizzo email valido";
+"auth.validation.password.too_short" = "La password deve contenere almeno 6 caratteri";
+"auth.validation.password.requirements" = "La password deve contenere almeno una lettera maiuscola, un numero e un carattere speciale";
+"auth.validation.password.mismatch" = "Le password non corrispondono";
+
+/* Authentication - Error Messages */
+"auth.error.network" = "Verifica la tua connessione internet";
+"auth.error.invalid_credentials" = "Email o password non validi";
+"auth.error.email_in_use" = "Questo indirizzo email è già registrato";
+"auth.error.weak_password" = "La password è troppo debole";
+"auth.error.invalid_email" = "Formato email non valido";
+"auth.error.requires_recent_login" = "Effettua nuovamente l'accesso per continuare";
+"auth.error.user_not_found" = "Nessun account trovato con questa email";
+"auth.error.google_config" = "L'accesso con Google non è configurato correttamente";
+"auth.error.google_sign_in" = "Accesso con Google non riuscito";
+"auth.error.google_token" = "Impossibile ottenere il token di autenticazione Google";
+"auth.error.no_root_view" = "Impossibile mostrare l'accesso con Google";
+
+/* Authentication - Success Messages */
+"auth.success.signup" = "Account creato con successo";
+"auth.success.signin" = "Accesso effettuato con successo";
+"auth.success.signout" = "Disconnessione effettuata con successo";
+"auth.success.password_reset" = "Email di reimpostazione password inviata";
+
+/* Common UI Elements */
+"common.error" = "Errore";
+"common.success" = "Successo";
+"common.loading" = "Caricamento...";
+"common.continue" = "Continua";
+"common.back" = "Indietro";
+"common.done" = "Fatto"; 

@@ -1,0 +1,11 @@
+#include "Environment.xcconfig"
+
+// Development-specific overrides
+FIREBASE_PROJECT_ID = dev-reelai
+FIREBASE_AUTH_DOMAIN = $(FIREBASE_PROJECT_ID).firebaseapp.com
+FIREBASE_STORAGE_BUCKET = $(FIREBASE_PROJECT_ID).appspot.com
+
+// Development Feature Flags
+FIREBASE_USE_EMULATOR = YES
+LOGGING_DESTINATION = Both
+LOGGING_LEVEL = Debug 
