@@ -5,34 +5,42 @@
 //  Created by Brett on 2/4/25.
 //
 
-import SwiftData
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var items: [Item]
-    @StateObject private var authViewModel = AuthViewModel()
 
     var body: some View {
-        Group {
-            if authViewModel.isAuthenticated {
-                VStack {
-                    EmailVerificationBannerView(viewModel: authViewModel)
-
-                    // Main content here
-                    Text("Welcome \(authViewModel.currentUser?.email ?? "")")
-                        .padding()
-
-                    Button("Sign Out") {
-                        Task {
-                            await authViewModel.signOut()
+        NavigationSplitView {
+            List {
+                ForEach(items) { item in
+                    NavigationLink {
+                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
+                    } label: {
+                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+                    }
+                }
+                .onDelete(perform: deleteItems)
+            }
+#if os(macOS)
+            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
+#endif
+            .toolbar {
+#if os(iOS)
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    EditButton()
+                }
+#endif
+                ToolbarItem {
+                    Button(action: addItem) {
+                        Label("Add Item", systemImage: "plus")
                     }
                 }
             }
-            } else {
-                SignInView()
-                    .environmentObject(authViewModel)
-            }
+        } detail: {
+            Text("Select an item")
         }
     }
 
