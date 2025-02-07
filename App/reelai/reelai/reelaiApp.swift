@@ -5,17 +5,22 @@
 //  Created by Brett on 2/4/25.
 //
 
+import FirebaseAuth
+import FirebaseCore
+import FirebaseFirestore
+import Foundation
 import SwiftData
 import SwiftUI
-import FirebaseCore
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-  func application(_ application: UIApplication,
-                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-    FirebaseApp.configure()
-
-    return true
-  }
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+    ) -> Bool {
+        // Firebase initialization is now handled by FirebaseClient in ContentView
+        // to properly handle async initialization and errors
+        return true
+    }
 }
 
 @main
@@ -23,28 +28,32 @@ struct reelaiApp: App {
     // register app delegate for Firebase setup
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
+    // Initialize AuthService at app level
+    private let authService: AuthService
+    private let environment: FirebaseEnvironment.Environment
+
     init() {
-        // Initialize the unified logger and log the startup event.
-        UnifiedLogger.shared.log(level: .info, message: "ReelAIApp is starting up.")
-    }
+        self.authService = AuthService()
+        // Determine environment based on build configuration
+        #if DEBUG
+            self.environment = .development
+        #else
+            self.environment = .production
+        #endif
 
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+        // Log application startup using LogManager
+        Task {
+            await LogManager.shared.log(
+                level: .info,
+                message: "ReelAIApp is starting up.",
+                metadata: ["category": LogCategory.app.rawValue]
+            )
         }
-    }()
+    }
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(authService: authService, environment: environment)
         }
-        .modelContainer(sharedModelContainer)
     }
 }

@@ -1,247 +1,282 @@
-import Combine
 import FirebaseAuth
+import FirebaseCore
 import FirebaseFirestore
+import Foundation
 import SwiftUI
 
+/// A view model that handles authentication-related operations and state
 @MainActor
-final class AuthViewModel: ObservableObject {
-    // MARK: - Published Properties
+public final class AuthViewModel: ObservableObject {
+    // MARK: - Properties
+    let authService: AuthService
+    let environment: FirebaseEnvironment.Environment
+
+    // State
+    @Published var isInitialized = false
+    @Published var isLoading = false
+    @Published var error: Error?
+    @Published var showError = false
+    @Published var showResetSuccess = false
+
+    // User state
+    @Published var currentUser: FirestoreUser?
+    @Published var isAuthenticated = false
+
+    // Form fields
     @Published var email = ""
     @Published var password = ""
     @Published var confirmPassword = ""
-    @Published var isLoading = false
-    @Published var error: AuthError?
-    @Published var isAuthenticated = false
-    @Published var currentUser: FirestoreUser?
-    @Published var resendCooldown: Int = 0
-    @Published var successMessage: String?
 
-    // MARK: - Private Properties
-    private let authService = AuthService.shared
-    private var cancellables = Set<AnyCancellable>()
-    private var resendTimer: Timer?
-    private var backgroundObserver: NSObjectProtocol?
-
-    // MARK: - Initialization
-    init() {
-        setupAuthStateListener()
-        setupBackgroundObserver()
+    // Validation
+    var isValid: Bool {
+        !email.isEmpty && !password.isEmpty
     }
 
-    deinit {
-        resendTimer?.invalidate()
-        if let observer = backgroundObserver {
-            NotificationCenter.default.removeObserver(observer)
-        }
+    // New properties
+    @Published var isRefreshing = false
+    @Published var successMessage = ""
+
+    // MARK: - Initialization
+    init(
+        authService: AuthService,
+        environment: FirebaseEnvironment.Environment = .development
+    ) {
+        self.authService = authService
+        self.environment = environment
     }
 
     // MARK: - Public Methods
+    func initialize() {
+        Task {
+            do {
+                isLoading = true
 
-    /// Signs up a new user with email and password
-    func signUp() async {
-        isLoading = true
-        error = nil
+                // Initialize Firebase
+                try await FirebaseClient.shared.initialize(environment: environment)
 
+                // Check if we have a user
+                if authService.isAuthenticated {
+                    currentUser = try await authService.getCurrentUser()
+                    isAuthenticated = true
+                }
+
+                isInitialized = true
+                isLoading = false
+            } catch {
+                self.error = error
+                showError = true
+                isLoading = false
+            }
+        }
+    }
+
+    func signIn() async {
         do {
-            // Validate input first
-            try GlobalValidator.validateSignUp(
-                email: email, password: password, confirmPassword: confirmPassword)
+            isLoading = true
+            let user = try await authService.signIn(email: email, password: password)
+            currentUser = user
+            isAuthenticated = true
+            isLoading = false
+        } catch {
+            self.error = error
+            showError = true
+            isLoading = false
+        }
+    }
 
-            // If validation passes, proceed with sign up
-            currentUser = try await authService.signUp(
+    func signUp() async {
+        do {
+            isLoading = true
+            let user = try await authService.signUp(
                 email: email,
                 password: password,
                 confirmPassword: confirmPassword
             )
+            currentUser = user
             isAuthenticated = true
+            isLoading = false
         } catch {
-            self.error =
-                error as? AuthError
-                ?? .unknown(NSLocalizedString("auth.error.generic", comment: ""))
-        }
-
-        isLoading = false
-    }
-
-    /// Signs in an existing user with email and password
-    func signIn() async {
-        isLoading = true
-        error = nil
-
-        do {
-            // Validate input first
-            try GlobalValidator.validateSignIn(email: email, password: password)
-
-            // If validation passes, proceed with sign in
-            currentUser = try await authService.signIn(email: email, password: password)
-            isAuthenticated = true
-        } catch {
-            self.error =
-                error as? AuthError
-                ?? .unknown(NSLocalizedString("auth.error.generic", comment: ""))
-        }
-
-        isLoading = false
-    }
-
-    /// Signs out the current user
-    func signOut() async {
-        isLoading = true
-        error = nil
-
-        do {
-            try await authService.signOut()
-            isAuthenticated = false
-            currentUser = nil
-        } catch {
-            self.error =
-                error as? AuthError
-                ?? .unknown(NSLocalizedString("auth.error.generic", comment: ""))
-        }
-
-        isLoading = false
-    }
-
-    /// Sends a password reset email
-    func sendPasswordReset() async {
-        isLoading = true
-        error = nil
-
-        do {
-            try await authService.sendPasswordReset(to: email)
-        } catch {
-            self.error =
-                error as? AuthError
-                ?? .unknown(NSLocalizedString("auth.error.generic", comment: ""))
-        }
-
-        isLoading = false
-    }
-
-    /// Signs in a user with Google
-    func signInWithGoogle() async {
-        isLoading = true
-        error = nil
-
-        do {
-            currentUser = try await authService.signInWithGoogle()
-            isAuthenticated = true
-        } catch {
-            self.error =
-                error as? AuthError
-                ?? .unknown(NSLocalizedString("auth.error.generic", comment: ""))
-        }
-
-        isLoading = false
-    }
-
-    /// Resends the email verification to the current user
-    func resendEmailVerification() async {
-        guard resendCooldown == 0 else { return }
-
-        isLoading = true
-        error = nil
-
-        do {
-            try await authService.resendEmailVerification()
-            startResendCooldown()
-            successMessage = NSLocalizedString("auth.verify.email.sent", comment: "")
-
-            // Auto-dismiss success message after 3 seconds
-            Task {
-                try? await Task.sleep(nanoseconds: 3_000_000_000)
-                successMessage = nil
-            }
-        } catch {
-            self.error =
-                error as? AuthError
-                ?? .unknown(NSLocalizedString("auth.error.generic", comment: ""))
-        }
-
-        isLoading = false
-    }
-
-    /// Refreshes the current user's email verification status
-    func refreshEmailVerificationStatus() async {
-        error = nil
-
-        do {
-            let updatedUser = try await authService.refreshEmailVerificationStatus()
-            currentUser = updatedUser
-
-            if updatedUser.isEmailVerified {
-                successMessage = NSLocalizedString("auth.verify.email.verified", comment: "")
-                // Auto-dismiss success message after 3 seconds
-                Task {
-                    try? await Task.sleep(nanoseconds: 3_000_000_000)
-                    successMessage = nil
-                }
-            }
-        } catch {
-            self.error =
-                error as? AuthError
-                ?? .unknown(NSLocalizedString("auth.error.generic", comment: ""))
+            self.error = error
+            showError = true
+            isLoading = false
         }
     }
 
-    // MARK: - Validation Methods
-
-    /// Checks if the sign-up form is valid
-    var isSignUpFormValid: Bool {
-        GlobalValidator.isSignUpFormValid(
-            email: email, password: password, confirmPassword: confirmPassword)
-    }
-
-    /// Checks if the sign-in form is valid
-    var isSignInFormValid: Bool {
-        GlobalValidator.isSignInFormValid(email: email, password: password)
-    }
-
-    // MARK: - Private Methods
-
-    private func setupAuthStateListener() {
+    func signOut() {
         Task {
-            if authService.isAuthenticated {
-                do {
-                    currentUser = try await authService.getCurrentUser()
-                    isAuthenticated = true
-                } catch {
-                    self.error =
-                        error as? AuthError
-                        ?? .unknown(NSLocalizedString("auth.error.generic", comment: ""))
-                }
+            do {
+                isLoading = true
+                try await authService.signOut()
+                currentUser = nil
+                isAuthenticated = false
+                isLoading = false
+            } catch {
+                self.error = error
+                showError = true
+                isLoading = false
             }
         }
     }
 
-    private func setupBackgroundObserver() {
-        backgroundObserver = NotificationCenter.default.addObserver(
-            forName: UIApplication.willEnterForegroundNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            Task { [weak self] in
-                await self?.refreshEmailVerificationStatus()
-            }
+    func sendPasswordReset() async {
+        do {
+            isLoading = true
+            try await authService.sendPasswordReset(to: email)
+            showResetSuccess = true
+            isLoading = false
+        } catch {
+            self.error = error
+            showError = true
+            isLoading = false
         }
     }
 
-    private func startResendCooldown() {
-        resendCooldown = 60  // 60 seconds cooldown
-        resendTimer?.invalidate()
+    func refreshEmailVerification() async {
+        do {
+            isLoading = true
+            currentUser = try await authService.refreshEmailVerificationStatus()
+            isLoading = false
+        } catch {
+            self.error = error
+            showError = true
+            isLoading = false
+        }
+    }
 
-        resendTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) {
-            [weak self] timer in
-            guard let self = self else {
-                timer.invalidate()
-                return
-            }
+    func refreshEmailVerificationStatus() async {
+        do {
+            isRefreshing = true
+            currentUser = try await authService.refreshEmailVerificationStatus()
+            isRefreshing = false
+        } catch {
+            self.error = error
+            showError = true
+            isRefreshing = false
+        }
+    }
 
-            if self.resendCooldown > 0 {
-                self.resendCooldown -= 1
-            } else {
-                timer.invalidate()
-            }
+    func resendEmailVerification() async {
+        do {
+            isLoading = true
+            try await authService.resendEmailVerification()
+            successMessage = NSLocalizedString("auth.verify.email.sent", comment: "")
+            isLoading = false
+        } catch {
+            self.error = error
+            showError = true
+            isLoading = false
         }
     }
 }
+
+// // MARK: - Preview Helpers
+// #if DEBUG
+//     actor PreviewAuthService: AuthProviding {
+//         nonisolated var currentUserId: String? { "preview-id" }
+//         nonisolated var isAuthenticated: Bool { true }
+
+//         func signUp(email: String, password: String, confirmPassword: String) async throws
+//             -> FirestoreUser
+//         {
+//             FirestoreUser(
+//                 id: "preview-id",
+//                 email: email,
+//                 createdAt: Date(),
+//                 isEmailVerified: false,
+//                 displayName: nil,
+//                 photoURL: nil
+//             )
+//         }
+
+//         func signIn(email: String, password: String) async throws -> FirestoreUser {
+//             FirestoreUser(
+//                 id: "preview-id",
+//                 email: email,
+//                 createdAt: Date(),
+//                 isEmailVerified: true,
+//                 displayName: nil,
+//                 photoURL: nil
+//             )
+//         }
+
+//         func signOut() async throws {}
+//         func sendPasswordReset(to email: String) async throws {}
+//         func resendEmailVerification() async throws {}
+
+//         func refreshEmailVerificationStatus() async throws -> FirestoreUser {
+//             FirestoreUser(
+//                 id: "preview-id",
+//                 email: "preview@example.com",
+//                 createdAt: Date(),
+//                 isEmailVerified: true,
+//                 displayName: nil,
+//                 photoURL: nil
+//             )
+//         }
+
+//         func updateProfile(displayName: String?, photoURL: URL?) async throws {}
+
+//         func getCurrentUser() async throws -> FirestoreUser {
+//             FirestoreUser(
+//                 id: "preview-id",
+//                 email: "preview@example.com",
+//                 createdAt: Date(),
+//                 isEmailVerified: true,
+//                 displayName: nil,
+//                 photoURL: nil
+//             )
+//         }
+//     }
+
+//     extension AuthViewModel {
+//         static var preview: AuthViewModel {
+//             let service = PreviewAuthService()
+//             return AuthViewModel(authService: service)
+//         }
+
+//         static var previewLoading: AuthViewModel {
+//             let service = PreviewAuthService()
+//             let viewModel = AuthViewModel(authService: service)
+//             viewModel.isLoading = true
+//             return viewModel
+//         }
+
+//         static var previewError: AuthViewModel {
+//             let service = PreviewAuthService()
+//             let viewModel = AuthViewModel(authService: service)
+//             viewModel.error = AuthError.invalidEmail("Invalid email")
+//             viewModel.showError = true
+//             return viewModel
+//         }
+
+//         static var previewUnverified: AuthViewModel {
+//             let service = PreviewAuthService()
+//             let viewModel = AuthViewModel(authService: service)
+//             viewModel.currentUser = FirestoreUser(
+//                 id: "preview-id",
+//                 email: "preview@example.com",
+//                 createdAt: Date(),
+//                 isEmailVerified: false,
+//                 displayName: nil,
+//                 photoURL: nil
+//             )
+//             viewModel.isAuthenticated = true
+//             return viewModel
+//         }
+
+//         static var previewVerified: AuthViewModel {
+//             let service = PreviewAuthService()
+//             let viewModel = AuthViewModel(authService: service)
+//             viewModel.currentUser = FirestoreUser(
+//                 id: "preview-id",
+//                 email: "preview@example.com",
+//                 createdAt: Date(),
+//                 isEmailVerified: true,
+//                 displayName: "Preview User",
+//                 photoURL: nil
+//             )
+//             viewModel.isAuthenticated = true
+//             return viewModel
+//         }
+//     }
+// #endif

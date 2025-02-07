@@ -5,6 +5,13 @@
 **/.env
 **/.env.*
 !**/.env.example
+**/*.xcconfig
+*.xcconfig
+
+
+# App Configuration
+**/Info.plist
+!**/Info.plist.template
 
 # Cursor
 .cursor/
@@ -90,4 +97,3 @@ fastlane/test_output
 *.ipa
 *.dSYM.zip
 *.dSYM
-

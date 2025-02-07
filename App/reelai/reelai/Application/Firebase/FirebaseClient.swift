@@ -1,48 +1,25 @@
+import FirebaseAuth
 import FirebaseCore
+import FirebaseFirestore
+import FirebaseFunctions
+import FirebaseStorage
 import Foundation
-
-/// A type-safe Firebase configuration struct
-struct FirebaseConfig: Sendable {
-    let projectID: String
-    let apiKey: String
-    let authDomain: String
-    let storageBucket: String
-    let appID: String
-    let messagingSenderID: String
-    let measurementID: String?
-
-    var firebaseOptions: FirebaseOptions {
-        let options = FirebaseOptions(
-            googleAppID: appID,
-            gcmSenderID: messagingSenderID
-        )
-        options.projectID = projectID
-        options.apiKey = apiKey
-        options.storageBucket = storageBucket
-        options.bundleID = Bundle.main.bundleIdentifier ?? ""
-        if let measurementID = measurementID {
-            options.trackingID = measurementID
-        }
-        return options
-    }
-}
 
 /// A global actor for Firebase initialization and configuration
 @globalActor
 final actor FirebaseClient {
     static let shared = FirebaseClient()
     private var isInitialized = false
-    private var currentEnvironment: Environment?
-
-    enum Environment: String {
-        case development
-        case production
-    }
+    private var currentEnvironment: FirebaseEnvironment.Environment?
+    nonisolated private let auth = Auth.auth()  // Firebase Auth is thread-safe
+    private let db = Firestore.firestore()  // Firestore is thread-safe
+    private let functions = Functions.functions()  // Functions is thread-safe
+    private let storage = Storage.storage()  // Storage is thread-safe
 
     private init() {}
 
     /// Initializes Firebase with the specified configuration
-    func initialize(environment: Environment) async throws {
+    func initialize(environment: FirebaseEnvironment.Environment) async throws {
         guard !isInitialized else { return }
 
         let config = try await loadConfig(for: environment)
@@ -59,75 +36,93 @@ final actor FirebaseClient {
     }
 
     /// Loads Firebase configuration from environment variables
-    private func loadConfig(for environment: Environment) async throws -> FirebaseConfig {
+    private func loadConfig(for environment: FirebaseEnvironment.Environment) async throws
+        -> FirebaseEnvironment.Config
+    {
         let processInfo = ProcessInfo.processInfo
         let envPrefix = environment == .development ? "" : "PROD_"
 
         guard let projectID = processInfo.environment["\(envPrefix)FIREBASE_PROJECT_ID"],
             let apiKey = processInfo.environment["\(envPrefix)FIREBASE_API_KEY"],
-            let appID = processInfo.environment["\(envPrefix)FIREBASE_APP_ID"],
-            let messagingSenderID = processInfo.environment[
-                "\(envPrefix)FIREBASE_MESSAGING_SENDER_ID"]
+            let googleAppID = processInfo.environment["\(envPrefix)FIREBASE_APP_ID"]
         else {
-            throw FirebaseError.missingConfiguration
+            throw FirebaseError.missingConfiguration(
+                "Missing required Firebase configuration values"
+            )
         }
 
-        return FirebaseConfig(
+        return FirebaseEnvironment.Config(
             projectID: projectID,
             apiKey: apiKey,
-            authDomain: "\(projectID).firebaseapp.com",
-            storageBucket: "\(projectID).appspot.com",
-            appID: appID,
-            messagingSenderID: messagingSenderID,
-            measurementID: processInfo.environment["\(envPrefix)FIREBASE_MEASUREMENT_ID"]
+            loggingLevel: environment == .development ? .debug : .warning,
+            useEmulator: environment == .development,
+            googleAppID: googleAppID,
+            gcmSenderID: processInfo.environment["\(envPrefix)FIREBASE_MESSAGING_SENDER_ID"],
+            measurementId: processInfo.environment["\(envPrefix)FIREBASE_MEASUREMENT_ID"]
         )
     }
 
     /// Configures Firebase to use local emulators
     private func useEmulators() async throws {
-        // Configure emulators based on environment variables
         let processInfo = ProcessInfo.processInfo
 
+        // Configure Auth emulator
         if let authHost = processInfo.environment["FIREBASE_AUTH_EMULATOR_HOST"],
             let authPort = processInfo.environment["FIREBASE_AUTH_EMULATOR_PORT"]
         {
-            Auth.auth().useEmulator(withHost: authHost, port: Int(authPort) ?? 9099)
+            guard let port = Int(authPort) else {
+                throw FirebaseError.invalidConfiguration("Invalid Auth emulator port")
+            }
+            auth.useEmulator(withHost: authHost, port: port)
         }
 
+        // Configure Firestore emulator
         if let firestoreHost = processInfo.environment["FIREBASE_FIRESTORE_EMULATOR_HOST"],
             let firestorePort = processInfo.environment["FIREBASE_FIRESTORE_EMULATOR_PORT"]
         {
-            Firestore.firestore().useEmulator(
-                withHost: firestoreHost, port: Int(firestorePort) ?? 8080)
+            guard let port = Int(firestorePort) else {
+                throw FirebaseError.invalidConfiguration("Invalid Firestore emulator port")
+            }
+            db.settings = FirestoreSettings()
+            db.settings.host = "\(firestoreHost):\(port)"
+            db.settings.cacheSettings = PersistentCacheSettings()
+            db.settings.isSSLEnabled = false
         }
 
+        // Configure Functions emulator
         if let functionsHost = processInfo.environment["FIREBASE_FUNCTIONS_EMULATOR_HOST"],
             let functionsPort = processInfo.environment["FIREBASE_FUNCTIONS_EMULATOR_PORT"]
         {
-            Functions.functions().useEmulator(
-                withHost: functionsHost, port: Int(functionsPort) ?? 5001)
+            guard let port = Int(functionsPort) else {
+                throw FirebaseError.invalidConfiguration("Invalid Functions emulator port")
+            }
+            functions.useEmulator(withHost: functionsHost, port: port)
         }
 
+        // Configure Storage emulator
         if let storageHost = processInfo.environment["FIREBASE_STORAGE_EMULATOR_HOST"],
             let storagePort = processInfo.environment["FIREBASE_STORAGE_EMULATOR_PORT"]
         {
-            Storage.storage().useEmulator(withHost: storageHost, port: Int(storagePort) ?? 9199)
+            guard let port = Int(storagePort) else {
+                throw FirebaseError.invalidConfiguration("Invalid Storage emulator port")
+            }
+            storage.useEmulator(withHost: storageHost, port: port)
         }
     }
 }
 
 /// Firebase-specific errors
 enum FirebaseError: LocalizedError {
-    case missingConfiguration
-    case invalidEnvironment
+    case missingConfiguration(String)
+    case invalidConfiguration(String)
     case initializationError(String)
 
     var errorDescription: String? {
         switch self {
-        case .missingConfiguration:
-            return "Missing required Firebase configuration values"
-        case .invalidEnvironment:
-            return "Invalid Firebase environment"
+        case .missingConfiguration(let message):
+            return "Missing required Firebase configuration: \(message)"
+        case .invalidConfiguration(let message):
+            return "Invalid Firebase configuration: \(message)"
         case .initializationError(let message):
             return "Firebase initialization error: \(message)"
         }

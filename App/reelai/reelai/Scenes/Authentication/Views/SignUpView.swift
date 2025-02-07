@@ -1,79 +1,113 @@
+@preconcurrency import FirebaseAuth
+@preconcurrency import FirebaseCore
+@preconcurrency import FirebaseFirestore
 import SwiftUI
 
 struct SignUpView: View {
     // MARK: - Properties
-    @StateObject private var viewModel = AuthViewModel()
+    @StateObject private var viewModel: AuthViewModel
     @Environment(\.dismiss) private var dismiss
+
+    init(
+        authService: AuthService,
+        environment: FirebaseEnvironment.Environment = .development
+    ) {
+        let viewModel = AuthViewModel(authService: authService, environment: environment)
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
 
     // MARK: - Body
     var body: some View {
         NavigationView {
-            Form {
-                Section {
-                    TextField(
-                        NSLocalizedString("auth.email.placeholder", comment: ""),
-                        text: $viewModel.email
-                    )
-                    .textContentType(.emailAddress)
-                    .keyboardType(.emailAddress)
-                    .autocapitalization(.none)
-                    .disableAutocorrection(true)
+            VStack(spacing: 20) {
+                // Email field
+                TextField(
+                    NSLocalizedString("auth.email.placeholder", comment: ""), text: $viewModel.email
+                )
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .textContentType(.emailAddress)
+                .keyboardType(.emailAddress)
+                .autocapitalization(.none)
+                .disableAutocorrection(true)
 
-                    SecureField(
-                        NSLocalizedString("auth.password.placeholder", comment: ""),
-                        text: $viewModel.password
-                    )
-                    .textContentType(.newPassword)
+                // Password field
+                SecureField(
+                    NSLocalizedString("auth.password.placeholder", comment: ""),
+                    text: $viewModel.password
+                )
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .textContentType(.newPassword)
 
-                    SecureField(
-                        NSLocalizedString("auth.confirm_password.placeholder", comment: ""),
-                        text: $viewModel.confirmPassword
-                    )
-                    .textContentType(.newPassword)
-                } header: {
-                    Text(NSLocalizedString("auth.signup.credentials.header", comment: ""))
-                }
+                // Confirm Password field
+                SecureField(
+                    NSLocalizedString("auth.confirm_password.placeholder", comment: ""),
+                    text: $viewModel.confirmPassword
+                )
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .textContentType(.newPassword)
 
-                Section {
-                    Button {
-                        Task {
-                            await viewModel.signUp()
-                        }
-                    } label: {
-                        if viewModel.isLoading {
-                            ProgressView()
-                                .progressViewStyle(.circular)
-                        } else {
-                            Text(NSLocalizedString("auth.signup.button", comment: ""))
-                        }
+                // Sign Up button
+                Button(action: {
+                    Task {
+                        await viewModel.signUp()
                     }
-                    .frame(maxWidth: .infinity)
-                    .disabled(!viewModel.isSignUpFormValid || viewModel.isLoading)
-                }
-
-                Section {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Text(NSLocalizedString("auth.signin.existing_account", comment: ""))
+                }) {
+                    if viewModel.isLoading {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle())
+                    } else {
+                        Text(NSLocalizedString("auth.signup.button", comment: ""))
+                            .frame(maxWidth: .infinity)
                     }
-                    .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(viewModel.isLoading || !viewModel.isValid)
+
+                // Terms of Service text
+                Text(NSLocalizedString("auth.signup.terms", comment: ""))
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.top)
+
+                // Divider
+                Divider()
+                    .padding(.vertical)
+
+                // Sign In link
+                Button(action: {
+                    dismiss()
+                }) {
+                    Text(NSLocalizedString("auth.signup.existing_account", comment: ""))
                 }
             }
-            .navigationTitle(Text(NSLocalizedString("auth.signup.title", comment: "")))
-            .alert(isPresented: .constant(viewModel.error != nil)) {
-                Alert(
-                    title: Text("auth.error.title"),
-                    message: Text(viewModel.error?.localizedDescription ?? ""),
-                    dismissButton: .default(Text("common.ok")) {
-                        viewModel.error = nil
-                    }
-                )
+            .padding()
+            .navigationTitle(NSLocalizedString("auth.signup.title", comment: ""))
+            .alert("Error", isPresented: $viewModel.showError) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                if let error = viewModel.error {
+                    Text(error.localizedDescription)
+                }
             }
         }
     }
 }
 
-#Preview {
-    SignUpView()
-}
+//#Preview("Default") {
+//    SignUpView(authService: PreviewAuthService())
+//}
+//
+//#Preview("Loading") {
+//    let service = PreviewAuthService()
+//    let viewModel = AuthViewModel(authService: service)
+//    viewModel.isLoading = true
+//    return SignUpView(authService: service)
+//}
+//
+//#Preview("Error") {
+//    let service = PreviewAuthService()
+//    let viewModel = AuthViewModel(authService: service)
+//    viewModel.error = AuthError.invalidEmail("Invalid email")
+//    return SignUpView(authService: service)
+//}

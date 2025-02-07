@@ -1,4 +1,5 @@
-import FirebaseFirestore
+@preconcurrency import FirebaseCore
+@preconcurrency import FirebaseFirestore
 import Foundation
 
 /// A Sendable user model that represents a user in Firestore
@@ -21,38 +22,18 @@ struct FirestoreUser: Codable, Sendable {
     /// Optional photo URL for the user's profile picture
     let photoURL: URL?
 
-    /// Firestore document reference
-    var documentReference: DocumentReference? {
-        guard !id.isEmpty else { return nil }
-        return Firestore.firestore().collection("users").document(id)
-    }
-}
+    // Cache Firestore instance since it's thread-safe
+    nonisolated private static let db = Firestore.firestore()
 
-// MARK: - Validation
-extension FirestoreUser {
-    /// Validates the user model according to business rules
-    func validate() async throws {
-        // Email validation using GlobalValidator
-        try GlobalValidator.validateEmail(email)
-
-        // Display name validation (if provided)
-        if let displayName = displayName {
-            try GlobalValidator.validateDisplayName(displayName)
+    /// Asynchronously gets the Firestore document reference for this user
+    func getDocumentReference() async throws -> DocumentReference {
+        guard !id.isEmpty else {
+            throw FirebaseError.invalidConfiguration("User ID cannot be empty")
         }
-
-        // Photo URL validation (if provided)
-        if let photoURL = photoURL {
-            try GlobalValidator.validatePhotoURL(photoURL)
-        }
-
-        // Creation date validation
-        try GlobalValidator.validateCreationDate(createdAt)
+        return Self.db.collection("users").document(id)
     }
-}
 
-// MARK: - Firestore Conversion
-extension FirestoreUser {
-    /// Creates a dictionary representation for Firestore
+    /// Dictionary representation for Firestore
     var asDictionary: [String: Any] {
         [
             "id": id,
@@ -67,16 +48,34 @@ extension FirestoreUser {
     /// Creates a FirestoreUser from a Firestore document
     static func from(_ document: DocumentSnapshot) throws -> FirestoreUser {
         guard let data = document.data() else {
-            throw AuthError.invalidUserData(NSLocalizedString("auth.error.generic", comment: ""))
+            throw FirebaseError.invalidConfiguration("Invalid user data in Firestore")
         }
 
-        return try FirestoreUser(
+        let email = data["email"] as? String ?? ""
+        let createdAt = (data["createdAt"] as? Timestamp)?.dateValue() ?? Date()
+        let isEmailVerified = data["isEmailVerified"] as? Bool ?? false
+        let displayName = data["displayName"] as? String
+        let photoURL = (data["photoURL"] as? String).flatMap { URL(string: $0) }
+
+        return FirestoreUser(
             id: document.documentID,
-            email: data["email"] as? String ?? "",
-            createdAt: (data["createdAt"] as? Timestamp)?.dateValue() ?? Date(),
-            isEmailVerified: data["isEmailVerified"] as? Bool ?? false,
-            displayName: data["displayName"] as? String,
-            photoURL: (data["photoURL"] as? String).flatMap { URL(string: $0) }
+            email: email,
+            createdAt: createdAt,
+            isEmailVerified: isEmailVerified,
+            displayName: displayName,
+            photoURL: photoURL
         )
+    }
+}
+
+// MARK: - Validation
+extension FirestoreUser {
+    /// Validates the user model according to business rules
+    func validate() async throws {
+        // Email validation using GlobalValidator
+        try GlobalValidator.validateEmail(email)
+
+        // Creation date validation
+        try GlobalValidator.validateCreationDate(createdAt)
     }
 }

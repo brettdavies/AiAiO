@@ -1,116 +1,108 @@
-import GoogleSignInSwift
+@preconcurrency import FirebaseAuth
+@preconcurrency import FirebaseCore
+@preconcurrency import FirebaseFirestore
+import Foundation
 import SwiftUI
 
 struct SignInView: View {
-    // MARK: - Properties
-    @StateObject private var viewModel = AuthViewModel()
-    @State private var showingSignUp = false
-    @State private var showingPasswordReset = false
+    @StateObject private var viewModel: AuthViewModel
+    @Environment(\.dismiss) private var dismiss
 
-    // MARK: - Body
+    init(
+        authService: AuthService,
+        environment: FirebaseEnvironment.Environment = .development
+    ) {
+        let viewModel = AuthViewModel(authService: authService, environment: environment)
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
+
     var body: some View {
         NavigationView {
-            Form {
-                Section {
-                    TextField(
-                        NSLocalizedString("auth.email.placeholder", comment: ""),
-                        text: $viewModel.email
-                    )
+            VStack(spacing: 20) {
+                // Email field
+                TextField("Email", text: $viewModel.email)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
                     .textContentType(.emailAddress)
                     .keyboardType(.emailAddress)
                     .autocapitalization(.none)
                     .disableAutocorrection(true)
 
-                    SecureField(
-                        NSLocalizedString("auth.password.placeholder", comment: ""),
-                        text: $viewModel.password
-                    )
+                // Password field
+                SecureField("Password", text: $viewModel.password)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
                     .textContentType(.password)
-                } header: {
-                    Text(NSLocalizedString("auth.signin.credentials.header", comment: ""))
-                }
 
-                Section {
-                    GoogleSignInButton(
-                        viewModel: GoogleSignInButtonViewModel(
-                            scheme: .dark,
-                            style: .wide,
-                            state: viewModel.isLoading ? .disabled : .normal
-                        )
-                    ) {
-                        Task {
-                            await viewModel.signInWithGoogle()
-                        }
+                // Sign In button
+                Button(action: {
+                    Task {
+                        await viewModel.signIn()
                     }
-                    .frame(height: 44)
-                } header: {
-                    Text(NSLocalizedString("auth.signin.social.header", comment: ""))
-                }
-
-                Section {
-                    Button {
-                        Task {
-                            await viewModel.signIn()
-                        }
-                    } label: {
-                        if viewModel.isLoading {
-                            ProgressView()
-                                .progressViewStyle(.circular)
-                        } else {
-                            Text(NSLocalizedString("auth.signin.button", comment: ""))
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .disabled(!viewModel.isSignInFormValid || viewModel.isLoading)
-                }
-
-                Section {
-                    Button {
-                        showingSignUp = true
-                    } label: {
-                        Text(NSLocalizedString("auth.signup.create_account", comment: ""))
-                    }
-
-                    Button {
-                        showingPasswordReset = true
-                    } label: {
-                        Text(NSLocalizedString("auth.password.reset", comment: ""))
+                }) {
+                    if viewModel.isLoading {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle())
+                    } else {
+                        Text("Sign In")
+                            .frame(maxWidth: .infinity)
                     }
                 }
-            }
-            .navigationTitle(Text(NSLocalizedString("auth.signin.title", comment: "")))
-            .sheet(isPresented: $showingSignUp) {
-                SignUpView()
-            }
-            .alert(
-                NSLocalizedString("auth.password.reset.title", comment: ""),
-                isPresented: $showingPasswordReset
-            ) {
-                TextField(
-                    NSLocalizedString("auth.email.placeholder", comment: ""),
-                    text: $viewModel.email)
-                Button(NSLocalizedString("auth.password.reset.send", comment: "")) {
+                .buttonStyle(.borderedProminent)
+                .disabled(viewModel.isLoading || !viewModel.isValid)
+
+                // Divider
+                Divider()
+                    .padding(.vertical)
+
+                // Sign Up link
+                NavigationLink(
+                    destination: SignUpView(
+                        authService: viewModel.authService,
+                        environment: viewModel.environment
+                    )
+                ) {
+                    Text("Don't have an account? Sign Up")
+                }
+
+                // Forgot Password link
+                Button("Forgot Password?") {
                     Task {
                         await viewModel.sendPasswordReset()
                     }
                 }
-                Button(NSLocalizedString("common.cancel", comment: ""), role: .cancel) {}
-            } message: {
-                Text(NSLocalizedString("auth.password.reset.message", comment: ""))
+                .disabled(viewModel.email.isEmpty)
             }
-            .alert(isPresented: .constant(viewModel.error != nil)) {
-                Alert(
-                    title: Text("auth.error.title"),
-                    message: Text(viewModel.error?.localizedDescription ?? ""),
-                    dismissButton: .default(Text("common.ok")) {
-                        viewModel.error = nil
-                    }
-                )
+            .padding()
+            .navigationTitle("Sign In")
+            .alert("Error", isPresented: $viewModel.showError) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                if let error = viewModel.error {
+                    Text(error.localizedDescription)
+                }
+            }
+            .alert("Success", isPresented: $viewModel.showResetSuccess) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("Password reset email sent")
             }
         }
     }
 }
-
-#Preview {
-    SignInView()
-}
+//
+//#Preview("Default") {
+//    SignInView(authService: PreviewAuthService())
+//}
+//
+//#Preview("Loading") {
+//    let service = PreviewAuthService()
+//    let viewModel = AuthViewModel(authService: service)
+//    viewModel.isLoading = true
+//    return SignInView(authService: service)
+//}
+//
+//#Preview("Error") {
+//    let service = PreviewAuthService()
+//    let viewModel = AuthViewModel(authService: service)
+//    viewModel.error = AuthError.invalidEmail("Invalid email")
+//    return SignInView(authService: service)
+//}

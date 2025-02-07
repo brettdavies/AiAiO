@@ -1,43 +1,64 @@
+import FirebaseAuth
 import FirebaseCore
+import FirebaseFirestore
+import FirebaseFunctions
+import FirebaseStorage
 import Foundation
 
-/// Environment configuration for Firebase and logging destinations
+/// Environment configuration for Firebase
 @globalActor
-final actor FirebaseEnvironment {
+public final actor FirebaseEnvironment {
     // MARK: - Singleton
-    static let shared = FirebaseEnvironment()
+    public static let shared = FirebaseEnvironment()
 
     // MARK: - Environment Types
-    enum Environment: String {
+    public enum Environment: String, CaseIterable, Sendable {
         case development
         case production
     }
 
-    // MARK: - Logging Destination
-    enum LoggingDestination: String {
-        case app = "App"  // Client-side logging
-        case firebase = "Firebase"  // Server-side logging
-        case both = "Both"  // Log to both destinations
-    }
-
     // MARK: - Configuration
-    struct Config {
+    struct Config: Sendable {
         let projectID: String
         let apiKey: String
-        let authDomain: String
-        let loggingDestination: LoggingDestination
+
         let loggingLevel: LogLevel
         let useEmulator: Bool
+        let storageBucket: String
+        let googleAppID: String
+        let gcmSenderID: String
+        let measurementId: String?
 
         var firebaseOptions: FirebaseOptions {
             let options = FirebaseOptions(
-                googleAppID: projectID,
-                gcmSenderID: ""  // Not using FCM yet
+                googleAppID: googleAppID,
+                gcmSenderID: gcmSenderID
             )
-            options.apiKey = apiKey
             options.projectID = projectID
-            options.authDomain = authDomain
+            options.apiKey = apiKey
+            options.storageBucket = storageBucket
+            options.bundleID = Bundle.main.bundleIdentifier ?? ""
             return options
+        }
+
+        init(
+            projectID: String,
+            apiKey: String,
+            loggingLevel: LogLevel,
+            useEmulator: Bool,
+            storageBucket: String? = nil,
+            googleAppID: String? = nil,
+            gcmSenderID: String? = nil,
+            measurementId: String? = nil
+        ) {
+            self.projectID = projectID
+            self.apiKey = apiKey
+            self.loggingLevel = loggingLevel
+            self.useEmulator = useEmulator
+            self.storageBucket = storageBucket ?? "\(projectID).appspot.com"
+            self.googleAppID = googleAppID ?? projectID
+            self.gcmSenderID = gcmSenderID ?? ""  // Not using FCM by default
+            self.measurementId = measurementId
         }
     }
 
@@ -45,30 +66,50 @@ final actor FirebaseEnvironment {
     private var currentEnvironment: Environment = .development
     private var isInitialized = false
 
+    // Cache Firebase service instances since they're thread-safe
+    nonisolated private let auth = Auth.auth()
+    private let db = Firestore.firestore()
+    private let storage = Storage.storage()
+    private let functions = Functions.functions()
+
     // MARK: - Configuration Methods
-    func config(for environment: Environment) async -> Config {
+    func config(for environment: Environment) async throws -> Config {
         switch environment {
         case .development:
+            guard let projectID = ProcessInfo.processInfo.environment["FIREBASE_PROJECT_ID"],
+                let apiKey = ProcessInfo.processInfo.environment["FIREBASE_API_KEY"],
+                let googleAppID = ProcessInfo.processInfo.environment["FIREBASE_APP_ID"]
+            else {
+                throw FirebaseError.missingConfiguration(
+                    "Required Firebase environment variables are missing")
+            }
             return Config(
-                projectID: ProcessInfo.processInfo.environment["FIREBASE_PROJECT_ID"]
-                    ?? "dev-reelai",
-                apiKey: ProcessInfo.processInfo.environment["FIREBASE_API_KEY"] ?? "",
-                authDomain:
-                    "\(ProcessInfo.processInfo.environment["FIREBASE_PROJECT_ID"] ?? "dev-reelai").firebaseapp.com",
-                loggingDestination: .both,
+                projectID: projectID,
+                apiKey: apiKey,
                 loggingLevel: .debug,
-                useEmulator: true
+                useEmulator: true,
+                googleAppID: googleAppID,
+                gcmSenderID: ProcessInfo.processInfo.environment["FIREBASE_MESSAGING_SENDER_ID"],
+                measurementId: ProcessInfo.processInfo.environment["FIREBASE_MEASUREMENT_ID"]
             )
 
         case .production:
+            guard let projectID = ProcessInfo.processInfo.environment["PROD_FIREBASE_PROJECT_ID"],
+                let apiKey = ProcessInfo.processInfo.environment["PROD_FIREBASE_API_KEY"],
+                let googleAppID = ProcessInfo.processInfo.environment["PROD_FIREBASE_APP_ID"]
+            else {
+                throw FirebaseError.missingConfiguration(
+                    "Required Firebase production environment variables are missing")
+            }
             return Config(
-                projectID: ProcessInfo.processInfo.environment["FIREBASE_PROJECT_ID"] ?? "",
-                apiKey: ProcessInfo.processInfo.environment["FIREBASE_API_KEY"] ?? "",
-                authDomain:
-                    "\(ProcessInfo.processInfo.environment["FIREBASE_PROJECT_ID"] ?? "").firebaseapp.com",
-                loggingDestination: .firebase,
+                projectID: projectID,
+                apiKey: apiKey,
                 loggingLevel: .warning,
-                useEmulator: false
+                useEmulator: false,
+                googleAppID: googleAppID,
+                gcmSenderID: ProcessInfo.processInfo.environment[
+                    "PROD_FIREBASE_MESSAGING_SENDER_ID"],
+                measurementId: ProcessInfo.processInfo.environment["PROD_FIREBASE_MEASUREMENT_ID"]
             )
         }
     }
@@ -78,29 +119,31 @@ final actor FirebaseEnvironment {
         guard !isInitialized else { return }
 
         currentEnvironment = environment
-        let config = await config(for: environment)
+        let config = try await config(for: environment)
 
-        try await FirebaseApp.configure(options: config.firebaseOptions)
+        FirebaseApp.configure(options: config.firebaseOptions)
 
         if config.useEmulator {
-            try await useEmulators()
+            useEmulators()
         }
 
         isInitialized = true
     }
 
     // MARK: - Emulator Configuration
-    private func useEmulators() async throws {
-        Auth.auth().useEmulator(withHost: "localhost", port: 9099)
-        let db = Firestore.firestore()
-        db.settings = FirestoreSettings()
-        db.settings.host = "localhost:8080"
-        db.settings.isPersistenceEnabled = true
-        db.settings.isSSLEnabled = false
-        Storage.storage().useEmulator(withHost: "localhost", port: 9199)
-        Functions.functions().useEmulator(withHost: "localhost", port: 5001)
-        }
+    private func useEmulators() {
+        auth.useEmulator(withHost: "localhost", port: 9099)
+
+        let settings = FirestoreSettings()
+        settings.host = "localhost:8080"
+        settings.cacheSettings = PersistentCacheSettings()
+        settings.isSSLEnabled = false
+        db.settings = settings
+
+        storage.useEmulator(withHost: "localhost", port: 9199)
+        functions.useEmulator(withHost: "localhost", port: 5001)
     }
+}
 
 // MARK: - Logging Level
 enum LogLevel: String {
@@ -108,28 +151,4 @@ enum LogLevel: String {
     case info
     case warning
     case error
-}
-
-struct FirebaseConfig {
-    let projectID: String
-    let apiKey: String
-    let authDomain: String
-    let storageBucket: String
-    let googleAppID: String
-    let gcmSenderID: String
-    let bundleID: String
-    let databaseURL: String
-
-    var firebaseOptions: FirebaseOptions {
-        let options = FirebaseOptions(
-            googleAppID: googleAppID,
-            gcmSenderID: gcmSenderID
-        )
-        options.projectID = projectID
-        options.apiKey = apiKey
-        options.storageBucket = storageBucket
-        options.bundleID = bundleID
-        options.databaseURL = databaseURL
-        return options
-    }
 }

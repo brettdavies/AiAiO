@@ -40,7 +40,8 @@
 "auth.validation.displayname.too_long" = "Display name cannot be longer than 50 characters";
 "auth.validation.photo.not_secure" = "Profile photo URL must use HTTPS";
 "auth.validation.photo.invalid" = "Invalid profile photo URL";
-"auth.validation.date.future" = "Creation date cannot be in the future";
+"auth.validation.date.future_date" = "Creation date cannot be in the future";
+"auth.validation.date.too_old" = "Creation date is too old";
 
 /* Authentication - Error Messages */
 "auth.error.network" = "Please check your internet connection";

@@ -42,17 +42,12 @@ enum GlobalError: LocalizedError, Sendable {
     }
 
     // MARK: - Error Mapping
-
-    /// Maps any error to a GlobalError
     static func from(_ error: Error) -> GlobalError {
-        switch error {
-        case let authError as AuthError:
+        if let authError = error as? AuthError {
             return .auth(authError)
-        case let globalError as GlobalError:
+        } else if let globalError = error as? GlobalError {
             return globalError
-        case let nsError as NSError:
-            return .unknown(nsError.localizedDescription)
-        default:
+        } else {
             return .unknown(error.localizedDescription)
         }
     }

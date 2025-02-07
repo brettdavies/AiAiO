@@ -123,49 +123,25 @@ enum GlobalValidator {
         return true
     }
 
-    // MARK: - Display Name Validation
-
-    /// Validates a display name
-    /// - Parameter displayName: The display name to validate
-    /// - Throws: AuthError.invalidDisplayName if validation fails
-    static func validateDisplayName(_ displayName: String) throws {
-        guard !displayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            throw AuthError.invalidDisplayName(
-                NSLocalizedString("auth.validation.displayname.empty", comment: ""))
-        }
-
-        guard displayName.count <= 50 else {
-            throw AuthError.invalidDisplayName(
-                NSLocalizedString("auth.validation.displayname.too_long", comment: ""))
-        }
-    }
-
-    // MARK: - URL Validation
-
-    /// Validates a photo URL
-    /// - Parameter url: The URL to validate
-    /// - Throws: AuthError.invalidPhotoURL if validation fails
-    static func validatePhotoURL(_ url: URL) throws {
-        guard url.scheme == "https" else {
-            throw AuthError.invalidPhotoURL(
-                NSLocalizedString("auth.validation.photo.not_secure", comment: ""))
-        }
-
-        guard let host = url.host, !host.isEmpty else {
-            throw AuthError.invalidPhotoURL(
-                NSLocalizedString("auth.validation.photo.invalid", comment: ""))
-        }
-    }
-
     // MARK: - Date Validation
 
     /// Validates a creation date
-    /// - Parameter date: The date to validate
-    /// - Throws: AuthError.invalidUserData if validation fails
-    static func validateCreationDate(_ date: Date) throws {
-        guard date <= Date() else {
-            throw AuthError.invalidUserData(
-                NSLocalizedString("auth.validation.date.future", comment: ""))
+    /// - Parameter createdAt: The date to validate
+    /// - Throws: AuthError.invalidDate if validation fails
+    static func validateCreationDate(_ createdAt: Date) throws {
+        let now = Date()
+
+        // Ensure the date is not in the future
+        guard createdAt <= now else {
+            throw AuthError.invalidDate(
+                NSLocalizedString("auth.validation.date.future_date", comment: ""))
+        }
+
+        // Ensure the date is not too far in the past (e.g., more than 1 minute ago)
+        let oneMinuteAgo = now.addingTimeInterval(-60)
+        guard createdAt >= oneMinuteAgo else {
+            throw AuthError.invalidDate(
+                NSLocalizedString("auth.validation.date.too_old", comment: ""))
         }
     }
 }

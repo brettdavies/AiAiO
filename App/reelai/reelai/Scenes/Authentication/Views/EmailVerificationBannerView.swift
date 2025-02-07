@@ -1,11 +1,16 @@
+// System imports
 import SwiftUI
 
-struct EmailVerificationBannerView: View {
+/// A view that displays a banner for email verification status and actions
+public struct EmailVerificationBannerView: View {
     @ObservedObject var viewModel: AuthViewModel
-    @State private var isRefreshing = false
     @State private var showingInstructions = false
 
-    var body: some View {
+    public init(viewModel: AuthViewModel) {
+        self.viewModel = viewModel
+    }
+
+    public var body: some View {
         VStack(spacing: 8) {
             if let user = viewModel.currentUser, !user.isEmailVerified {
                 VStack(spacing: 8) {
@@ -38,32 +43,20 @@ struct EmailVerificationBannerView: View {
                                 await viewModel.resendEmailVerification()
                             }
                         } label: {
-                            if viewModel.resendCooldown > 0 {
-                                Text(
-                                    String(
-                                        format: NSLocalizedString(
-                                            "auth.verify.email.resend.cooldown", comment: ""),
-                                        viewModel.resendCooldown)
-                                )
+                            Text(NSLocalizedString("auth.verify.email.resend", comment: ""))
                                 .font(.footnote)
-                            } else {
-                                Text(NSLocalizedString("auth.verify.email.resend", comment: ""))
-                                    .font(.footnote)
-                            }
                         }
-                        .disabled(viewModel.isLoading || viewModel.resendCooldown > 0)
+                        .disabled(viewModel.isLoading)
 
                         Spacer()
 
                         Button {
                             Task {
-                                isRefreshing = true
                                 await viewModel.refreshEmailVerificationStatus()
-                                isRefreshing = false
                             }
                         } label: {
                             HStack {
-                                if isRefreshing {
+                                if viewModel.isRefreshing {
                                     ProgressView()
                                         .progressViewStyle(.circular)
                                 }
@@ -71,7 +64,7 @@ struct EmailVerificationBannerView: View {
                                     .font(.footnote)
                             }
                         }
-                        .disabled(viewModel.isLoading || isRefreshing)
+                        .disabled(viewModel.isLoading || viewModel.isRefreshing)
                     }
 
                     Button {
@@ -96,8 +89,8 @@ struct EmailVerificationBannerView: View {
             }
 
             // Success message
-            if let successMessage = viewModel.successMessage {
-                Text(successMessage)
+            if !viewModel.successMessage.isEmpty {
+                Text(viewModel.successMessage)
                     .font(.footnote)
                     .foregroundColor(.green)
                     .padding(.vertical, 4)
@@ -112,12 +105,46 @@ struct EmailVerificationBannerView: View {
             }
         }
         .padding(.horizontal)
-        .animation(.default, value: viewModel.successMessage)
-        .animation(.default, value: viewModel.error)
+        .animation(.default, value: !viewModel.successMessage.isEmpty)
+        .animation(.default, value: viewModel.error != nil)
         .animation(.default, value: showingInstructions)
     }
 }
 
-#Preview {
-    EmailVerificationBannerView(viewModel: AuthViewModel())
-}
+// #Preview("Unverified Email") {
+//     EmailVerificationBannerView(
+//         viewModel: AuthViewModel(
+//             authService: MockAuthService(state: .authenticated(AuthPreviewState.unverifiedUser)),
+//             environment: .development
+//         )
+//     )
+// }
+
+// #Preview("Verified Email") {
+//     EmailVerificationBannerView(
+//         viewModel: AuthViewModel(
+//             authService: MockAuthService(state: .authenticated(AuthPreviewState.previewUser)),
+//             environment: .development
+//         )
+//     )
+// }
+
+// #Preview("Loading") {
+//     EmailVerificationBannerView(
+//         viewModel: AuthViewModel(
+//             authService: MockAuthService(state: .loading),
+//             environment: .development
+//         )
+//     )
+// }
+
+// #Preview("Error") {
+//     EmailVerificationBannerView(
+//         viewModel: AuthViewModel(
+//             authService: MockAuthService(
+//                 state: .error(AuthError.invalidEmail("Invalid email"))
+//             ),
+//             environment: .development
+//         )
+//     )
+// }

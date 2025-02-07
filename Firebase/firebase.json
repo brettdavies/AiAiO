@@ -65,13 +65,11 @@
     "logging": {
         "development": {
             "level": "debug",
-            "destination": "Firebase",
             "emulator": true,
             "crashlytics": false
         },
         "production": {
             "level": "warning",
-            "destination": "Firebase",
             "emulator": false,
             "crashlytics": true
         }

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Script to set up Firebase configuration files for ReelAI
-
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -16,10 +14,12 @@ CONFIG_DIR="$APP_DIR/Config"
 ENV_TEMPLATE="$CONFIG_DIR/Environment.xcconfig.template"
 DEV_TEMPLATE="$CONFIG_DIR/Development.xcconfig.template"
 PROD_TEMPLATE="$CONFIG_DIR/Production.xcconfig.template"
+INFO_TEMPLATE="$APP_DIR/Info.plist.template"
 
 ENV_CONFIG="$CONFIG_DIR/Environment.xcconfig"
 DEV_CONFIG="$CONFIG_DIR/Development.xcconfig"
 PROD_CONFIG="$CONFIG_DIR/Production.xcconfig"
+INFO_PLIST="$APP_DIR/Info.plist"
 
 # Function to copy template if config doesn't exist
 setup_config() {
@@ -44,6 +44,7 @@ mkdir -p "$CONFIG_DIR"
 setup_config "$ENV_TEMPLATE" "$ENV_CONFIG" "Environment"
 setup_config "$DEV_TEMPLATE" "$DEV_CONFIG" "Development"
 setup_config "$PROD_TEMPLATE" "$PROD_CONFIG" "Production"
+setup_config "$INFO_TEMPLATE" "$INFO_PLIST" "Info.plist"
 
 echo -e "\n${GREEN}Configuration setup complete!${NC}"
 echo -e "${YELLOW}Next steps:${NC}"
@@ -54,4 +55,7 @@ echo "   - Select your target"
 echo "   - Go to the 'Build Settings' tab"
 echo "   - Set 'Development.xcconfig' for Debug configuration"
 echo "   - Set 'Production.xcconfig' for Release configuration"
-echo -e "\n${RED}Important:${NC} Never commit the actual configuration files to version control!" 
+echo -e "\n${RED}Security Reminder:${NC}"
+echo "- Never commit the actual configuration files to version control"
+echo "- Keep your API keys and credentials secure"
+echo "- Use Firebase Emulator for local development" 
