@@ -5,28 +5,26 @@
 //  Created by Brett on 2/10/25.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 @main
-struct aiaioApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+struct AiAiOApp: App {
+    init() {
+        // Configure app on launch
+        UnifiedLogger.log("App initializing in \(Environment.current) environment", level: .info)
+        configureFirebase()
         }
-    }()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(sharedModelContainer)
+    }
+
+    /// Configure Firebase for the current environment
+    private func configureFirebase() {
+        // TODO: Add Firebase configuration in Task 1.3
+        UnifiedLogger.log("Firebase configuration pending", level: .warning)
     }
 }
