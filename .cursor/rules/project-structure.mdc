@@ -1,0 +1,153 @@
+---
+description: Mono-repo folder layout and environment file organization for a SwiftUI + Firebase project.
+globs: **/*.*
+---
+---
+version: "2.0.0"
+last_updated: "2025-02-10"
+---
+
+# Repository Structure
+
+This document defines how to organize your SwiftUI iOS application and Firebase backend within a single repository. For coding style, concurrency, and logging guidelines, see [swift-rules.mdc](mdc:.cursor/rules/swift-rules.mdc)
+
+```mermaid
+flowchart TB
+    A[Root] --> B[App]
+    A --> C[Firebase]
+    A --> D[Tests]
+    A --> E[Docs]
+
+    B --> B1[App/ Main entry point & shared logic]
+    B --> B2[Authentication/ (Views, ViewModels, Services)]
+    B --> B3[VideoUpload/ (Views, ViewModels, Services)]
+    B --> B4[Utilities/ (GlobalError, GlobalValidator, etc.)]
+    B --> B5[Localization/ (.lproj, Localizable.strings)]
+    B --> B6[Logging/ (UnifiedLogger, Crashlytics integration)]
+
+    C --> C1[Functions/ (Cloud Functions Node/TS)]
+    C --> C2[Config/ (firebase.json, dev/prod .env files)]
+    C --> C3[SecurityRules/ (firestore.rules, storage.rules)]
+    C --> C4[Emulators/ (Local emulator configs)]
+    C --> C5[Indexes/ (Firestore index configs)]
+    C --> C6[RemoteConfig/ (JSON defaults)]
+
+    D --> D1[AppTests/ (Unit tests)]
+    D --> D2[IntegrationTests/ (Firebase interactions)]
+    D --> D3[UITests/ (XCTest UI tests)]
+    
+    E[Docs/ (Project guides, design docs)]
+```
+
+1. App Folder
+
+   Path: `./App/`
+
+   - Keep SwiftUI views as struct definitions in well-defined feature folders (e.g., Authentication, VideoUpload).  
+   - Do not create base view classes or “common parent” subclasses for SwiftUI screens—avoid inheritance.  
+   - For shared UI or styling logic, prefer using small reusable sub-views, protocols with default extensions, or custom view modifiers.
+
+   1. App/ (Root)
+      - Contains the Xcode project file (`*.xcodeproj`) and the main entry point for the SwiftUI application (e.g., `AppDelegate`, `SceneDelegate`, or `@main` struct).
+      - Global SwiftData configuration (if any) and high-level app setup.
+
+   2. `Authentication/`
+      - Subfolders: `Views`, `ViewModels`, `Services`
+      - Handles sign-up, sign-in, email verification, and additional flows (e.g., MFA).
+      - Implementation details (actors, protocols) are consistent with concurrency rules in `swift-rule.md`.
+
+   3. `VideoUpload/`
+      - Subfolders: `Views`, `ViewModels`, `Services`
+      - Implements video recording/selection, client-side validations, file-size checks, etc.
+
+   4. `Utilities/`
+      - Reusable helpers like `GlobalError`, `GlobalValidator`, or date/string formatters.
+      - Avoid placing major features or domain logic here; keep it purely utility-based.
+
+   5. `Localization/`
+      - Language-specific `.lproj` folders (e.g., `en.lproj`, `es.lproj`) for `Localizable.strings`.
+      - Possibly `Localizable.stringsdict` files for plurals.
+
+   6. `Logging/`
+      - Contains the unified logger and any code bridging to analytics.
+      - Follow logging usage guidelines in `swift-rule.md`.
+
+2. Firebase Folder
+
+   Path: `./Firebase/`
+
+   1. `Functions/`
+      - Cloud Functions source code (Node.js/TypeScript) for server-side processing (e.g., thumbnail generation).
+      - Each function is typically grouped by domain (e.g., `videoFunctions.ts`, `authHooks.ts`).
+
+   2. `Config/`
+      - Contains environment config files (`firebase.json`, `firestore.indexes.json`, or `.env-style` files for dev vs. production).
+      - Do not commit sensitive credentials (API keys, service accounts) here.
+      - Use the approach in `swift-rule.md` to load these values at runtime.
+
+   3. `SecurityRules/`
+      - Firestore (firestore.rules) and Storage rules (storage.rules).
+      - Keep them versioned for easy rollout and revert.
+      - Sync using `firebase deploy --only firestore:rules` or `storage:rules`.
+
+   4. `Emulators/`
+      - Emulator configuration (`firebase.json` or `.firebaserc`).
+      - Used for local Auth, Firestore, Storage, and Functions testing.
+
+   5. `Indexes/`
+      - Any Firestore index configuration JSON (referenced by `firebase deploy --only firestore:indexes`).
+      - Keep indexes minimal to avoid confusion.
+
+   6. `RemoteConfig/`
+      - Default JSON (or template files) for Firebase Remote Config parameters.
+      - Typically updated with `firebase remoteconfig:templates:upload`.
+
+3. Test Folder
+
+   Path: `./Tests/`
+
+   1. `AppTests/`
+      - Unit tests for SwiftUI app logic, focusing on `ViewModels`, `Utilities`, or local (non-Firebase) code.
+      - Include concurrency tests where applicable.
+
+   2. `IntegrationTests/`
+      - Tests that interact with real or emulated Firebase services (Auth, Firestore, etc.).
+      - Usually require a dedicated testing scheme or CI pipeline.
+
+   3. `UITests/`
+      - XCTest-based UI tests exercising user flows (login, upload, navigation).
+      - May rely on mock data or the local emulator environment.
+
+4. Docs Folder
+
+   Path: `./Docs/`
+   - Contains high-level project documents:
+      - `project_plan.md`, `task_breakdown.md`, design specs, or additional reference docs.
+      - No code style info here; see `swift-rule.md`.
+      - No environment structure info here; see this file.
+
+5. Root-Level Files
+
+   - `.github/workflows/`
+     - GitHub Actions definitions for CI/CD.
+     - Runs tests, lint, concurrency checks, and deploy steps.
+   - `Package.swift`
+     - SwiftPM config for adding dependencies (e.g., Swift libraries, possible Firebase SPM).
+     - Keep third-party dependencies minimal and pinned.
+   - `README.md`
+     - Intro, quick setup steps, short summary of the project.
+   - `.gitignore`
+     - Exclude `GoogleService-Info.plist`, secrets, build artifacts, and local environment files.
+
+6. Additional Notes
+   - Environment Setup:
+     - Dev vs. production environment details (hostnames, ports, etc.) belong in `Firebase/Config`.
+     - For usage in Swift, see the instructions in `swift-rule.md` on loading environment variables.
+   - Local Emulator Workflows:
+     - All emulator configs remain in `Firebase/Emulators`.
+     - If you run `firebase emulators:start`, it should read config from there.
+   - No Hard-Coding:
+     - Avoid storing API keys or credentials directly in Swift code. Use `.env` or `.plist` files for local dev, referencing them at runtime.
+
+This layout keeps your app modules separate from backend code, ensures local testing with emulators is straightforward, and prevents environment leakage into production code. For coding patterns, concurrency usage, logging, and error handling, refer to [swift-rules.mdc](mdc:.cursor/rules/swift-rules.mdc).
+

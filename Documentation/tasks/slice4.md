@@ -11,6 +11,7 @@ description: "Implement video selection, local caching (SwiftData), and attachin
 
 - [Slice 4: Video Upload \& Offline Caching](#slice-4-video-upload--offline-caching)
   - [Table of Contents](#table-of-contents)
+  - [Development Process](#development-process)
   - [Goals of Slice 4](#goals-of-slice-4)
   - [Implementation Steps](#implementation-steps)
     - [Task 4.1 Video Selection/Recording UI](#task-41-video-selectionrecording-ui)
@@ -19,49 +20,31 @@ description: "Implement video selection, local caching (SwiftData), and attachin
     - [Task 4.4 Associate Video with Groups](#task-44-associate-video-with-groups)
     - [Task 4.5 Logging \& Error Handling](#task-45-logging--error-handling)
     - [Task 4.6 Verification / Demo](#task-46-verification--demo)
-- [**Slice 5: AI-Enabled Metadata Creation**](#slice-5-ai-enabled-metadata-creation)
-  - [\`\`\`md](#md)
-  - [description: "Cloud Functions triggered on video upload, generating AI-based metadata (face recognition, jersey detection, transcription)."](#description-cloud-functions-triggered-on-video-upload-generating-ai-based-metadata-face-recognition-jersey-detection-transcription)
-- [Slice 5: AI-Enabled Metadata Creation](#slice-5-ai-enabled-metadata-creation-1)
-  - [Table of Contents](#table-of-contents-1)
-  - [Goals of Slice 5](#goals-of-slice-5)
-  - [Implementation Steps](#implementation-steps-1)
-    - [Task 5.1 Cloud Function Setup](#task-51-cloud-function-setup)
-    - [Task 5.2 AI Integration (Face/Jersey Detection, Transcription)](#task-52-ai-integration-facejersey-detection-transcription)
-    - [Task 5.3 Metadata Storage in Firestore](#task-53-metadata-storage-in-firestore)
-- [**Slice 6: Privacy \& Access Control**](#slice-6-privacy--access-control)
-  - [\`\`\`md](#md-1)
-  - [description: "Strengthen zero-trust access to videos/metadata, ensuring only owners or group members can view relevant data."](#description-strengthen-zero-trust-access-to-videosmetadata-ensuring-only-owners-or-group-members-can-view-relevant-data)
-- [Slice 6: Privacy \& Access Control](#slice-6-privacy--access-control-1)
-  - [Table of Contents](#table-of-contents-2)
-  - [Goals of Slice 6](#goals-of-slice-6)
-  - [Implementation Steps](#implementation-steps-2)
-    - [Task 6.1 Refined Security Rules for Video Metadata](#task-61-refined-security-rules-for-video-metadata)
-- [**Slice 7: Testing \& QA**](#slice-7-testing--qa)
-  - [\`\`\`md](#md-2)
-  - [description: "Comprehensive testing (unit, integration, UI), concurrency checks, SwiftLint, all using local Firebase Emulators."](#description-comprehensive-testing-unit-integration-ui-concurrency-checks-swiftlint-all-using-local-firebase-emulators)
-- [Slice 7: Testing \& QA](#slice-7-testing--qa-1)
-  - [Table of Contents](#table-of-contents-3)
-  - [Goals of Slice 7](#goals-of-slice-7)
-  - [Implementation Steps](#implementation-steps-3)
-    - [Task 7.1 Unit \& ViewModel Tests](#task-71-unit--viewmodel-tests)
-    - [Task 7.2 Integration Tests with Firebase Emulators](#task-72-integration-tests-with-firebase-emulators)
-    - [Task 7.3 UI Tests \& Snapshots](#task-73-ui-tests--snapshots)
-    - [Task 7.4 SwiftLint \& Concurrency Checks](#task-74-swiftlint--concurrency-checks)
-    - [Task 7.5 Verification / Demo](#task-75-verification--demo)
-  - [Estimated Timeline](#estimated-timeline)
-  - [Next Steps After Slice 7](#next-steps-after-slice-7)
-  - [description: "Release a beta version via TestFlight or Firebase App Distribution, gather feedback, and finalize the MVP."](#description-release-a-beta-version-via-testflight-or-firebase-app-distribution-gather-feedback-and-finalize-the-mvp)
-- [Slice 8: Deployment \& Beta Distribution](#slice-8-deployment--beta-distribution)
-  - [Table of Contents](#table-of-contents-4)
-  - [Goals of Slice 8](#goals-of-slice-8)
-  - [Implementation Steps](#implementation-steps-4)
-    - [Task 8.1 TestFlight or Firebase App Distribution Setup](#task-81-testflight-or-firebase-app-distribution-setup)
-    - [Task 8.2 Production Project Rules/Config](#task-82-production-project-rulesconfig)
-    - [Task 8.3 Beta Release \& Versioning](#task-83-beta-release--versioning)
-    - [Task 8.4 Feedback \& Monitoring](#task-84-feedback--monitoring)
-  - [Estimated Timeline](#estimated-timeline-1)
-  - [Project Completion](#project-completion)
+
+---
+
+## Development Process
+
+Before starting any task:
+
+1. **Review Required Documentation**
+   - [Git Workflow Guidelines](../../.cursor/rules/git_workflow.mdc) - **REQUIRED** for all commits and PRs
+   - [Swift Rules](../../.cursor/rules/swift-rules.mdc) - For Swift code
+   - [Project Structure](../../.cursor/rules/project-structure.mdc) - For file organization
+
+2. **Git Workflow Summary**
+   - Create feature branch: `feature/slice4-task<N>-<description>`
+   - Make atomic commits following [commit conventions](../git_workflow.md#commit-process)
+   - Create PR with comprehensive description
+   - Squash merge to development after review
+   - Delete feature branch after merge
+
+3. **Pull Request Requirements**
+   - All tests must pass
+   - Code must follow style guides
+   - Changes must be atomic and focused
+   - PR description must be detailed
+   - Squash merge is required
 
 ---
 
@@ -83,8 +66,8 @@ description: "Implement video selection, local caching (SwiftData), and attachin
 
 1. **Step 1**: `feature/slice4-task4.1-video-ui`.  
 2. **Step 2**: In `/App/Video/Views/VideoUploadView.swift`:
-   - Button(s) for “Select from library” or “Record new video.”  
-   - Use Swift’s native APIs or a small SwiftPM library if needed (still no `package.json`).  
+   - Button(s) for "Select from library" or "Record new video."  
+   - Use Swift's native APIs or a small SwiftPM library if needed (still no `package.json`).  
 3. **Step 3**: Preview with mock data.  
 4. **Step 4**: Merge after local testing.
 
@@ -141,7 +124,7 @@ description: "Implement video selection, local caching (SwiftData), and attachin
 **Objective**: Let the user pick which group(s) the video belongs to, storing references in Firestore.
 
 1. **Step 1**: `feature/slice4-task4.4-video-group-links`.  
-2. **Step 2**: In `VideoUploadView`, fetch user’s groups. Let them select one or more.  
+2. **Step 2**: In `VideoUploadView`, fetch user's groups. Let them select one or more.  
 3. **Step 3**: After a successful Firebase Storage upload, store doc in Firestore `videos` collection:
 
    ```jsonc

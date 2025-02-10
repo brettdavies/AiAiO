@@ -11,6 +11,7 @@ description: "Cloud Functions triggered on video upload, generating AI-based met
 
 - [Slice 5: AI-Enabled Metadata Creation](#slice-5-ai-enabled-metadata-creation)
   - [Table of Contents](#table-of-contents)
+  - [Development Process](#development-process)
   - [Goals of Slice 5](#goals-of-slice-5)
   - [Implementation Steps](#implementation-steps)
     - [Task 5.1 Cloud Function Setup](#task-51-cloud-function-setup)
@@ -20,6 +21,29 @@ description: "Cloud Functions triggered on video upload, generating AI-based met
     - [Task 5.5 Logging \& Error Handling](#task-55-logging--error-handling)
     - [Task 5.6 Verification / Demo](#task-56-verification--demo)
 
+## Development Process
+
+Before starting any task:
+
+1. **Review Required Documentation**
+   - [Git Workflow Guidelines](../../.cursor/rules/git_workflow.mdc) - **REQUIRED** for all commits and PRs
+   - [Swift Rules](../../.cursor/rules/swift-rules.mdc) - For Swift code
+   - [Project Structure](../../.cursor/rules/project-structure.mdc) - For file organization
+
+2. **Git Workflow Summary**
+   - Create feature branch: `feature/slice5-task<N>-<description>`
+   - Make atomic commits following [commit conventions](../git_workflow.md#commit-process)
+   - Create PR with comprehensive description
+   - Squash merge to development after review
+   - Delete feature branch after merge
+
+3. **Pull Request Requirements**
+   - All tests must pass
+   - Code must follow style guides
+   - Changes must be atomic and focused
+   - PR description must be detailed
+   - Squash merge is required
+
 ---
 
 ## Goals of Slice 5
@@ -27,7 +51,7 @@ description: "Cloud Functions triggered on video upload, generating AI-based met
 1. **Cloud Functions**: Trigger on video uploads to Firebase Storage.  
 2. **AI Processing**: Generate metadata (transcription, face recognition, jersey detection).  
 3. **Metadata Storage**: Save results (transcript, recognized faces, jersey #s) in Firestore.  
-4. **Link with Group Roster**: If a recognized face matches a group’s known member, store that association.  
+4. **Link with Group Roster**: If a recognized face matches a group's known member, store that association.  
 5. **Logging & Error Handling**: Record AI events in Cloud Functions logs, map failures to typed errors if needed.
 
 ---
@@ -62,7 +86,7 @@ description: "Cloud Functions triggered on video upload, generating AI-based met
 3. **Step 3**: Use an AI library or external API (e.g., `faceRecognitionAPI`, `speechToTextAPI`) to produce:
    - `recognizedFaces: [ { boundingBox, ??? } ]`
    - `jerseyNumbers: [ "7", "10", ... ]`
-   - `transcript: "full text from the video’s audio"`
+   - `transcript: "full text from the video's audio"`
 4. **Step 4**: Merge after local testing or partial stubs if the real AI API is not yet integrated.
 
 **Definition of Done** (Machine-Readable):
@@ -101,11 +125,11 @@ description: "Cloud Functions triggered on video upload, generating AI-based met
 
 ### Task 5.4 Linking with Roster Data
 
-**Objective**: If recognized face IDs or jersey #s match group rosters, store that association (e.g. “Child #7 is Jane from groupX”).
+**Objective**: If recognized face IDs or jersey #s match group rosters, store that association (e.g. "Child #7 is Jane from groupX").
 
 1. **Step 1**: `feature/slice5-task5.4-roster-links`.
 2. **Step 2**: For each recognized face/jersey, compare with group.members in Firestore:
-   - If a match is found, note that user’s ID in recognizedMembers.
+   - If a match is found, note that user's ID in recognizedMembers.
 3. **Step 3**: Merge after validation.
 
 **Definition of Done** (Machine-Readable):
@@ -122,7 +146,7 @@ description: "Cloud Functions triggered on video upload, generating AI-based met
 
 1. **Step 1**: `feature/slice5-task5.5-ai-logging`.
 2. **Step 2**: [AI] Starting face recognition for video: {videoId}, [AI] Transcription complete, etc.
-3. **Step 3**: Catch AI call failures, log them as .error, possibly store a partial or “failed” status in Firestore.
+3. **Step 3**: Catch AI call failures, log them as .error, possibly store a partial or "failed" status in Firestore.
 4. **Step 4**: Merge after verifying logs appear in Cloud Functions emulator.
 
 **Definition of Done** (Machine-Readable):
@@ -155,4 +179,4 @@ Estimated Timeline
 Next Steps After Slice 5
 
 - Proceed to Slice 6 (Privacy & Access Control), refining rules so that only authorized group members see metadata.
-- Optionally implement real-time UI updates indicating “Processing in progress,” etc.
+- Optionally implement real-time UI updates indicating "Processing in progress," etc.

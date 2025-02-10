@@ -1,0 +1,132 @@
+---
+description: Git commit message guidelines
+globs: 
+---
+---
+description: "Updated Git commit message guidelines with strict step-by-step instructions"
+globs: ["**/*.*"]
+source: "https://github.com/EugenEistrach/tanstack-boilerplate/blob/main/.cursor/rules/commit-conventions.mdc"
+version: "1.1.0"
+last_updated: "2025-02-10"
+---
+
+# Commit Message Conventions
+
+We follow a structured approach to commit messages to maintain a clean and meaningful git history. When multiple directories are provided, ensure they are passed as variables to any relevant scripts.
+
+## **Full Process Requirements**
+
+To guarantee that the computer agent adheres to this process every single time, **all** steps below must be followed **in exact order** without deviation or omission:
+
+1. **Run the Diffs Script**  
+   Execute the following command in the integrated terminal to capture diffs:  
+
+   ```bash
+   bash .cursor/rules/git-capture-diffs.sh
+   ```
+
+   - This command always represents the source of truth for the current changes.
+
+2. **Locate and Read the Diff File**  
+
+   - After running the script, all diffs are stored in /.idea/_gitdiff.tmp. The computer agent must read and consider every line in /.idea/_gitdiff.tmp to gather the complete list of changes.
+
+3. **Generate Commit Summary and Description**  
+
+   - The commit summary (one line) and description (detailed bullets) must be derived exclusively from the diffs in /.idea/_gitdiff.tmp.
+   - No extraneous content or metadata (e.g., code blocks, references to the diff file, or prompts) should be included in the final commit message output.
+
+4. **Adhere to Message Expectations**  
+
+   - Include multiple bullet points per theme of diffs.
+   - Each theme can have up to 5 bullets at most—no more.
+   - Use an imperative tone for each bullet.
+
+5. **Output Only the Commit Message**  
+
+   - Do not include the diff contents verbatim.
+   - Do not add extraneous data or commentary.
+   - Do not output any script commands or instructions.
+   - Do not output any git commands.
+   - The final output a text box containing the commit summary and description. Nothing else.
+
+## Message Expectations
+
+- Multiple bullet points for each theme of changes.
+- No more than five bullets per theme (keep it concise).
+- All bullets must be derived from lines in /.idea/_gitdiff.tmp.
+
+## Message Structure
+
+```plaintext
+<type>(<scope1>,<scope2>): <subject>
+
+<Theme1>
+- <Theme1Bullet1>
+- <Theme1Bullet2>
+
+<Theme2>
+- <Theme2Bullet1>
+- <Theme2Bullet2>
+```
+
+Where:
+
+- type is one of:
+  - feat (new features)
+  - fix (bug fixes)
+  - docs (documentation updates)
+  - style (formatting only)
+  - refactor (no functional change)
+  - test (test-related changes)
+  - chore (maintenance tasks)
+- scope1, scope2: Optional labels indicating the areas of codebase affected (e.g., auth, db, ui).
+- subject: Imperative, concise summary of the change.
+
+## Types
+
+- feat: New features (e.g., feat(auth): Add SSO support)
+- fix: Bug fixes (e.g., fix(api): Handle timeout errors)
+- docs: Documentation changes (e.g., docs: Update API endpoints)
+- style: Non-functional code style changes (e.g., style: Format with prettier)
+- refactor: Code refactoring without feature or bug changes (e.g., refactor(db): Extract config)
+- test: Changes to tests only (e.g., test: Add auth unit tests)
+- chore: Maintenance tasks (e.g., chore(deps): Bump package versions)
+
+## Best Practices
+
+- Subject Line
+  - Use imperative mood (“Add” not “Added”).
+  - Keep it under 75 characters.
+  - Start with a capital letter.
+  - Do not end with a period.
+
+## Examples
+
+```plaintext
+feat(users): Add password reset functionality
+fix(auth): Resolve token expiration issue
+refactor(database): Split reports table for more efficient storage
+chore(deps): Bump package versions
+```
+
+Description (Bulleted Themes)
+
+- Use imperative mood (“Add” not “Added”).
+- Limit each bullet to one sentence.
+- Include enough detail to understand why or how the changes were made.
+- End each bullet with a period.
+- Group bullets into themes (e.g., if you have multiple changes around documentation, group them together under “Documentation Updates”).
+
+## Breaking Changes
+
+To denote a breaking change, place ! after the type or scope and include the text BREAKING CHANGE: in the description:
+
+```plaintext
+feat(api)!: Revise authentication flow to remove legacy tokens
+
+BREAKING CHANGE: Clients must use the new authentication mechanism.
+```
+
+Always complete the steps in the “Full Process Requirements” section before providing a commit message. Failure to do so results in an incomplete commit message.
+

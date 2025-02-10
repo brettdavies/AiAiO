@@ -1,0 +1,218 @@
+---
+description: Swift6, SwiftUI, Swift guideline
+globs: **/*.swift
+---
+---
+title: "Swift 6 + SwiftUI + iOS 18 Coding Guidelines"
+version: "2.0.0"
+last_updated: "2025-02-10"
+description: "Rules and recommendations for writing SwiftUI apps targeting iOS 18 with Swift 6 concurrency."
+---
+
+# Swift 6 + SwiftUI + iOS 18 Coding Guidelines
+
+This document defines how to write maintainable, performant, and consistent SwiftUI code using Swift 6 concurrency features.
+Refer to [project-structure.mdc](mdc:.cursor/rules/project-structure.mdc) for file layout and environment setup instructions.
+Any references to specific file locations (e.g., `Utilities/GlobalError.swift``) assume the structure described in that document.
+
+---
+
+## 1. Swift Project Organization
+
+1. **Architecture**  
+   - **MVVM** is required. Keep logic in `ViewModel` classes or service/actor layers.  
+   - **Views** should remain “dumb” whenever possible, focusing on layout and UI composition.  
+
+2. **Module Imports**  
+   - Import modules individually (e.g., `import FirebaseAuth`, `import FirebaseFirestore`) rather than a broad `import Firebase`.  
+   - Use alphabetical ordering in each import block (system, third-party, then internal).
+
+3. **Naming Conventions**  
+   - **Types**: UpperCamelCase (e.g. `AuthViewModel`, `VideoUploadService`).  
+   - **Methods and Properties**: lowerCamelCase (`fetchUser()`, `videoCache`).  
+   - **Constants**: Prefer lowerCamelCase or, if global and truly constant, UPPER_SNAKE_CASE (`MAX_UPLOAD_SIZE`).  
+   - **Async Methods**: Append `Async` only if you must differentiate from a synchronous counterpart (`fetchMetadataAsync()`).
+
+4. **File Naming**  
+   - Name files after the primary type inside (e.g., `AuthViewModel.swift` contains `AuthViewModel`).  
+   - Keep related Views, Models, and ViewModels in the same feature folder but not in the same file.
+
+---
+
+## 2. SwiftUI-Specific Guidelines
+
+1. **Struct Over Class**  
+   - Use `struct` for SwiftUI `View` definitions.  
+   - Use `class` (ObservableObject) for stateful logic when necessary (e.g., a `ViewModel`).
+
+2. **State & Data Flow**  
+   - Prefer `@StateObject` or `@ObservedObject` for `ObservableObject` references.  
+   - Avoid heavy logic in SwiftUI views; delegate to your `ViewModel` or service layer.
+
+3. **Preview Usage**  
+   - For `#Preview`, avoid complex async logic directly in the preview closure.  
+   - Inject mock or placeholder data for simple UI previews.
+
+4. **View Modifiers**  
+   - Extract commonly repeated modifier chains into an extension on `View` or a computed property.  
+   - Keep layout clear with well-structured `VStack`, `HStack`, `ZStack`.
+
+5. **Dependency Injection**  
+   - Always pass dependencies (services, actors) into a SwiftUI view via its initializer or via environment.  
+   - For previews, substitute mock/test services for isolation.
+
+6. **Avoid Inheritance in Views**
+   - SwiftUI views are usually structs conforming to the View protocol. If multiple views need the same logic or styling, factor those out into:
+     - Shared sub-views (structs conforming to View).
+     - Protocols with default implementations in extensions.
+     - Custom view modifiers.
+   - Inheritance-based “base views” tend to work poorly with SwiftUI’s rendering system and type inference.
+
+---
+
+## 3. Swift 6 Concurrency
+
+1. **Actors**  
+   - Use `actor` for shared mutable state or Firestore wrappers to avoid data races.  
+   - Mark properties as `nonisolated` only if they are guaranteed thread-safe.
+
+2. **async/await**  
+   - Use `async`/`await` for Firebase or network calls.  
+   - Prefer typed `throws` with `do/catch` blocks over optional error handling.
+
+3. **Strict Checking**  
+   - Enable Swift concurrency checks in your Xcode build settings.  
+   - If you see “actor-isolated property cannot be referenced” warnings, fix them by isolating calls (`await actorInstance.foo()`).
+
+4. **Task Cancellation**  
+   - In loops or long-running tasks, check `Task.isCancelled` or call `try Task.checkCancellation()` to exit cleanly.
+
+5. **any vs. Concrete**  
+   - Avoid `any Protocol` unless you need genuine type erasure.  
+   - If `AuthService` is a concrete class, pass it directly. Use `protocol AuthProviding` + `any AuthProviding` only if you want multiple interchangeable implementations.
+
+---
+
+## 4. Environment & Firebase Usage
+
+1. **Environment-Based Config**  
+   - Load different Firebase configs (dev vs. prod) at runtime.  
+   - Keep environment variables or config files separate from your code (see `repository_structure.md` for details).
+
+2. **Local Emulators**  
+   - In development builds, call `useEmulator(withHost:port:)` on Auth, Firestore, and Functions after Firebase initialization.  
+   - Ensure you guard these calls with a `#if DEBUG` or similar check.
+
+3. **Firestore & Storage**  
+   - If you pass Firestore documents or Storage metadata into an actor, convert them to `Codable`/`Sendable` Swift types.  
+   - Avoid raw `[String: Any]` in Swift concurrency contexts.
+
+4. **Google Sign-In**  
+   - Use `GIDConfiguration(clientID:)`.  
+   - Remove any references to outdated `GIDSignIn.sharedInstance`.
+
+5. **Deprecated Fields**  
+   - Omit `authDomain` or `trackingID` from `FirebaseOptions`; they no longer exist in the latest Firebase.  
+   - Refer to the current Firebase documentation if new fields appear (e.g., `measurementId`).
+
+---
+
+## 5. Error Handling
+
+1. **Global Error Enum**  
+   - Define a shared, typed `enum` conforming to `LocalizedError`.  
+   - Map errors from Firebase or other libraries into these cases for consistent UI messaging.
+
+2. **No Force Unwrapping**  
+   - Avoid `try!` or `!` except in guaranteed scenarios (like test mocks).  
+   - Use `guard let` or `if let` to unwrap optionals safely.
+
+3. **Propagation**  
+   - Use `throws` to bubble up any recoverable error to a place where you can show user-friendly feedback.
+
+---
+
+## 6. Logging
+
+1. **Unified Logger**  
+   - Use a shared logging utility across the app. Log all significant events: user actions, network calls, successes, and failures.  
+   - Integrate with Crashlytics or a similar analytics platform.  
+   - Distinguish levels: `.debug`, `.info`, `.warning`, `.error`.
+
+2. **No Random print()**  
+   - Replace ad hoc `print()` statements with structured logs.  
+   - Tag logs with context (e.g., `[Auth]`, `[VideoUpload]`).
+
+---
+
+## 7. Testing & Continuous Integration
+
+1. **Unit & UI Tests**  
+   - Write tests for feature-specific logic: sign-in flows, video upload validations, concurrency issues.  
+   - Keep test files in the directories specified by `repository_structure.md`.
+
+2. **Code Style & Concurrency Checks**  
+   - Integrate SwiftLint or a custom script in your CI to enforce style and concurrency rules.  
+   - Run concurrency “stress tests” if your environment supports them.
+
+3. **Pull Requests**  
+   - Automated pipelines should run all tests (unit, UI, lint) before merging to main.
+
+---
+
+## 8. Documentation
+
+1. **Doc Comments**  
+   - Use triple-slash `///` for public APIs or complicated logic describing concurrency or usage details.  
+   - Provide a short summary of any method’s purpose, parameters, and thrown errors.
+
+2. **Updates & Versioning**  
+   - Periodically review this style guide.  
+   - If you adopt new SwiftUI or Firebase features, add relevant rules and remove deprecated references.
+
+---
+
+## 9. Example Snippets
+
+<details>
+<summary><strong>Actor + Async/Await</strong></summary>
+
+```swift
+actor VideoProcessor {
+    func process(videoData: Data) async throws -> URL {
+        // Check for cancellation
+        try Task.checkCancellation()
+        // Process and return a local file URL
+    }
+}
+
+</details>
+
+
+<details>
+<summary><strong>Global Error Enum</strong></summary>
+
+
+enum GlobalError: LocalizedError {
+    case invalidEmail
+    case weakPassword
+    case unknown(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidEmail:
+            return "Invalid Email"
+        case .weakPassword:
+            return "Password too weak"
+        case .unknown(let detail):
+            return "Unknown error: \(detail)"
+        }
+    }
+}
+
+</details>
+
+
+Adherence to these rules ensures consistent architecture, safer concurrency, clearer error handling, and simpler future maintenance.
+
+For how to lay out your folders and environment files, see @project-structure.md.

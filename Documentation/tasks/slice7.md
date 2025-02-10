@@ -11,6 +11,7 @@ description: "Comprehensive testing (unit, integration, UI), concurrency checks,
 
 - [Slice 7: Testing \& QA](#slice-7-testing--qa)
   - [Table of Contents](#table-of-contents)
+  - [Development Process](#development-process)
   - [Goals of Slice 7](#goals-of-slice-7)
   - [Implementation Steps](#implementation-steps)
     - [Task 7.1 Unit \& ViewModel Tests](#task-71-unit--viewmodel-tests)
@@ -20,6 +21,29 @@ description: "Comprehensive testing (unit, integration, UI), concurrency checks,
     - [Task 7.5 Verification / Demo](#task-75-verification--demo)
   - [Estimated Timeline](#estimated-timeline)
   - [Next Steps After Slice 7](#next-steps-after-slice-7)
+
+## Development Process
+
+Before starting any task:
+
+1. **Review Required Documentation**
+   - [Git Workflow Guidelines](../../.cursor/rules/git_workflow.mdc) - **REQUIRED** for all commits and PRs
+   - [Swift Rules](../../.cursor/rules/swift-rules.mdc) - For Swift code
+   - [Project Structure](../../.cursor/rules/project-structure.mdc) - For file organization
+
+2. **Git Workflow Summary**
+   - Create feature branch: `feature/slice7-task<N>-<description>`
+   - Make atomic commits following [commit conventions](../git_workflow.md#commit-process)
+   - Create PR with comprehensive description
+   - Squash merge to development after review
+   - Delete feature branch after merge
+
+3. **Pull Request Requirements**
+   - All tests must pass
+   - Code must follow style guides
+   - Changes must be atomic and focused
+   - PR description must be detailed
+   - Squash merge is required
 
 ---
 

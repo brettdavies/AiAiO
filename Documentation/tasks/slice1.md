@@ -2,7 +2,7 @@
 title: "Slice 1 Implementation Details"
 version: "1.1.0"
 last_updated: "2025-02-10"
-description: "Step-by-step tasks for establishing AiAiO’s foundation with a mono-repo, environment configs, local testing, and logging."
+description: "Step-by-step tasks for establishing AiAiO's foundation with a mono-repo, environment configs, local testing, and logging."
 ---
 
 # Slice 1: Foundation & Project Setup
@@ -11,6 +11,7 @@ description: "Step-by-step tasks for establishing AiAiO’s foundation with a mo
 
 - [Slice 1: Foundation \& Project Setup](#slice-1-foundation--project-setup)
   - [Table of Contents](#table-of-contents)
+  - [Development Process](#development-process)
   - [Goals of Slice 1](#goals-of-slice-1)
   - [Implementation Steps](#implementation-steps)
     - [Task 1.1 Initialize the Mono-Repo](#task-11-initialize-the-mono-repo)
@@ -23,6 +24,29 @@ description: "Step-by-step tasks for establishing AiAiO’s foundation with a mo
   - [Next Steps After Slice 1](#next-steps-after-slice-1)
 
 ---
+
+## Development Process
+
+Before starting any task:
+
+1. **Review Required Documentation**
+   - [Git Workflow Guidelines](../../.cursor/rules/git_workflow.mdc) - **REQUIRED** for all commits and PRs
+   - [Swift Rules](../../.cursor/rules/swift-rules.mdc) - For Swift code
+   - [Project Structure](../../.cursor/rules/project-structure.mdc) - For file organization
+
+2. **Git Workflow Summary**
+   - Create feature branch: `feature/slice1-task<N>-<description>`
+   - Make atomic commits following [commit conventions](../git_workflow.md#commit-process)
+   - Create PR with comprehensive description
+   - Squash merge to development after review
+   - Delete feature branch after merge
+
+3. **Pull Request Requirements**
+   - All tests must pass
+   - Code must follow style guides
+   - Changes must be atomic and focused
+   - PR description must be detailed
+   - Squash merge is required
 
 ## Goals of Slice 1
 
@@ -57,12 +81,12 @@ description: "Step-by-step tasks for establishing AiAiO’s foundation with a mo
 
 ### Task 1.2 Setup `/App` Directory
 
-**Objective**: Create the iOS SwiftUI project using Xcode’s internal package manager for Firebase iOS SDK integration.
+**Objective**: Create the iOS SwiftUI project using Xcode's internal package manager for Firebase iOS SDK integration.
 
 1. **Step 1**: From `development`, create a new branch `feature/slice1-task1.2-appsetup`.  
 2. **Step 2**: In Xcode, generate an iOS (iOS 18) SwiftUI project named `AiAiOApp`.  
    - Enable **Strict Concurrency Checking** under Build Settings.  
-3. **Step 3**: Use **Xcode’s internal Swift Package Manager** to add `Firebase` dependencies (Auth, Firestore, Storage, etc.).  
+3. **Step 3**: Use **Xcode's internal Swift Package Manager** to add `Firebase` dependencies (Auth, Firestore, Storage, etc.).  
 4. **Step 4**: Confirm no `package.json` is created or used.  
 5. **Step 5**: Add a placeholder SwiftUI file (`ContentView.swift`) with a minimal `Text("Hello AiAiO")`.  
 6. **Step 6**: Integrate a basic environment config approach (e.g., `.xcconfig` with `FIREBASE_PROJECT_ID_DEV`, `FIREBASE_PROJECT_ID_PROD`).  
