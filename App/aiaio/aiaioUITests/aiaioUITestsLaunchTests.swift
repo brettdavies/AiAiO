@@ -7,17 +7,12 @@
 
 import XCTest
 
-final class aiaioUITestsLaunchTests: XCTestCase {
-
-    override class var runsForEachTargetApplicationUIConfiguration: Bool {
-        true
-    }
+final class AiaioUITestsLaunchTests: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
     }
 
-    @MainActor
     func testLaunch() throws {
         let app = XCUIApplication()
         app.launch()
@@ -29,5 +24,9 @@ final class aiaioUITestsLaunchTests: XCTestCase {
         attachment.name = "Launch Screen"
         attachment.lifetime = .keepAlways
         add(attachment)
+    }
+
+    static var runsForEachTargetApplicationUIConfiguration: Bool {
+        true
     }
 }
