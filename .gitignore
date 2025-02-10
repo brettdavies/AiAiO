@@ -90,7 +90,7 @@ fastlane/test_output
 *.coverage.txt
 
 # SwiftLint
-.swiftlint.yml
+!.swiftlint.yml
 
 # Build artifacts
 *.ipa

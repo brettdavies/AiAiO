@@ -1,0 +1,40 @@
+# .swiftlint.yml
+
+# Disable the no_module_imports rule because Package.swift requires importing PackageDescription
+disabled_rules:
+  - trailing_whitespace
+  - no_module_imports
+
+opt_in_rules:
+  - empty_count
+  - missing_docs
+  - closure_spacing
+  - explicit_init
+  - force_unwrapping
+  - implicit_return
+  - sorted_imports
+
+analyzer_rules:
+  - unused_declaration
+  - unused_import
+
+line_length:
+  warning: 120
+  error: 150
+
+type_body_length:
+  warning: 300
+  error: 400
+
+excluded:
+  - .build
+  - Package.swift
+  - "**/Generated"
+
+custom_rules:
+  explicit_self:
+    name: "Explicit Self"
+    message: "Always use explicit self to improve code clarity"
+    regex: "\\b[a-z][a-zA-Z0-9]*\\s*\\."
+    severity: warning
+  
