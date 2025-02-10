@@ -30,13 +30,32 @@ Firebase/Config/api-keys.env
 **/*-service-account.json
 **/.runtimeconfig.json
 
-# Firebase Functions
-Firebase/functions/lib/**/*.js
-Firebase/functions/lib/**/*.js.map
-Firebase/functions/typings/
-**/node_modules/
-Firebase/functions/*.log
-Firebase/functions/npm-debug.log*
+# Firebase Functions (Python)
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+**/.Python
+**/venv/
+**/.env/
+**/.venv/
+**/ENV/
+**/env.bak/
+**/venv.bak/
+**/.pytest_cache/
+**/.coverage
+**/htmlcov/
+**/.tox/
+**/.nox/
+**/.coverage
+**/.coverage.*
+**/.cache
+**/nosetests.xml
+**/coverage.xml
+**/*.cover
+**/*.py,cover
+**/.hypothesis/
+**/.pytype/
+**/cython_debug/
 
 # macOS
 .DS_Store

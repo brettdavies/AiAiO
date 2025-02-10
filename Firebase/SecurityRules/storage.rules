@@ -1,38 +1,12 @@
 rules_version = '2';
 
+// Craft rules based on data in your Firestore database
+// allow write: if firestore.get(
+//    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
 service firebase.storage {
   match /b/{bucket}/o {
-    // Helper functions
-    function isAuthenticated() {
-      return request.auth != null;
-    }
-    
-    function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
-    }
-    
-    function isValidContentType() {
-      return request.resource.contentType.matches('video/.*');
-    }
-    
-    function isValidSize() {
-      return request.resource.size <= 100 * 1024 * 1024; // 100MB
-    }
-    
-    // User video uploads
-    match /users/{userId}/videos/{videoId} {
-      allow read: if isAuthenticated();
-      allow create: if isOwner(userId)
-        && isValidContentType()
-        && isValidSize();
-      allow update: if isOwner(userId);
-      allow delete: if isOwner(userId);
-    }
-    
-    // User thumbnails
-    match /users/{userId}/thumbnails/{thumbnailId} {
-      allow read: if isAuthenticated();
-      allow write: if isOwner(userId);
+    match /{allPaths=**} {
+      allow read, write: if false;
     }
   }
-} 
+}

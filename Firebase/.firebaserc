@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "default": "reelai-ffe67",
+    "dev": "reelai-ffe67",
+    "prod": "reelai-ffe67"
+  }
+}
