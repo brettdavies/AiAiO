@@ -11,6 +11,7 @@ disabled_rules:
   - explicit_self  # Temporarily disabled while we set up CI
   - vertical_whitespace_opening_braces  # Temporarily disabled
   - vertical_whitespace_closing_braces  # Temporarily disabled
+  - empty_xctest_method  # Temporarily disabled while we set up CI
 
 opt_in_rules:
   - array_init
