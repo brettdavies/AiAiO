@@ -18,6 +18,29 @@ struct ContentView: View {
                     .font(.title)
                 Text("Your AI-powered video platform")
                     .foregroundStyle(.secondary)
+
+                // Test logging button
+                Button(action: {
+                    UnifiedLogger.log("Test log message from ContentView", level: .info)
+
+                    // Example error handling
+                    do {
+                        throw GlobalError.networkFailure
+                    } catch let error as GlobalError {
+                        UnifiedLogger.log(
+                            "Caught error: \(error.localizedDescription)", level: .error)
+                    } catch {
+                        UnifiedLogger.log(
+                            "Unexpected error: \(error.localizedDescription)", level: .error)
+                    }
+                }) {
+                    Text("Test Logging")
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                }
+                .padding(.top, 20)
             }
             .padding()
             .navigationTitle("AiAiO")
@@ -27,5 +50,4 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
 }
