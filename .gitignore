@@ -8,7 +8,6 @@
 **/*.xcconfig
 *.xcconfig
 
-
 # App Configuration
 **/Info.plist
 !**/Info.plist.template

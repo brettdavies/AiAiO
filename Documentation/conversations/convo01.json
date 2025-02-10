@@ -1,0 +1,134 @@
+{
+  "project": "ReelAI MVP",
+  "description": "ReelAI is a reimagined TikTok clone targeted at content creators. The MVP focuses on core functionalities including secure authentication, video upload with client-side validations, backend processing for thumbnail generation via Firebase Cloud Functions, real-time processing status updates (via Server-Sent Events), offline caching (using SwiftData), comprehensive localization, and extensive logging.",
+  "primary_objectives": [
+    "Enable secure email/password authentication combined with email verification and multi-factor authentication (MFA), including Google OAuth support.",
+    "Allow content creators to record or select video files (valid iOS 18 types) with a maximum size of 100 MB, and upload these files.",
+    "Automatically trigger backend processing to generate video thumbnails using Firebase Cloud Functions.",
+    "Provide real-time processing status updates via Server-Sent Events (SSE) to the client interface.",
+    "Implement offline caching for uploads and metadata using SwiftData with automatic syncing when connectivity is reestablished.",
+    "Support internationalization by bundling localization files (supporting all Western European languages and defaulting to English) so that all user-visible text is externalized.",
+    "Establish a global logging framework with high verbosity that integrates both with Firebase (e.g., Crashlytics) and with core Swift modules. This logger is initialized at Phase 1 and extended throughout the project."
+  ],
+  "tech_stack": {
+    "platform": {
+      "ios": {
+        "minimum_version": "18.2",
+        "target_version": "18.2",
+        "xcode_version": "15.2",
+        "build_system": "Swift PM"
+      }
+    },
+    "language": {
+      "swift_version": "6.0",
+      "swift_tools_version": "6.0",
+      "concurrency": "strict",
+      "actor_isolation": "strict"
+    },
+    "frameworks": {
+      "required": [
+        "SwiftUI (18.2)",
+        "AVFoundation (18.2)",
+        "CoreImage (18.2)",
+        "VideoToolbox (18.2)"
+      ],
+      "optional": [
+        "CoreML (18.2)",
+        "Vision (18.2)"
+      ]
+    },
+    "firebase": {
+      "components": [
+        "Firebase Auth",
+        "Firebase Storage",
+        "Firebase Realtime Database",
+        "Firebase Cloud Functions",
+        "Firebase Crashlytics"
+      ]
+    },
+    "logging": {
+      "global_logging_framework": {
+        "description": "A unified logging interface created from the very start (Phase 1) that can be extended for both Firebase-specific and general Swift components. This framework supports high verbosity logging for debugging and maintenance, with integrations planned for Firebase Crashlytics and optionally Firebase Cloud Logging."
+      }
+    },
+    "localization": {
+      "strategy": "Bundled with the app following Xcode best practices. Supports all Western European languages with a default fallback to English. All textual content is stored externally (e.g., in Localizable.strings or JSON resource files) to avoid hard-coded strings."
+    },
+    "offline_caching": {
+      "mechanism": "SwiftData is used to cache uploads and related metadata locally when the device is offline, ensuring robust data sync on connectivity restoration."
+    }
+  },
+  "repository_structure": {
+    "App": {
+      "ReelAI.xcodeproj": "The Xcode project for the SwiftUI application.",
+      "App": "Contains the main application logic and entry point for the SwiftUI app.",
+      "Authentication": "SwiftUI modules for Firebase Auth (email/password, OAuth, MFA) and related UI.",
+      "VideoUpload": "Modules handling video recording/selection, client-side validations, and upload logic.",
+      "Logging": "Global logging framework implementation for the iOS app.",
+      "Localization": "Localization resources (Localizable.strings in various .lproj folders).",
+      "Utilities": "Helper classes, extensions, and shared components."
+    },
+    "Firebase": {
+      "Functions": "Firebase Cloud Functions source code (Node.js/TypeScript) for thumbnail generation and future processing.",
+      "SecurityRules": "Firebase security rules (e.g., firestore.rules, storage.rules).",
+      "Emulators": "Configuration files for the Firebase Emulator Suite.",
+      "Indexes": "Firestore indexes configuration files.",
+      "RemoteConfig": "Default Remote Config values maintained as JSON or similar files."
+    },
+    "Tests": {
+      "AppTests": "Unit tests for the SwiftUI application.",
+      "IntegrationTests": "Tests for Firebase interactions and API calls.",
+      "UITests": "UI tests using XCTest."
+    },
+    "Docs": [
+      "project_plan.md",
+      "task_breakdown.md",
+      "repository_structure.md",
+      "ISSUE_TEMPLATE (if available)"
+    ],
+    ".github": {
+      "workflows": "CI/CD pipeline configurations (e.g., GitHub Actions).",
+      "ISSUE_TEMPLATE": "Templates for GitHub issues and pull requests."
+    },
+    "Package.swift": "Swift Package Manager configuration for the SwiftUI app.",
+    "README.md": "Project overview and setup instructions."
+  },
+  "development_phases": {
+    "Phase 1": "Project Setup & Initial Configuration – Initialize SwiftUI project (iOS 18.2, Swift 6), integrate Firebase SDKs, set up a global logging framework, and bundle localization files.",
+    "Phase 2": "Authentication Module – Build and test email/password sign-up/sign-in flows, add email verification and MFA, and integrate Google OAuth. Localize all UI using bundled localization.",
+    "Phase 3": "Video Upload & Processing – Develop UI for recording/selection, enforce file size/type validations, integrate SwiftData for offline caching, and implement automatic retry logic using exponential (logarithmic) backoff which resets every new session.",
+    "Phase 4": "Cloud Functions Integration – Implement a Cloud Function to generate video thumbnails upon upload, create stub endpoints for future additional processing (e.g., transcoding), and configure RESTful endpoints and SSE for real-time updates.",
+    "Phase 5": "Logging, Testing & Quality Assurance – Implement comprehensive, verbose logging across all modules, write unit/integration/UI tests (using XCTest), and set up a CI/CD pipeline via GitHub Actions. Continually monitor logs via Firebase Crashlytics.",
+    "Phase 6": "Beta Distribution & Final Testing – Configure internal beta deployments using Firebase App Distribution, monitor application performance and logs during beta, and incorporate user feedback to guide future enhancements."
+  },
+  "retry_and_error_handling": {
+    "upload_validation": {
+      "max_file_size": "100 MB",
+      "allowed_file_types": "Default video types on iOS 18"
+    },
+    "retry_logic": {
+      "strategy": "Exponential (logarithmic) backoff that resets on new app session",
+      "client_side": "Implement auto-retry on upload failures with detailed UI feedback"
+    },
+    "offline_handling": {
+      "caching": "Cache all uploads and metadata using SwiftData, then sync when connectivity is restored"
+    }
+  },
+  "logging_and_monitoring": {
+    "global_logger": "Initialized in Phase 1, designed to be inherited across modules, ensuring high verbosity logging throughout development.",
+    "integrations": [
+      "Firebase Crashlytics",
+      "Optional: Firebase Cloud Logging based on future requirements"
+    ]
+  },
+  "future_enhancements": {
+    "media_processing": "Expand Cloud Functions to include transcoding and additional video processing features beyond thumbnail generation.",
+    "remote_localization": "Potentially enable remote updates to localization resources in future iterations.",
+    "scaling": "Evolve architecture to support feed functionality, engagement features, and more sophisticated asset management as end-user demands increase."
+  },
+  "ci_cd_and_testing": {
+    "tests": "Implement unit, integration, and UI tests using XCTest covering authentication, video upload, and Cloud Function interactions.",
+    "pipeline": "Establish automated CI/CD using GitHub Actions for continuous integration and testing."
+  },
+  "development_goals": "Build a robust, scalable foundation for ReelAI MVP that adheres to strict tech stack requirements (iOS 18.2, Swift 6 strict concurrency, etc.), ensures maintainability and robust debugging through a global logging framework, and provides a clear roadmap for future feature expansion based on comprehensive testing and beta feedback."
+}
