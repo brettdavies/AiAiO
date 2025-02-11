@@ -34,10 +34,10 @@ struct GroupDetailView: View {
                     if !group.name.isEmpty {
                         Button(action: {
                             group.name = ""
-                        }) {
+                        }, label: {
                             Image(systemName: "xmark.circle.fill")
                                 .foregroundColor(.gray)
-                        }
+                        })
                         .buttonStyle(BorderlessButtonStyle())
                     }
                 }
@@ -54,10 +54,10 @@ struct GroupDetailView: View {
                     if !group.description.isEmpty {
                         Button(action: {
                             group.description = ""
-                        }) {
+                        }, label: {
                             Image(systemName: "xmark.circle.fill")
                                 .foregroundColor(.gray)
-                        }
+                        })
                         .buttonStyle(BorderlessButtonStyle())
                     }
                 }
@@ -69,9 +69,9 @@ struct GroupDetailView: View {
             }
         }
         .navigationTitle(isCreating ? "Create Group" : "Edit Group")
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button("Save") {
+        .toolbar(content: {
+            ToolbarItem(placement: .navigationBarTrailing, content: {
+                Button("Save", action: {
                     hasAttemptedSave = true
                     if isFormValid {
                         // TODO: Implement save logic (e.g., update Firestore).
@@ -80,15 +80,15 @@ struct GroupDetailView: View {
                     } else {
                         showValidationError = true
                     }
-                }
+                })
                 .disabled(!isFormValid)
-            }
-        }
-        .alert(isPresented: $showValidationError) {
+            })
+        })
+        .alert(isPresented: $showValidationError, content: {
             Alert(title: Text("Validation Error"),
                   message: Text("Please fill in all required fields."),
                   dismissButton: .default(Text("OK")))
-        }
+        })
     }
 }
 

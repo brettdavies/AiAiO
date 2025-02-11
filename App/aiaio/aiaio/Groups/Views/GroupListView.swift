@@ -27,24 +27,24 @@ struct GroupListView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         isPresentingNewGroup = true
-                    }) {
+                    }, label: {
                         Image(systemName: "plus")
-                    }
+                    })
                 }
             }
-            .sheet(isPresented: $isPresentingNewGroup) {
+            .sheet(isPresented: $isPresentingNewGroup, content: {
                 NavigationStack {
                     // Present GroupDetailView in creation mode with empty fields.
                     GroupDetailView(group: Group(id: UUID().uuidString, name: "", description: ""))
-                        .toolbar {
-                            ToolbarItem(placement: .cancellationAction) {
-                                Button("Cancel") {
+                        .toolbar(content: {
+                            ToolbarItem(placement: .cancellationAction, content: {
+                                Button("Cancel", action: {
                                     isPresentingNewGroup = false
-                                }
-                            }
-                        }
+                                })
+                            })
+                        })
                 }
-            }
+            })
         }
     }
 }
