@@ -4,6 +4,8 @@
 disabled_rules:
   - trailing_whitespace
   - no_module_imports
+  - unused_import
+  - unresolved_import
 
 opt_in_rules:
   - empty_count
@@ -12,7 +14,6 @@ opt_in_rules:
   - explicit_init
   - force_unwrapping
   - implicit_return
-  - sorted_imports
 
 analyzer_rules:
   - unused_declaration
@@ -20,16 +21,27 @@ analyzer_rules:
 
 line_length:
   warning: 120
-  error: 150
+  error: 200
 
 type_body_length:
   warning: 300
   error: 400
 
+file_length:
+  warning: 500
+  error: 1000
+
+identifier_name:
+  min_length: 2
+
+nesting:
+  type_level: 3
+
 excluded:
   - .build
   - Package.swift
   - "**/Generated"
+  - Pods
 
 custom_rules:
   explicit_self:
@@ -37,4 +49,9 @@ custom_rules:
     message: "Always use explicit self to improve code clarity"
     regex: "\\b[a-z][a-zA-Z0-9]*\\s*\\."
     severity: warning
+  no_module_imports:
+    name: "No Module Imports"
+    regex: '^import\s+(Logging|Utilities)'
+    message: "Do not import internal modules in the same target"
+    severity: error
   

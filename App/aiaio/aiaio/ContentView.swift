@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import os.log
 
 struct ContentView: View {
     var body: some View {
@@ -22,20 +23,28 @@ struct ContentView: View {
                 // Test logging button
                 Button(
                     action: {
-                        UnifiedLogger.log("Test log message from ContentView", level: .info)
+                        // Example of different log levels
+                        UnifiedLogger.info(
+                            "User tapped test button",
+                            context: "UI"
+                        )
 
                         // Example error handling
                         do {
+                            UnifiedLogger.debug(
+                                "Simulating a network error",
+                                context: "Network"
+                            )
                             throw GlobalError.networkFailure
                         } catch let error as GlobalError {
-                            UnifiedLogger.log(
-                                "Caught error: \(error.localizedDescription)",
-                                level: .error
+                            UnifiedLogger.error(
+                                error,
+                                context: "Network"
                             )
                         } catch {
-                            UnifiedLogger.log(
-                                "Unexpected error: \(error.localizedDescription)",
-                                level: .error
+                            UnifiedLogger.error(
+                                "Unexpected error occurred",
+                                context: "Network"
                             )
                         }
                     },

@@ -5,6 +5,8 @@
 import logging
 from firebase_functions import https_fn
 from firebase_admin import initialize_app
+import functions_framework
+from logger import Logger
 
 # Configure logging
 logging.basicConfig(
@@ -43,3 +45,21 @@ def on_request_example(req: https_fn.Request) -> https_fn.Response:
             "Internal server error", 
             status=500
         )
+
+@functions_framework.http
+def example_function(request):
+    """Example function demonstrating logger usage"""
+    Logger.info("Function invoked", "ExampleFunction")
+
+    try:
+        # Example processing
+        Logger.debug("Processing request", "ExampleFunction")
+
+        # Example success case
+        Logger.info("Request processed successfully", "ExampleFunction")
+        return {"success": True}
+
+    except Exception as error:
+        # Example error handling
+        Logger.error_with_exception(error, "ExampleFunction")
+        return {"error": "Internal server error"}, 500
