@@ -1,5 +1,5 @@
 ---
-description: Swift6, SwiftUI, Swift guideline
+description: Swift6, SwiftUI, Swift guidelines
 globs: **/*.swift
 ---
 ---
@@ -21,7 +21,7 @@ Any references to specific file locations (e.g., `Utilities/GlobalError.swift``)
 
 1. **Architecture**  
    - **MVVM** is required. Keep logic in `ViewModel` classes or service/actor layers.  
-   - **Views** should remain “dumb” whenever possible, focusing on layout and UI composition.  
+   - **Views** should remain "dumb" whenever possible, focusing on layout and UI composition.  
 
 2. **Module Imports**  
    - Import modules individually (e.g., `import FirebaseAuth`, `import FirebaseFirestore`) rather than a broad `import Firebase`.  
@@ -66,7 +66,45 @@ Any references to specific file locations (e.g., `Utilities/GlobalError.swift``)
      - Shared sub-views (structs conforming to View).
      - Protocols with default implementations in extensions.
      - Custom view modifiers.
-   - Inheritance-based “base views” tend to work poorly with SwiftUI’s rendering system and type inference.
+   - Inheritance-based "base views" tend to work poorly with SwiftUI's rendering system and type inference.
+
+7. **Pure SwiftUI - No UIKit**
+   - Never import UIKit or use UIKit components
+   - Use SwiftUI native alternatives:
+     - Colors: Use `Color` with semantic colors (e.g., `.primary`, `.secondary`, `.background`)
+     - Text Input:
+       ```swift
+       TextField("Placeholder", text: $text)
+           .textFieldStyle(.plain)
+           .textContentType(.emailAddress) // For semantic meaning
+           .textInputAutocapitalization(.never)
+       ```
+     - Backgrounds: Use `.background(Material.regular)` or `.background(.thinMaterial)` for system-aware backgrounds
+     - System Colors: Use `.tint`, `.primary`, `.secondary` instead of UIColor
+     - Keyboard: Use native SwiftUI modifiers:
+       ```swift
+       .submitLabel(.done)
+       .textContentType(.emailAddress)
+       .textInputAutocapitalization(.never)
+       ```
+   - For custom styling, create reusable ViewModifiers:
+     ```swift
+     struct InputFieldModifier: ViewModifier {
+         func body(content: Content) -> some View {
+             content
+                 .padding()
+                 .background(.thinMaterial)
+                 .cornerRadius(8)
+         }
+     }
+     ```
+
+8. **System Integration**
+   - Use SwiftUI's environment values instead of UIKit equivalents
+   - For system features, use SwiftUI wrappers:
+     - `.photosPicker()` instead of UIImagePickerController
+     - `.shareLink()` instead of UIActivityViewController
+     - `.alert()` and `.confirmationDialog()` instead of UIAlertController
 
 ---
 
@@ -82,7 +120,7 @@ Any references to specific file locations (e.g., `Utilities/GlobalError.swift``)
 
 3. **Strict Checking**  
    - Enable Swift concurrency checks in your Xcode build settings.  
-   - If you see “actor-isolated property cannot be referenced” warnings, fix them by isolating calls (`await actorInstance.foo()`).
+   - If you see "actor-isolated property cannot be referenced" warnings, fix them by isolating calls (`await actorInstance.foo()`).
 
 4. **Task Cancellation**  
    - In loops or long-running tasks, check `Task.isCancelled` or call `try Task.checkCancellation()` to exit cleanly.
@@ -153,7 +191,7 @@ Any references to specific file locations (e.g., `Utilities/GlobalError.swift``)
 
 2. **Code Style & Concurrency Checks**  
    - Integrate SwiftLint or a custom script in your CI to enforce style and concurrency rules.  
-   - Run concurrency “stress tests” if your environment supports them.
+   - Run concurrency "stress tests" if your environment supports them.
 
 3. **Pull Requests**  
    - Automated pipelines should run all tests (unit, UI, lint) before merging to main.
@@ -211,7 +249,7 @@ enum GlobalError: LocalizedError {
 }
 
 </details>
-
+```
 
 Adherence to these rules ensures consistent architecture, safer concurrency, clearer error handling, and simpler future maintenance.
 
