@@ -1,30 +1,34 @@
 {
   "emulators": {
     "auth": {
-      "port": 9099
+      "port": 9099,
+      "logFile": "logs/auth-debug.log"
     },
     "firestore": {
-      "port": 8080
+      "port": 8080,
+      "logFile": "logs/firestore-debug.log"
     },
     "functions": {
-      "port": 5001
+      "port": 5001,
+      "logFile": "logs/functions-debug.log"
     },
     "storage": {
-      "port": 9199
+      "port": 9199,
+      "logFile": "logs/storage-debug.log"
     },
     "ui": {
       "enabled": true,
-      "port": 4000
+      "port": 4000,
+      "logFile": "logs/ui-debug.log"
     },
-    "singleProjectMode": true
+    "singleProjectMode": true,
+    "logging": {
+      "file": "logs/hub-debug.log"
+    }
   },
   "firestore": {
     "rules": "SecurityRules/firestore.rules",
-    "indexes": "Indexes/firestore.indexes.json"
-  },
-  "database": {
-    "rules": "SecurityRules/database.rules.json",
-    "port": 9000
+    "indexes": "Config/firestore.indexes.json"
   },
   "storage": {
     "rules": "SecurityRules/storage.rules"

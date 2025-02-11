@@ -29,6 +29,9 @@ Firebase/Config/api-keys.env
 **/ServiceAccount.json
 **/*-service-account.json
 **/.runtimeconfig.json
+Firebase/logs/
+**/firestore-debug.log
+**/ui-debug.log
 
 # Firebase Functions (Python)
 **/__pycache__/

@@ -1,9 +1,9 @@
 ---
-description: Step-by-step instructions for Git workflow, including branch management, commits, and PR process.
-globs: 
+description: Step-by-step instructions for Git workflow, including branch management, commits, and PR process
+globs: **/*.*
 ---
 ---
-description: "Step-by-step instructions for Git workflow, including branch management, commits, and PR process."
+description: "Step-by-step instructions for Git workflow, including branch management, commits, and PR process"
 globs: ["**/*.*"]
 source: "https://github.com/EugenEistrach/tanstack-boilerplate/blob/main/.cursor/rules/commit-conventions.mdc"
 version: "1.1.0"
