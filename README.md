@@ -1,3 +1,9 @@
+# ReelAI
+
+[![iOS CI](https://github.com/brettdavies/ReelAI/actions/workflows/ios-ci.yml/badge.svg)](https://github.com/brettdavies/ReelAI/actions/workflows/ios-ci.yml)
+
+Reimagining TikTok With AI
+
 # Swift Environment Template for iOS Development with Cursor
 
 [Original Blog Post](https://dimillian.medium.com/how-to-use-cursor-for-ios-development-54b912c23941)
@@ -62,7 +68,7 @@ To attach the debugger using Cursor:
 1. Build your project as described.
 2. Press F5 to attach the debugger.
    - You may be prompted to create a launch configuration for debug mode—select **Sweetpad** when prompted.
-   - Alternatively, use the Run & Debug tab’s "Attach to running app" action, which will build, launch, and debug your app automatically.
+   - Alternatively, use the Run & Debug tab's "Attach to running app" action, which will build, launch, and debug your app automatically.
 
 A sample configuration in your `./vscode/launch.json` looks like this:
 
@@ -82,7 +88,7 @@ A sample configuration in your `./vscode/launch.json` looks like this:
 
 ## Key Features with Cursor
 
-- **AI-Assisted Autocompletion:** Cursor not only leverages standard SourceKit completion but also provides AI-based suggestions that adapt to your project’s context. This helps you write code faster and keeps your style intact.
+- **AI-Assisted Autocompletion:** Cursor not only leverages standard SourceKit completion but also provides AI-based suggestions that adapt to your project's context. This helps you write code faster and keeps your style intact.
   
 - **Inline Editing via CMD+K:** Quickly generate context-specific code or initiate refactorings by using an in-editor prompt.
   
