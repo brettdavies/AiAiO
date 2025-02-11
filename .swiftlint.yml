@@ -14,7 +14,6 @@ opt_in_rules:
   - explicit_init
   - force_unwrapping
   - implicit_return
-  - sorted_imports
 
 analyzer_rules:
   - unused_declaration
