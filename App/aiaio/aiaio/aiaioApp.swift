@@ -7,6 +7,11 @@
 
 import SwiftData
 import SwiftUI
+import FirebaseCore
+import FirebaseAuth
+import FirebaseStorage
+import FirebaseFunctions
+import FirebaseFirestore
 
 @main
 struct AiAiOApp: App {
@@ -33,7 +38,7 @@ struct AiAiOApp: App {
             let settings = Firestore.firestore().settings
             settings.host = "localhost:8080"
             settings.isSSLEnabled = false
-            settings.isPersistenceEnabled = true
+            settings.cacheSettings = MemoryCacheSettings()
             Firestore.firestore().settings = settings
             Functions.functions().useEmulator(withHost: "localhost", port: 5001)
         } else {
