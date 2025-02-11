@@ -5,37 +5,74 @@ on:
     branches: [ main, development ]
     paths:
       - 'App/**'
+      - 'Firebase/**'
       - '.github/workflows/ios-ci.yml'
   pull_request:
     branches: [ main, development ]
     paths:
       - 'App/**'
+      - 'Firebase/**'
       - '.github/workflows/ios-ci.yml'
 
+# Prevent multiple deployments running at once
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build-and-test:
-    name: Build and Test
-    runs-on: macos-14
+  ios-build:
+    name: iOS Build and Test
+    runs-on: macos-15
     
     steps:
     - uses: actions/checkout@v4
     
     - name: Select Xcode
-      run: sudo xcode-select -s /Applications/Xcode_15.2.app
-      
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app
+    
+    - name: Cache SwiftLint
+      id: cache-swiftlint
+      uses: actions/cache@v3
+      with:
+        path: /usr/local/bin/swiftlint
+        key: ${{ runner.os }}-swiftlint
+        
     - name: Install SwiftLint
+      if: steps.cache-swiftlint.outputs.cache-hit != 'true'
       run: brew install swiftlint
 
+    - name: Cache xcbeautify
+      id: cache-xcbeautify
+      uses: actions/cache@v3
+      with:
+        path: /usr/local/bin/xcbeautify
+        key: ${{ runner.os }}-xcbeautify
+        
+    - name: Install xcbeautify
+      if: steps.cache-xcbeautify.outputs.cache-hit != 'true'
+      run: brew install xcbeautify
+      
     - name: Run SwiftLint
       run: swiftlint lint --strict App/aiaio
-      
+
+    - name: Cache SPM dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/Library/Caches/org.swift.swiftpm
+          ~/Library/Developer/Xcode/DerivedData
+        key: ${{ runner.os }}-spm-${{ hashFiles('App/aiaio/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+        restore-keys: |
+          ${{ runner.os }}-spm-
+        
     - name: Build iOS App
       run: |
         cd App/aiaio
-        xcodebuild clean build \
+        xcodebuild build-for-testing \
           -scheme aiaio \
-          -destination "platform=iOS Simulator,name=iPhone 15 Pro,OS=18.2" \
+          -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2" \
           -configuration Debug \
+          -allowProvisioningUpdates \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO \
@@ -45,9 +82,9 @@ jobs:
     - name: Run Tests
       run: |
         cd App/aiaio
-        xcodebuild test \
+        xcodebuild test-without-building \
           -scheme aiaio \
-          -destination "platform=iOS Simulator,name=iPhone 15 Pro,OS=18.2" \
+          -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2" \
           -configuration Debug \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
@@ -60,4 +97,52 @@ jobs:
         if ! grep -q "SWIFT_STRICT_CONCURRENCY = complete" aiaio.xcodeproj/project.pbxproj; then
           echo "Error: Strict concurrency is not enabled"
           exit 1
-        fi 
+        fi
+
+  firebase-build:
+    name: Firebase Build and Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Cache Python Binary
+      id: cache-python
+      uses: actions/cache@v3
+      with:
+        path: /opt/hostedtoolcache/Python
+        key: ${{ runner.os }}-python-3.12-${{ hashFiles('Firebase/functions/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-python-3.12-
+          ${{ runner.os }}-python-
+    
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+        cache-dependency-path: 'Firebase/functions/requirements.txt'
+        update-environment: false
+
+    - name: Cache Firebase CLI
+      id: cache-firebase-cli
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/firebase/tools
+        key: ${{ runner.os }}-firebase-cli-${{ hashFiles('Firebase/functions/**') }}
+        
+    - name: Install Firebase CLI
+      if: steps.cache-firebase-cli.outputs.cache-hit != 'true'
+      run: |
+        curl -sL https://firebase.tools | bash
+        firebase --version
+      
+    - name: Install Python Dependencies
+      run: |
+        cd Firebase/functions
+        python -m pip install -r requirements.txt
+        
+    - name: Test Firebase Functions
+      run: |
+        cd Firebase/functions
+        python -m pytest

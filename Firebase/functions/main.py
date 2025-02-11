@@ -17,6 +17,17 @@ initialize_app()
 
 @https_fn.on_request()
 def on_request_example(req: https_fn.Request) -> https_fn.Response:
+    """Handle HTTP requests to the function.
+    
+    This is a test function that demonstrates logging and error handling.
+    It's used to verify our CI pipeline is working correctly.
+    
+    Args:
+        req: The HTTP request object
+        
+    Returns:
+        https_fn.Response: A simple response with "Hello world!" or error status
+    """
     try:
         logger.info(f"Received request from {req.headers.get('X-Forwarded-For', 'unknown')}")
         
