@@ -2,28 +2,28 @@
   "emulators": {
     "auth": {
       "port": 9099,
-      "logFile": "logs/auth-debug.log"
+      "logFile": "Logs/auth-debug.log"
     },
     "firestore": {
       "port": 8080,
-      "logFile": "logs/firestore-debug.log"
+      "logFile": "Logs/firestore-debug.log"
     },
     "functions": {
       "port": 5001,
-      "logFile": "logs/functions-debug.log"
+      "logFile": "Logs/functions-debug.log"
     },
     "storage": {
       "port": 9199,
-      "logFile": "logs/storage-debug.log"
+      "logFile": "Logs/storage-debug.log"
     },
     "ui": {
       "enabled": true,
       "port": 4000,
-      "logFile": "logs/ui-debug.log"
+      "logFile": "Logs/ui-debug.log"
     },
     "singleProjectMode": true,
     "logging": {
-      "file": "logs/hub-debug.log"
+      "file": "Logs/hub-debug.log"
     }
   },
   "firestore": {
@@ -68,7 +68,8 @@
     "development": {
       "level": "debug",
       "emulator": true,
-      "crashlytics": false
+      "crashlytics": false,
+      "logFile": "Logs/tbs-debug.log"
     },
     "production": {
       "level": "warning",

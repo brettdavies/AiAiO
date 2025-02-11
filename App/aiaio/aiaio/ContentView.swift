@@ -1,19 +1,27 @@
 import SwiftUI
 
-// Define an enum to track which auth screen should be presented.
 enum AuthSheet: Identifiable {
     case signIn, signUp
     var id: Int { hashValue }
 }
 
 struct ContentView: View {
+    @EnvironmentObject var sessionManager: SessionManager
+    @EnvironmentObject var networkMonitor: NetworkMonitor
     @StateObject private var authViewModel = AuthViewModel()
 
     var body: some View {
         NavigationStack {
-            if authViewModel.isSignedIn {
+            if sessionManager.isSignedIn {
                 // Main content for authenticated users.
                 VStack(spacing: 16) {
+                    // Optionally display a network status banner.
+                    if !networkMonitor.isConnected {
+                        Text("Network connection lost. Some features may be unavailable.")
+                            .foregroundColor(.red)
+                            .font(.footnote)
+                    }
+                    
                     Image(systemName: "video.fill")
                         .imageScale(.large)
                         .foregroundStyle(.tint)
@@ -23,7 +31,7 @@ struct ContentView: View {
                         .foregroundStyle(.secondary)
                     
                     Button("Sign Out") {
-                        authViewModel.signOut()
+                        sessionManager.signOut()
                     }
                     .padding(.top)
                 }
@@ -32,6 +40,13 @@ struct ContentView: View {
             } else {
                 // Unauthenticated view presenting options to sign in or sign up.
                 VStack {
+                    if !networkMonitor.isConnected {
+                        Text("No network connection. Please check your connection.")
+                            .foregroundColor(.red)
+                            .font(.footnote)
+                            .padding(.vertical, 8)
+                    }
+                    
                     Spacer()
                     
                     Image(systemName: "video.fill")
@@ -48,7 +63,7 @@ struct ContentView: View {
                     
                     Spacer()
                     
-                    // Two buttons side-by-side to choose the desired auth flow.
+                    // Two buttons to choose the desired auth flow.
                     HStack(spacing: 16) {
                         Button("Sign In") {
                             authViewModel.activeAuthSheet = .signIn
@@ -58,6 +73,7 @@ struct ContentView: View {
                         .background(Color.blue)
                         .foregroundColor(.white)
                         .cornerRadius(10)
+                        .disabled(!networkMonitor.isConnected)
                         
                         Button("Sign Up") {
                             authViewModel.activeAuthSheet = .signUp
@@ -67,18 +83,21 @@ struct ContentView: View {
                         .background(Color.green)
                         .foregroundColor(.white)
                         .cornerRadius(10)
+                        .disabled(!networkMonitor.isConnected)
                     }
                     .padding(.horizontal)
                 }
-                // Present the appropriate modal based on the activeAuthSheet value.
+                // Present the appropriate modal based on activeAuthSheet.
                 .sheet(item: $authViewModel.activeAuthSheet) { sheet in
                     switch sheet {
                     case .signIn:
                         SignInView()
                             .environmentObject(authViewModel)
+                            .environmentObject(networkMonitor)
                     case .signUp:
                         SignUpView()
                             .environmentObject(authViewModel)
+                            .environmentObject(networkMonitor)
                     }
                 }
             }
@@ -89,5 +108,7 @@ struct ContentView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+            .environmentObject(SessionManager())
+            .environmentObject(NetworkMonitor())
     }
 }

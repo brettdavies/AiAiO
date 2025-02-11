@@ -87,9 +87,9 @@ Before starting any task:
    - `signUp(email: String, password: String) async throws`
 3. **Step 3**: Invoke Firebase Auth SDK calls, e.g.:
 
-   ```swift
-   try await Auth.auth().createUser(withEmail: email, password: password)
-   ```
+    ```swift
+    try await Auth.auth().createUser(withEmail: email, password: password)
+    ```
 
 4. **Step 4**: On success/failure, map errors to GlobalError (e.g., invalidEmail, weakPassword).
 5. **Step 5**: In SignInView / SignUpView, call these ViewModel methods on button taps.
@@ -111,18 +111,18 @@ Before starting any task:
 1. **Step 1**: Create branch `feature/slice2-task2.3-zero-trust-rules`.
 2. **Step 2**: In `/Firebase/SecurityRules/firestore.rules`, enforce
 
-  ```swift
-  rules_version = '2';
-  service cloud.firestore {
-    match /databases/{database}/documents {
-      match /{document=**} {
-        allow read, write: if request.auth != null;
+    ```swift
+    rules_version = '2';
+    service cloud.firestore {
+      match /databases/{database}/documents {
+        match /{document=**} {
+          allow read, write: if request.auth != null;
+        }
       }
     }
-  }
-  ```
+    ```
 
-  (Minimal requirement: Must be authenticated.)
+    (Minimal requirement: Must be authenticated.)
 
 3. **Step 3**: In `/Firebase/SecurityRules/storage.rules`, do similarly
 
@@ -139,11 +139,11 @@ Before starting any task:
 
 4. **Step 4**: Deploy these rules via Firebase CLI
 
-  ```bash
-  firebase deploy --only firestore:rules,storage:rules --project dev
-  ```
+    ```bash
+    firebase deploy --only firestore:rules,storage:rules --project dev
+    ```
 
-(Never via console.)
+    (Never via console.)
 
 5. **Step 5**: Merge into development once emulator tests confirm restricted access for anonymous users.
 

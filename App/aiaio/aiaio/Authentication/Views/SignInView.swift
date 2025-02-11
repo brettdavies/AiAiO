@@ -3,10 +3,20 @@ import SwiftUI
 struct SignInView: View {
     @State private var email: String = ""
     @State private var password: String = ""
-    @StateObject private var authViewModel = AuthViewModel()
-    
+    @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var networkMonitor: NetworkMonitor
+    @State private var localError: String?  // Removed redundant initialization
+    @State private var isLoading: Bool = false
+
     var body: some View {
         VStack(spacing: 16) {
+            if !networkMonitor.isConnected {
+                Text("No network connection. Please check your connection.")
+                    .foregroundColor(.red)
+                    .font(.footnote)
+                    .padding(.vertical, 8)
+            }
+            
             Text("Sign In")
                 .font(.largeTitle)
                 .padding(.bottom, 20)
@@ -22,33 +32,46 @@ struct SignInView: View {
                 .textContentType(.password)
                 .inputFieldStyle()
             
-            if authViewModel.isLoading {
+            if isLoading {
                 ProgressView()
             }
             
-            if let error = authViewModel.errorMessage {
+            if let error = localError {
                 Text(error)
-                    .foregroundStyle(.red)
+                    .foregroundColor(.red)
                     .font(.footnote)
             }
             
             Button(action: {
                 Task {
-                    await authViewModel.signIn(email: email, password: password)
+                    isLoading = true
+                    do {
+                        try await authViewModel.signIn(email: email, password: password)
+                        authViewModel.activeAuthSheet = nil
+                        localError = nil
+                    } catch {
+                        localError = error.localizedDescription
+                    }
+                    isLoading = false
                 }
             }, label: {
                 Text("Sign In")
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(.blue)
-                    .foregroundStyle(.white)
+                    .foregroundColor(.white)
                     .cornerRadius(8)
             })
+            .disabled(!networkMonitor.isConnected)
         }
         .padding()
     }
 }
 
-#Preview {
-    SignInView()
+struct SignInView_Previews: PreviewProvider {
+    static var previews: some View {
+        SignInView()
+            .environmentObject(AuthViewModel())
+            .environmentObject(NetworkMonitor())
+    }
 }
