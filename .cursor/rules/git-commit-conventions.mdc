@@ -19,7 +19,7 @@ We follow a structured approach to commit messages to maintain a clean and meani
 To guarantee that the computer agent adheres to this process every single time, **all** steps below must be followed **in exact order** without deviation or omission:
 
 1. **Run the Diffs Script**  
-   Execute the following command in the integrated terminal to capture diffs:  
+   From the repo root directory, execute the following command in the integrated terminal to capture diffs:  
 
    ```bash
    bash .cursor/rules/git-capture-diffs.sh
