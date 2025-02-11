@@ -13,4 +13,4 @@ extension View {
     func inputFieldStyle() -> some View {
         modifier(InputFieldModifier())
     }
-} 
+}
