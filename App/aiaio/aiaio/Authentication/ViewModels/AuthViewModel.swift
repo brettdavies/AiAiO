@@ -1,6 +1,11 @@
 import Foundation
 @preconcurrency import FirebaseAuth
 
+enum AuthSheet: Identifiable {
+    case signIn, signUp
+    var id: Int { hashValue }
+}
+
 @MainActor
 class AuthViewModel: ObservableObject {
     // UI state for the sign-in/sign-up flows.

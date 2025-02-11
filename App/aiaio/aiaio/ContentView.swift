@@ -1,10 +1,5 @@
 import SwiftUI
 
-enum AuthSheet: Identifiable {
-    case signIn, signUp
-    var id: Int { hashValue }
-}
-
 struct ContentView: View {
     @EnvironmentObject var sessionManager: SessionManager
     @EnvironmentObject var networkMonitor: NetworkMonitor
@@ -29,7 +24,12 @@ struct ContentView: View {
                         .font(.title)
                     Text("Your AI-powered video platform")
                         .foregroundStyle(.secondary)
-                    
+
+                    NavigationLink("View Groups") {
+                        GroupListView()
+                    }
+                    .padding(.top)
+
                     Button("Sign Out") {
                         sessionManager.signOut()
                     }
