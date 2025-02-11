@@ -11,7 +11,7 @@ final class SessionManager: ObservableObject {
     init() {
         UnifiedLogger.log("Initializing SessionManager and setting up auth state listener.", level: .info)
         // Listen for Firebase authentication state changes.
-        authStateDidChangeListenerHandle = Auth.auth().addStateDidChangeListener { [weak self] (_ , user) in
+        authStateDidChangeListenerHandle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
             Task { @MainActor in
                 self?.currentUser = user
                 self?.isSignedIn = (user != nil)
