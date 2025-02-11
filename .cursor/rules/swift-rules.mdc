@@ -49,24 +49,90 @@ Any references to specific file locations (e.g., `Utilities/GlobalError.swift``)
    - Prefer `@StateObject` or `@ObservedObject` for `ObservableObject` references.  
    - Avoid heavy logic in SwiftUI views; delegate to your `ViewModel` or service layer.
 
-3. **Preview Usage**  
+3. **Button Syntax**
+   - When using both action and label closures, use explicit parameter syntax:
+     ```swift
+     // Correct
+     Button(action: {
+         handleTap()
+     }, label: {
+         Text("Tap Me")
+     })
+
+     // Incorrect - Don't use multiple trailing closures
+     Button {
+         handleTap()
+     } label: {
+         Text("Tap Me")
+     }
+     ```
+   - Single trailing closure is acceptable for simple buttons:
+     ```swift
+     Button("Tap Me") {
+         handleTap()
+     }
+     ```
+
+4. **Preview Usage**  
    - For `#Preview`, avoid complex async logic directly in the preview closure.  
    - Inject mock or placeholder data for simple UI previews.
 
-4. **View Modifiers**  
+5. **View Modifiers**  
    - Extract commonly repeated modifier chains into an extension on `View` or a computed property.  
    - Keep layout clear with well-structured `VStack`, `HStack`, `ZStack`.
 
-5. **Dependency Injection**  
+6. **Dependency Injection**  
    - Always pass dependencies (services, actors) into a SwiftUI view via its initializer or via environment.  
    - For previews, substitute mock/test services for isolation.
 
-6. **Avoid Inheritance in Views**
+7. **Avoid Inheritance in Views**
    - SwiftUI views are usually structs conforming to the View protocol. If multiple views need the same logic or styling, factor those out into:
      - Shared sub-views (structs conforming to View).
      - Protocols with default implementations in extensions.
      - Custom view modifiers.
+<<<<<<< Updated upstream
    - Inheritance-based “base views” tend to work poorly with SwiftUI’s rendering system and type inference.
+=======
+   - Inheritance-based "base views" tend to work poorly with SwiftUI's rendering system and type inference.
+
+8. **Pure SwiftUI - No UIKit**
+   - Never import UIKit or use UIKit components
+   - Use SwiftUI native alternatives:
+     - Colors: Use `Color` with semantic colors (e.g., `.primary`, `.secondary`, `.background`)
+     - Text Input:
+       ```swift
+       TextField("Placeholder", text: $text)
+           .textFieldStyle(.plain)
+           .textContentType(.emailAddress) // For semantic meaning
+           .textInputAutocapitalization(.never)
+       ```
+     - Backgrounds: Use `.background(Material.regular)` or `.background(.thinMaterial)` for system-aware backgrounds
+     - System Colors: Use `.tint`, `.primary`, `.secondary` instead of UIColor
+     - Keyboard: Use native SwiftUI modifiers:
+       ```swift
+       .submitLabel(.done)
+       .textContentType(.emailAddress)
+       .textInputAutocapitalization(.never)
+       ```
+   - For custom styling, create reusable ViewModifiers:
+     ```swift
+     struct InputFieldModifier: ViewModifier {
+         func body(content: Content) -> some View {
+             content
+                 .padding()
+                 .background(.thinMaterial)
+                 .cornerRadius(8)
+         }
+     }
+     ```
+
+9. **System Integration**
+   - Use SwiftUI's environment values instead of UIKit equivalents
+   - For system features, use SwiftUI wrappers:
+     - `.photosPicker()` instead of UIImagePickerController
+     - `.shareLink()` instead of UIActivityViewController
+     - `.alert()` and `.confirmationDialog()` instead of UIAlertController
+>>>>>>> Stashed changes
 
 ---
 
@@ -164,7 +230,7 @@ Any references to specific file locations (e.g., `Utilities/GlobalError.swift``)
 
 1. **Doc Comments**  
    - Use triple-slash `///` for public APIs or complicated logic describing concurrency or usage details.  
-   - Provide a short summary of any method’s purpose, parameters, and thrown errors.
+   - Provide a short summary of any method's purpose, parameters, and thrown errors.
 
 2. **Updates & Versioning**  
    - Periodically review this style guide.  
