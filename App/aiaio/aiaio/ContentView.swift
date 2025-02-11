@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import os.log
 
 struct ContentView: View {
     var body: some View {
@@ -20,33 +21,38 @@ struct ContentView: View {
                     .foregroundStyle(.secondary)
 
                 // Test logging button
-                Button(
-                    action: {
-                        UnifiedLogger.log("Test log message from ContentView", level: .info)
+                Button(action: {
+                    // Example of different log levels
+                    UnifiedLogger.info(
+                        "User tapped test button",
+                        context: "UI"
+                    )
 
-                        // Example error handling
-                        do {
-                            throw GlobalError.networkFailure
-                        } catch let error as GlobalError {
-                            UnifiedLogger.log(
-                                "Caught error: \(error.localizedDescription)",
-                                level: .error
-                            )
-                        } catch {
-                            UnifiedLogger.log(
-                                "Unexpected error: \(error.localizedDescription)",
-                                level: .error
-                            )
-                        }
-                    },
-                    label: {
-                        Text("Test Logging")
-                            .padding()
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(8)
+                    // Example error handling
+                    do {
+                        UnifiedLogger.debug(
+                            "Simulating a network error",
+                            context: "Network"
+                        )
+                        throw GlobalError.networkFailure
+                    } catch let error as GlobalError {
+                        UnifiedLogger.error(
+                            error,
+                            context: "Network"
+                        )
+                    } catch {
+                        UnifiedLogger.error(
+                            "Unexpected error occurred",
+                            context: "Network"
+                        )
                     }
-                )
+                }) {
+                    Text("Test Logging")
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                }
                 .padding(.top, 20)
             }
             .padding()

@@ -1,95 +1,94 @@
 import Foundation
 
-/// Global error type for the application
+/// A global error type that provides consistent error handling across the app
 enum GlobalError: LocalizedError {
-    // Authentication errors
+    // MARK: - Cases
+
+    /// Authentication related errors
     case invalidEmail
     case weakPassword
-    case invalidCredentials
-    case userNotFound
+    case authenticationFailed
 
-    // Network errors
+    /// Network related errors
     case networkFailure
     case serverError
     case timeoutError
 
-    // Video errors
+    /// Data related errors
+    case invalidData
+    case decodingError
+    case encodingError
+
+    /// Video related errors
     case videoTooLarge
-    case unsupportedFormat
+    case invalidVideoFormat
     case uploadFailed
 
-    // Permission errors
-    case insufficientPermissions
-    case notAuthenticated
-
-    // Generic errors
+    /// Generic errors
     case unknown(String)
+    case notImplemented
+
+    // MARK: - LocalizedError Conformance
 
     var errorDescription: String? {
         switch self {
-        // Authentication
+        // Authentication errors
         case .invalidEmail:
             return "The email address is invalid"
         case .weakPassword:
             return "The password is too weak"
-        case .invalidCredentials:
-            return "Invalid email or password"
-        case .userNotFound:
-            return "No user found with this email"
+        case .authenticationFailed:
+            return "Authentication failed"
 
-        // Network
+        // Network errors
         case .networkFailure:
-            return "Network connection error"
+            return "Network connection failed"
         case .serverError:
             return "Server error occurred"
         case .timeoutError:
             return "Request timed out"
 
-        // Video
+        // Data errors
+        case .invalidData:
+            return "Invalid data received"
+        case .decodingError:
+            return "Failed to decode data"
+        case .encodingError:
+            return "Failed to encode data"
+
+        // Video errors
         case .videoTooLarge:
             return "Video file exceeds maximum size limit"
-        case .unsupportedFormat:
+        case .invalidVideoFormat:
             return "Unsupported video format"
         case .uploadFailed:
             return "Failed to upload video"
 
-        // Permissions
-        case .insufficientPermissions:
-            return "You don't have permission to perform this action"
-        case .notAuthenticated:
-            return "Please sign in to continue"
-
-        // Generic
+        // Generic errors
         case .unknown(let message):
-            return message
+            return "Unknown error: \(message)"
+        case .notImplemented:
+            return "This feature is not implemented yet"
         }
     }
 
     var failureReason: String? {
         switch self {
-        case .invalidEmail:
-            return "The email format is incorrect"
-        case .weakPassword:
-            return "Password must meet minimum requirements"
-        case .videoTooLarge:
-            return "Maximum file size is 100MB"
-        case .unknown:
-            return nil
+        case .unknown(let detail):
+            return detail
         default:
-            return errorDescription
+            return nil
         }
     }
 
     var recoverySuggestion: String? {
         switch self {
         case .networkFailure:
-            return "Check your internet connection and try again"
+            return "Please check your internet connection and try again"
         case .weakPassword:
-            return "Use at least 8 characters with numbers and special characters"
+            return "Please use a stronger password with at least 8 characters"
         case .videoTooLarge:
-            return "Try uploading a smaller video or compress the current one"
-        case .notAuthenticated:
-            return "Sign in to your account to continue"
+            return "Please select a video under 100MB"
         default:
             return nil
         }

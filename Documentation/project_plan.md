@@ -7,6 +7,10 @@ description: "High-level development roadmap for AiAiO, focusing on a secure, AI
 
 # AiAiO Project Plan
 
+[![iOS CI](https://github.com/brettdavies/ReelAI/actions/workflows/ios-ci.yml/badge.svg)](https://github.com/brettdavies/ReelAI/actions/workflows/ios-ci.yml)
+
+Reimagining TikTok With AI
+
 ## Table of Contents
 
 - [AiAiO Project Plan](#aiaio-project-plan)
@@ -26,7 +30,7 @@ AiAiO is a secure, AI-enabled video sharing app aimed at parents, coaches, and t
 **Mono-Repo Structure** (all tasks rely on CLI-based operations rather than manual dashboard actions):
 
 - **`/App`**: Swift 6 + SwiftUI iOS application (MVVM architecture, environment-based config, concurrency checks).
-- **`/Firebase`**: Firebase backend code (Cloud Functions, Security Rules, Emulators, Firestore indexes). Use the **Firebase CLI** for all deployments, rule updates, and configuration changes.
+- **`/Firebase`**: Python-based Firebase backend (Cloud Functions in Python 3.12, Security Rules, Emulators, Firestore indexes). Use the **Firebase CLI** for all deployments, rule updates, and configuration changes.
 
 **Core Features**:
 

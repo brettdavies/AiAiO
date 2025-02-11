@@ -33,7 +33,13 @@ language:
 firebase:
   ios_sdk: "11.8.1"
   rules_version: "2"
-  functions_runtime: "nodejs18"
+  functions_runtime: "python3.12"
+  functions_dependencies:
+    - firebase-functions: "~=0.1.0"
+    - firebase-admin: "~=6.2.0"
+    - google-cloud-firestore: "~=2.13.1"
+    - google-cloud-storage: "~=2.13.0"
+    - python-dotenv: "~=1.0.0"
   emulator_suite: "latest"
 ```
 
@@ -66,12 +72,14 @@ required:
   - swift_format: "0.53.0"
   - xcbeautify: "1.1.1"
   - firebase_cli: "13.0.0"
-  - node: "18.0.0"
+  - python: "3.12"
+  - pip: "latest"
 
 recommended:
   - cursor_ide: "latest"
   - swift_lint: "0.54.0"
   - firebase_emulator_suite: "latest"
+  - pytest: "~=8.0.0"
 ```
 
 ## Compiler Settings
@@ -121,8 +129,9 @@ production:
 - No usage of deprecated APIs from iOS versions < 18.2
 - All frameworks must use iOS 18.2 APIs and features
 - Firebase emulator suite must be used for local development
-- All Firebase functions must be deployed with TypeScript
+- All Firebase functions must be implemented in Python 3.12
 - Firestore rules must use version 2 syntax
 - All Firebase interactions must use async/await APIs
 - Security rules must be tested in emulator before deployment
-- Remote Config must have default values in version control 
+- Remote Config must have default values in version control
+- Python code must use type hints and follow PEP 8
