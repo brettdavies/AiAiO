@@ -5,23 +5,35 @@ on:
     branches: [ main, development ]
     paths:
       - 'App/**'
+      - 'Firebase/**'
       - '.github/workflows/ios-ci.yml'
   pull_request:
     branches: [ main, development ]
     paths:
       - 'App/**'
+      - 'Firebase/**'
       - '.github/workflows/ios-ci.yml'
 
 jobs:
   build-and-test:
     name: Build and Test
-    runs-on: macos-14
+    runs-on: macos-15
     
     steps:
     - uses: actions/checkout@v4
     
     - name: Select Xcode
-      run: sudo xcode-select -s /Applications/Xcode_15.2.app
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app
+    
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        
+    - name: Install Firebase CLI
+      run: |
+        curl -sL https://firebase.tools | bash
+        firebase --version
       
     - name: Install SwiftLint
       run: brew install swiftlint
@@ -29,6 +41,11 @@ jobs:
     - name: Run SwiftLint
       run: swiftlint lint --strict App/aiaio
       
+    - name: Install Python Dependencies
+      run: |
+        cd Firebase/functions
+        python -m pip install -r requirements.txt
+        
     - name: Build iOS App
       run: |
         cd App/aiaio
@@ -60,4 +77,9 @@ jobs:
         if ! grep -q "SWIFT_STRICT_CONCURRENCY = complete" aiaio.xcodeproj/project.pbxproj; then
           echo "Error: Strict concurrency is not enabled"
           exit 1
-        fi 
+        fi
+        
+    - name: Test Firebase Functions
+      run: |
+        cd Firebase/functions
+        python -m pytest 
