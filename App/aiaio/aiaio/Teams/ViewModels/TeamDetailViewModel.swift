@@ -4,7 +4,6 @@ import SwiftUI
 @MainActor
 final class TeamDetailViewModel: ObservableObject {
     // MARK: - Published Properties
-    
     @Published var team: Team
     @Published var hasAttemptedSave = false
     @Published var showValidationError = false
@@ -12,12 +11,10 @@ final class TeamDetailViewModel: ObservableObject {
     @Published var toastMessage = ""
     
     // MARK: - Dependencies
-    
     private let teamViewModel: TeamViewModel
     private let isCreating: Bool
     
     // MARK: - Computed Properties
-    
     var isFormValid: Bool {
         !team.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
         !team.description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -28,16 +25,15 @@ final class TeamDetailViewModel: ObservableObject {
     }
     
     // MARK: - Initialization
-    
     init(team: Team, teamViewModel: TeamViewModel) {
         self.team = team
         self.teamViewModel = teamViewModel
-        self.isCreating = team.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-            team.description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let trimmedName = team.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedDescription = team.description.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.isCreating = trimmedName.isEmpty && trimmedDescription.isEmpty
     }
     
     // MARK: - Public Methods
-    
     func handleSave() async -> Bool {
         hasAttemptedSave = true
         guard isFormValid else {
@@ -45,11 +41,9 @@ final class TeamDetailViewModel: ObservableObject {
             return false
         }
         
-        let success = if isCreating {
-            await createTeam()
-        } else {
-            await updateTeam()
-        }
+        let success: Bool = isCreating
+            ? (await teamViewModel.createTeam(name: team.name, description: team.description) != nil)
+            : await teamViewModel.updateTeam(team, userUID: team.ownerUID)
         
         if success {
             await showSuccessToast()
@@ -73,13 +67,9 @@ final class TeamDetailViewModel: ObservableObject {
     }
     
     // MARK: - Private Methods
-    
     private func createTeam() async -> Bool {
         UnifiedLogger.info("Attempting to create team", context: "Teams")
-        guard let _ = await teamViewModel.createTeam(
-            name: team.name,
-            description: team.description
-        ) else {
+        guard await teamViewModel.createTeam(name: team.name, description: team.description) != nil else {
             UnifiedLogger.error("Failed to create team", context: "Teams")
             return false
         }
@@ -112,4 +102,4 @@ final class TeamDetailViewModel: ObservableObject {
     private func showFailureToast() async {
         await showToast(message: isCreating ? "Failed to create team" : "Failed to update team")
     }
-} 
+}

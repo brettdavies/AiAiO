@@ -39,8 +39,7 @@ struct TeamDetailView: View {
         .overlay(ToastOverlay(isVisible: viewModel.showToast, message: viewModel.toastMessage))
     }
     
-    @ViewBuilder
-    private var teamNameField: some View {
+    @ViewBuilder private var teamNameField: some View {
         VStack(alignment: .leading) {
             HStack {
                 TextField("Team Name", text: $viewModel.team.name)
@@ -51,15 +50,13 @@ struct TeamDetailView: View {
                     }
                 }
             }
-            
             if !viewModel.validateField(\.name) {
                 ValidationErrorText(message: "Team Name is required")
             }
         }
     }
     
-    @ViewBuilder
-    private var descriptionField: some View {
+    @ViewBuilder private var descriptionField: some View {
         VStack(alignment: .leading) {
             HStack {
                 TextField("Description", text: $viewModel.team.description)
@@ -69,7 +66,6 @@ struct TeamDetailView: View {
                     }
                 }
             }
-            
             if !viewModel.validateField(\.description) {
                 ValidationErrorText(message: "Description is required")
             }
@@ -125,11 +121,6 @@ private struct ToastOverlay: View {
 
 struct TeamDetailView_Previews: PreviewProvider {
     static var previews: some View {
-        let sessionManager = SessionManager()
-        let teamViewModel = TeamViewModel(sessionManager: sessionManager)
-        TeamDetailView(
-            team: Team.new(),
-            teamViewModel: teamViewModel
-        )
+        TeamDetailView(team: Team.new(), teamViewModel: TeamViewModel(sessionManager: SessionManager()))
     }
 }
