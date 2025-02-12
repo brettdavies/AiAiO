@@ -27,11 +27,11 @@
     }
   },
   "firestore": {
-    "rules": "Firebase/SecurityRules/firestore.rules",
-    "indexes": "Firebase/Config/firestore.indexes.json"
+    "rules": "SecurityRules/firestore.rules",
+    "indexes": "Config/firestore.indexes.json"
   },
   "storage": {
-    "rules": "Firebase/SecurityRules/storage.rules"
+    "rules": "SecurityRules/storage.rules"
   },
   "functions": [
     {

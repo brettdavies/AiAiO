@@ -10,7 +10,6 @@ struct ContentView: View {
             if sessionManager.isSignedIn {
                 // Main content for authenticated users.
                 VStack(spacing: 16) {
-                    // Optionally display a network status banner.
                     if !networkMonitor.isConnected {
                         Text("Network connection lost. Some features may be unavailable.")
                             .foregroundColor(.red)
@@ -24,12 +23,13 @@ struct ContentView: View {
                         .font(.title)
                     Text("Your AI-powered video platform")
                         .foregroundStyle(.secondary)
-
-                    NavigationLink("View Groups") {
-                        GroupListView()
+                    
+                    NavigationLink("View Teams") {
+                        // TeamListView automatically inherits TeamViewModel from the environment.
+                        TeamListView()
                     }
                     .padding(.top)
-
+                    
                     Button("Sign Out") {
                         sessionManager.signOut()
                     }
@@ -38,7 +38,7 @@ struct ContentView: View {
                 .padding()
                 .navigationTitle("AiAiO")
             } else {
-                // Unauthenticated view presenting options to sign in or sign up.
+                // Unauthenticated view presenting sign in/up options.
                 VStack {
                     if !networkMonitor.isConnected {
                         Text("No network connection. Please check your connection.")
@@ -46,24 +46,17 @@ struct ContentView: View {
                             .font(.footnote)
                             .padding(.vertical, 8)
                     }
-                    
                     Spacer()
-                    
                     Image(systemName: "video.fill")
                         .imageScale(.large)
                         .foregroundStyle(.tint)
                         .font(.system(size: 60))
-                    
                     Text("Welcome to AiAiO")
                         .font(.title)
                         .padding(.top)
-                    
                     Text("Your AI-powered video platform")
                         .foregroundStyle(.secondary)
-                    
                     Spacer()
-                    
-                    // Two buttons to choose the desired auth flow.
                     HStack(spacing: 16) {
                         Button("Sign In") {
                             authViewModel.activeAuthSheet = .signIn
@@ -87,7 +80,6 @@ struct ContentView: View {
                     }
                     .padding(.horizontal)
                 }
-                // Present the appropriate modal based on activeAuthSheet.
                 .sheet(item: $authViewModel.activeAuthSheet) { sheet in
                     switch sheet {
                     case .signIn:
