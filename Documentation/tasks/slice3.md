@@ -114,35 +114,13 @@ Before starting any task:
 
 ### Task 3.3 Roster Data (Faces, Jersey Numbers)
 
-**Objective**: Store per-member data (child name, face photo reference, jersey #) to assist future AI.
-
-1. **Step 1**: `feature/slice3-task3.3-roster-data` branch.
-2. **Step 2**: Extend Team or create a Member struct:
-
-```swift
-struct Member: Codable, Identifiable {
-    var id: String
-    var name: String
-    var jerseyNumber: String?
-    var facePhotoURL: String? // optional
-}
-```
-
-3. **Step 3**: Possibly use a subcollection (teams/{teamID}/members/{memberID}) or embed in a single Team doc.
-4. **Step 4**: SwiftUI forms in TeamDetailView to add/edit members.
-5. **Step 5**: Merge once tested locally.
-
-**Definition of Done** (Machine-Readable):
-
-- A roster management form is present.
-- Child data (face photo, jersey #) is stored in Firestore (subcollection or embedded).
-- PR merges to development after local tests.
+[[REMOVED]]
 
 ---
 
 ### Task 3.4 Security Rules (Phase 2)
 
-**Objective**: Only team owners can create/edit a team or roster, others are denied.
+**Objective**: Only team owners can create/edit a team, others are denied.
 
 1. **Step 1**: `feature/slice3-task3.4-rules-phase2` branch.
 2. **Step 2**: In `/Firebase/SecurityRules/firestore.rules`, refine
