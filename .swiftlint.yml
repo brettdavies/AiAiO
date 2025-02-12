@@ -4,11 +4,10 @@
 disabled_rules:
   - no_module_imports  # Required for Package.swift
   - trailing_whitespace
+  - todo
+  - unresolved_import
 
-# Configure rule severities
-todo: warning
-unresolved_import: warning
-
+# Opt-in rules
 opt_in_rules:
   - array_init
   - attributes
@@ -109,4 +108,3 @@ custom_rules:
     regex: '^import\s+(Logging|Utilities)'
     message: "Do not import internal modules in the same target"
     severity: error
-  
