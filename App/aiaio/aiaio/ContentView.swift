@@ -25,7 +25,6 @@ struct ContentView: View {
                         .foregroundStyle(.secondary)
                     
                     NavigationLink("View Teams") {
-                        // TeamListView automatically inherits TeamViewModel from the environment.
                         TeamListView()
                     }
                     .padding(.top)

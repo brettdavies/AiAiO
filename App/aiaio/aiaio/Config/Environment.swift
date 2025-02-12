@@ -5,8 +5,10 @@ enum Environment {
     /// The current environment the app is running in
     static var current: EnvironmentType {
         #if DEBUG
+            UnifiedLogger.info("Running in development environment", context: "App")
             return .development
         #else
+            UnifiedLogger.info("Running in production environment", context: "App")
             return .production
         #endif
     }

@@ -126,7 +126,7 @@ Before starting any task:
 2. **Step 2**: In `/Firebase/SecurityRules/firestore.rules`, refine
 
 ```swift
-match /teams/{teamId} {
+match /teams/{teamId} { 
   allow create: if request.auth != null; // or request.auth.uid is team owner
   allow read: if request.auth != null;
   allow update, delete: if resource.data.ownerUID == request.auth.uid;

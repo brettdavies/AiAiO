@@ -10,6 +10,7 @@ final class ToastManager: ObservableObject, @unchecked Sendable {
     ///   - message: The message to display.
     ///   - duration: Duration in seconds for which the toast is visible.
     func showToast(message: String, duration: TimeInterval = 2.0) {
+        UnifiedLogger.info("Showing toast: \(message)", context: "ToastManager")
         self.message = message
         withAnimation {
             isVisible = true

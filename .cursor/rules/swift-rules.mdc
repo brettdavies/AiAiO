@@ -1,5 +1,5 @@
 ---
-description: Swift6, SwiftUI, Swift guideline
+description: Swift6, SwiftUI, Swift guideline.
 globs: **/*.swift
 ---
 ---
@@ -51,6 +51,7 @@ Any references to specific file locations (e.g., `Utilities/GlobalError.swift``)
 
 3. **Button Syntax**
    - When using both action and label closures, use explicit parameter syntax:
+
      ```swift
      // Correct
      Button(action: {
@@ -66,7 +67,9 @@ Any references to specific file locations (e.g., `Utilities/GlobalError.swift``)
          Text("Tap Me")
      }
      ```
+
    - Single trailing closure is acceptable for simple buttons:
+
      ```swift
      Button("Tap Me") {
          handleTap()
@@ -90,9 +93,6 @@ Any references to specific file locations (e.g., `Utilities/GlobalError.swift``)
      - Shared sub-views (structs conforming to View).
      - Protocols with default implementations in extensions.
      - Custom view modifiers.
-<<<<<<< Updated upstream
-   - Inheritance-based “base views” tend to work poorly with SwiftUI’s rendering system and type inference.
-=======
    - Inheritance-based "base views" tend to work poorly with SwiftUI's rendering system and type inference.
 
 8. **Pure SwiftUI - No UIKit**
@@ -100,21 +100,26 @@ Any references to specific file locations (e.g., `Utilities/GlobalError.swift``)
    - Use SwiftUI native alternatives:
      - Colors: Use `Color` with semantic colors (e.g., `.primary`, `.secondary`, `.background`)
      - Text Input:
+
        ```swift
        TextField("Placeholder", text: $text)
            .textFieldStyle(.plain)
            .textContentType(.emailAddress) // For semantic meaning
            .textInputAutocapitalization(.never)
        ```
+
      - Backgrounds: Use `.background(Material.regular)` or `.background(.thinMaterial)` for system-aware backgrounds
      - System Colors: Use `.tint`, `.primary`, `.secondary` instead of UIColor
      - Keyboard: Use native SwiftUI modifiers:
+
        ```swift
        .submitLabel(.done)
        .textContentType(.emailAddress)
        .textInputAutocapitalization(.never)
        ```
+
    - For custom styling, create reusable ViewModifiers:
+
      ```swift
      struct InputFieldModifier: ViewModifier {
          func body(content: Content) -> some View {
@@ -132,7 +137,6 @@ Any references to specific file locations (e.g., `Utilities/GlobalError.swift``)
      - `.photosPicker()` instead of UIImagePickerController
      - `.shareLink()` instead of UIActivityViewController
      - `.alert()` and `.confirmationDialog()` instead of UIAlertController
->>>>>>> Stashed changes
 
 ---
 
@@ -251,14 +255,14 @@ actor VideoProcessor {
         // Process and return a local file URL
     }
 }
-
+```
 </details>
 
 
 <details>
 <summary><strong>Global Error Enum</strong></summary>
 
-
+```swift
 enum GlobalError: LocalizedError {
     case invalidEmail
     case weakPassword
@@ -275,6 +279,7 @@ enum GlobalError: LocalizedError {
         }
     }
 }
+```
 
 </details>
 

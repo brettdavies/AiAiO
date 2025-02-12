@@ -10,9 +10,9 @@ enum AuthSheet: Identifiable {
 class AuthViewModel: ObservableObject {
     // UI state for the sign-in/sign-up flows.
     @Published var isLoading: Bool = false
-    @Published var errorMessage: String?  // Removed redundant initialization
+    @Published var errorMessage: String?
     /// Controls which auth modal (sign in or sign up) is active.
-    @Published var activeAuthSheet: AuthSheet?  // Removed redundant initialization
+    @Published var activeAuthSheet: AuthSheet?
 
     /// Attempts to sign in using Firebase Auth.
     func signIn(email: String, password: String) async throws {
@@ -22,24 +22,13 @@ class AuthViewModel: ObservableObject {
             // Firebase async/await sign-in call.
             _ = try await Auth.auth().signIn(withEmail: email, password: password)
             isLoading = false
-            UnifiedLogger.log("User signed in successfully.", level: .info)
-            // Global auth state is handled by SessionManager.
-        } catch let err as NSError {
+            UnifiedLogger.info("User signed in successfully.", context: "Auth")
+        } catch let error as NSError {
             isLoading = false
-            if err.code == AuthErrorCode.invalidEmail.rawValue {
-                errorMessage = GlobalError.invalidEmail.errorDescription
-                UnifiedLogger.log("Sign in failed: \(GlobalError.invalidEmail.errorDescription ?? "")", level: .error)
-                throw GlobalError.invalidEmail
-            } else if err.code == AuthErrorCode.weakPassword.rawValue {
-                errorMessage = GlobalError.weakPassword.errorDescription
-                UnifiedLogger.log("Sign in failed: \(GlobalError.weakPassword.errorDescription ?? "")", level: .error)
-                throw GlobalError.weakPassword
-            } else {
-                let mappedError = GlobalError.unknown(err.localizedDescription)
-                errorMessage = mappedError.errorDescription
-                UnifiedLogger.log("Sign in failed: \(mappedError.errorDescription ?? "")", level: .error)
-                throw mappedError
-            }
+            let mappedError = mapFirebaseError(error)
+            errorMessage = mappedError.errorDescription
+            UnifiedLogger.error("Sign in failed: \(mappedError.errorDescription ?? "")", context: "Auth")
+            throw mappedError
         }
     }
 
@@ -51,37 +40,27 @@ class AuthViewModel: ObservableObject {
             // Firebase async/await sign-up call.
             _ = try await Auth.auth().createUser(withEmail: email, password: password)
             isLoading = false
-            UnifiedLogger.log("User signed up successfully.", level: .info)
-        } catch let err as NSError {
+            UnifiedLogger.info("User signed up successfully.", context: "Auth")
+        } catch let error as NSError {
             isLoading = false
-            if err.code == AuthErrorCode.invalidEmail.rawValue {
-                errorMessage = GlobalError.invalidEmail.errorDescription
-                UnifiedLogger.log("Sign up failed: \(GlobalError.invalidEmail.errorDescription ?? "")", level: .error)
-                throw GlobalError.invalidEmail
-            } else if err.code == AuthErrorCode.weakPassword.rawValue {
-                errorMessage = GlobalError.weakPassword.errorDescription
-                UnifiedLogger.log("Sign up failed: \(GlobalError.weakPassword.errorDescription ?? "")", level: .error)
-                throw GlobalError.weakPassword
-            } else {
-                let mappedError = GlobalError.unknown(err.localizedDescription)
-                errorMessage = mappedError.errorDescription
-                UnifiedLogger.log("Sign up failed: \(mappedError.errorDescription ?? "")", level: .error)
-                throw mappedError
-            }
+            let mappedError = mapFirebaseError(error)
+            errorMessage = mappedError.errorDescription
+            UnifiedLogger.error("Sign up failed: \(mappedError.errorDescription ?? "")", context: "Auth")
+            throw mappedError
         }
     }
 
     /// Signs out the current user.
     func signOut() async throws {
-        UnifiedLogger.log("Attempting sign out via AuthViewModel.", level: .info)
+        UnifiedLogger.info("Attempting sign out via AuthViewModel.", context: "Auth")
         do {
             try Auth.auth().signOut()
-            UnifiedLogger.log("User signed out successfully.", level: .info)
-        } catch let err as NSError {
+            UnifiedLogger.info("User signed out successfully.", context: "Auth")
+        } catch let error as NSError {
             isLoading = false
-            let mappedError = GlobalError.unknown(err.localizedDescription)
+            let mappedError = mapFirebaseError(error)
             errorMessage = mappedError.errorDescription
-            UnifiedLogger.log("Sign out failed: \(mappedError.errorDescription ?? "")", level: .error)
+            UnifiedLogger.error("Sign out failed: \(mappedError.errorDescription ?? "")", context: "Auth")
             throw mappedError
         }
     }

@@ -31,7 +31,7 @@ struct TeamListView: View {
         NavigationStack {
             List(teams) { team in
                 NavigationLink(
-                    destination: TeamDetailView(team: team)
+                    destination: TeamDetailView(team: team, teamViewModel: teamViewModel)
                         .environmentObject(teamViewModel)
                 ) {
                     VStack(alignment: .leading, spacing: 4) {
@@ -56,7 +56,7 @@ struct TeamListView: View {
             .sheet(isPresented: $isPresentingNewTeam) {
                 NavigationStack {
                     // Present TeamDetailView in creation mode using the convenience initializer.
-                    TeamDetailView(team: Team.new(), onDismiss: {
+                    TeamDetailView(team: Team.new(), teamViewModel: teamViewModel, onDismiss: {
                         isPresentingNewTeam = false
                     })
                     .environmentObject(teamViewModel)
