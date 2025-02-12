@@ -59,7 +59,8 @@ final class TeamDetailViewModel: ObservableObject {
     }
     
     func validateField(_ keyPath: KeyPath<Team, String>) -> Bool {
-        let isValid = !hasAttemptedSave || !team[keyPath: keyPath].trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let isValid = !hasAttemptedSave
+            || !team[keyPath: keyPath].trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         if !isValid {
             UnifiedLogger.debug("Field \(keyPath) failed validation", context: "Teams")
         }
