@@ -1,0 +1,137 @@
+---
+description: technology stack specification
+globs: **/*.*
+---
+---
+description: Technology stack specification
+globs: ["**/*.*"]
+source: N/A
+version "1.0.0"
+last_updated "2025-02-03"
+---
+
+
+# Technology Stack Specification
+
+## Platform Requirements
+```yaml
+ios:
+  minimum_version: "18.2"
+  target_version: "18.2"
+  xcode_version: "15.2"
+  build_system: "Swift PM" # ALWAYS VERIFY CONTENTS OF `project.pbxproj`. DO NOT USE `PACKAGE.JSON`. DO NOT CREATE A `PACKAGE.JSON` FILE.
+  deployment_target: "18.2"
+  architectures: ["arm64"]
+
+language:
+  swift_version: "6.0"
+  swift_tools_version: "6.0"
+  swift_concurrency: "strict"
+  actor_isolation: "strict"
+  type_safety: "strict"
+
+firebase:
+  ios_sdk: "11.8.1"
+  rules_version: "2"
+  functions_runtime: "python3.12"
+  functions_dependencies:
+    - firebase-functions: "~=0.1.0"
+    - firebase-admin: "~=6.2.0"
+    - google-cloud-firestore: "~=2.13.1"
+    - google-cloud-storage: "~=2.13.0"
+    - python-dotenv: "~=1.0.0"
+  emulator_suite: "latest"
+```
+
+## Framework Dependencies
+```yaml
+required:
+  - SwiftUI: "18.2"
+  - AVFoundation: "18.2"
+  - CoreImage: "18.2"
+  - VideoToolbox: "18.2"
+  - FirebaseCore: "11.8.1"
+  - FirebaseAuth: "11.8.1"
+  - FirebaseFirestore: "11.8.1"
+  - FirebaseStorage: "11.8.1"
+  - FirebaseAnalytics: "11.8.1"
+  - FirebaseFunctions: "11.8.1"
+  - FirebaseRemoteConfig: "11.8.1"
+
+optional:
+  - CoreML: "18.2"
+  - Vision: "18.2"
+  - FirebaseCrashlytics: "11.8.1"
+  - FirebasePerformance: "11.8.1"
+```
+
+## Development Tools
+```yaml
+required:
+  - xcode_build_server: "15.2"
+  - swift_format: "0.53.0"
+  - xcbeautify: "1.1.1"
+  - firebase_cli: "13.0.0"
+  - python: "3.12"
+  - pip: "latest"
+
+recommended:
+  - cursor_ide: "latest"
+  - swift_lint: "0.54.0"
+  - firebase_emulator_suite: "latest"
+  - pytest: "~=8.0.0"
+```
+
+## Compiler Settings
+```yaml
+swift_settings:
+  concurrency_checking: "strict"
+  type_checking: "strict"
+  actor_isolation: "strict"
+  sendable_checking: "strict"
+  build_configuration: "debug"
+  optimization_level: "-Onone"
+  swift_active_compilation_conditions: ["DEBUG", "FIREBASE_EMULATOR"]
+
+xcode_settings:
+  enable_testability: true
+  validate_product: true
+  enable_strict_concurrency: true
+  swift_treat_warnings_as_errors: true
+  clang_treat_warnings_as_errors: true
+```
+
+## Firebase Configuration
+```yaml
+development:
+  use_emulators: true
+  emulator_ports:
+    auth: 9099
+    firestore: 8080
+    functions: 5001
+    storage: 9199
+  logging_level: "debug"
+  offline_persistence: true
+  cache_size_mb: 100
+
+production:
+  region: "us-central1"
+  timeout_seconds: 60
+  memory: "256MB"
+  min_instances: 0
+  max_instances: "auto"
+```
+
+## Notes
+- All versions must be exact matches unless specified as "latest"
+- Swift 6 strict concurrency and actor isolation rules must be followed
+- All new code must be fully async/await compliant
+- No usage of deprecated APIs from iOS versions < 18.2
+- All frameworks must use iOS 18.2 APIs and features
+- Firebase emulator suite must be used for local development
+- All Firebase functions must be implemented in Python 3.12
+- Firestore rules must use version 2 syntax
+- All Firebase interactions must use async/await APIs
+- Security rules must be tested in emulator before deployment
+- Remote Config must have default values in version control
+- Python code must use type hints and follow PEP 8

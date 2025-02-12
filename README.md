@@ -1,97 +1,114 @@
-# Swift Environment Template for iOS Development with Cursor
+[![iOS CI](https://github.com/brettdavies/ReelAI/actions/workflows/ios-ci.yml/badge.svg)](https://github.com/brettdavies/ReelAI/actions/workflows/ios-ci.yml)
 
-[Original Blog Post](https://dimillian.medium.com/how-to-use-cursor-for-ios-development-54b912c23941)
+# ReelAI
+
+## Reimagining TikTok with AI
+
+ReelAI is a secure, AI-enabled video sharing platform built with modern SwiftUI and Firebase technologies. Designed for creators—including parents, coaches, and teachers—ReelAI rethinks short-form video by leveraging artificial intelligence to simplify content creation, enhance privacy, and deliver a personalized experience for both content creators and consumers.
 
 ## Overview
 
-This template provides an alternative iOS development setup using Cursor—a fork of VSCode with AI-assisted code editing—rather than relying solely on Xcode. It is designed around a Swift environment that leverages modern developer productivity tools and streamlined workflows.
+ReelAI transforms the way videos are captured, edited, and shared. By automating tedious tasks (such as video editing, metadata generation, and format validations) with AI, ReelAI enables creators to focus on their content while ensuring a privacy-first, zero-trust experience for all users.
 
-## Prerequisites
+Key features include:
 
-Before you begin, ensure you have the following installed on your system:
+- Authentication & Secure Access:
+Robust sign-up and sign-in flows with Firebase Auth and zero-trust security rules.
 
-- **Cursor:** A code editor that enhances the VSCode experience with AI-powered features (free with a subscription for advanced features).
-- **Homebrew:** To install necessary command-line tools.
-- **Xcode Build Server:** Allows SourceKit-LSP to function outside of Xcode, providing features like jump-to-definition, reference lookup, and more.
+- Team Management:
+Create and manage teams (previously known as groups) to control who can view and interact with content.
 
-Additionally, install the following tools via Homebrew:
+- Video Upload & Offline Caching:
+A SwiftUI interface for video selection/recording with client-side validations and offline caching using SwiftData.
 
-- **xcbeautify:** To pretty print the `xcodebuild` output.
-- **swiftformat:** To format Swift code consistently.
+- AI-Enabled Metadata Generation:
+Cloud Functions process videos to generate summaries, transcriptions, and perform facial/jersey recognition.
+
+- Robust Logging & Error Handling:
+A unified logging system captures events and errors, ensuring high observability and streamlined debugging.
+
+## Technology Stack
+
+- iOS: Swift 6 with SwiftUI on iOS 18 (minimum deployment target iOS 18.2)
+- Firebase:
+- Authentication, Firestore, Storage, Cloud Functions, and Remote Config
+- Local development via the Firebase Emulator Suite
+- AI Processing: Cloud Functions (Python 3.12) for video metadata and content analysis
+- Cursor IDE: AI-assisted code editing and project management (as an alternative to Xcode)
+- SwiftPM: All dependencies are managed via Swift Package Manager (no Node-based packages)
+
+## Repository Structure
+
+The repository is organized as a monorepo:
+
+- App/
+  Contains the iOS application built in SwiftUI, organized into feature folders such as:
+  - Authentication/ (Views, ViewModels, Services)
+  - Teams/ (formerly Groups – Views, ViewModels, Models)
+  - VideoUpload/ (Views, ViewModels, Services)
+  - Utilities/ (GlobalError, GlobalValidator, ToastManager, etc.)
+  - Localization/ (Language-specific .lproj folders)
+  - Logging/ (UnifiedLogger, Crashlytics integration)
+
+- Firebase/
+  Contains backend code and configurations:
+  - Functions/ – Cloud Functions code for video processing and AI metadata
+  - Config/ – firebase.json, Firestore indexes, and environment configuration files
+  - SecurityRules/ – Firestore and Storage rules (managed via the Firebase CLI)
+  - Emulators/ – Local emulator configurations for Auth, Firestore, Storage, and Functions
+
+- Tests/
+  Contains Unit, Integration, and UITests
+
+- Docs/
+  Project documentation, design documents, and user guides
 
 ## Setup Instructions
 
-1. **Install Xcode Build Server:**
-   Install via Homebrew:
+1. Install Prerequisites:
+
+   - Cursor IDE for AI-assisted editing (or use your preferred IDE)
+   - Homebrew
+   - Xcode 15.2 (or later) with Swift 6 support
+
+2. Install Command-Line Tools:
+
+   - xcbeautify: brew install xcbeautify
+   - swiftformat: brew install swiftformat
+   - Firebase CLI: brew install firebase-cli
+
+3. Configure Firebase:
+
+   - Ensure you have a Firebase project set up.
+   - In the Firebase/Config folder, verify your firebase.json and other config files.
+   - Use the Firebase Emulator Suite for local development:
 
    ```bash
-   brew install xcode-build-server
+   firebase emulators:start --project <your_project_id>
    ```
 
-2. **Install xcbeautify:**
-   Install via Homebrew:
+4. Build & Run:
 
-   ```bash
-   brew install xcbeautify
-   ```
+   - Open the project in Xcode (all dependencies are managed via SwiftPM).
+   - Use the Sweetpad extension (or build server commands) as described in the documentation to build and run the app.
+   - Use the integrated debugging tools in Cursor for a streamlined development experience.
 
-3. **Install swiftformat:**
-   If not already installed, use:
+5. Debugging & Logging:
 
-   ```bash
-   brew install swiftformat
-   ```
+   - All significant events and errors are logged via the UnifiedLogger and surfaced in the console.
+   - For toast notifications and error feedback, the app uses a global ToastManager that you can trigger from any view.
 
-4. **Launch Cursor and Install Extensions:**
-   - Open Cursor.
-   - Navigate to the Extensions tab and install:
-     - **Swift Language Support:** For syntax highlighting and other essential Swift features.
-     - **Sweetpad:** This extension brings a suite of commands for managing builds using the Xcode Build Server. Sweetpad [homepage](https://sweetpad.hyzyla.dev/) and [Github](https://github.com/hyzyla/sweetpad).
+## Contributing
 
-5. **Configure Sweetpad:**
-   - Open the command palette (CMD+SHIFT+P).
-   - Select **Sweetpad: Generate Build Server Config**. This creates a `buildServer.json` file at the root of your project directory, enabling full SourceKit-LSP functionality within Cursor.
+- Branch per Task:
+Create feature branches (e.g., feature/slice3-team-management) for each task.
 
-6. **Build and Run Your Project:**
-   - Use the Sweetpad tab (or execute Build & Run from the command palette) to build your project. Running the project at least once will generate the necessary metadata (autocomplete, jump-to-definition, etc.).
+- PR Guidelines:
+Ensure that all tests pass and follow the coding guidelines provided in the documentation.
 
-## Debugging Configuration
+## CI/CD:
+GitHub Actions handle linting, unit tests, integration tests, and deployment steps.
 
-To attach the debugger using Cursor:
+## Happy coding!
 
-1. Build your project as described.
-2. Press F5 to attach the debugger.
-   - You may be prompted to create a launch configuration for debug mode—select **Sweetpad** when prompted.
-   - Alternatively, use the Run & Debug tab’s "Attach to running app" action, which will build, launch, and debug your app automatically.
-
-A sample configuration in your `./vscode/launch.json` looks like this:
-
-```json
-{
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "sweetpad-lldb",
-            "request": "launch",
-            "name": "Attach to running app (SweetPad)",
-            "preLaunchTask": "sweetpad: launch"
-        }
-    ]
-}
-```
-
-## Key Features with Cursor
-
-- **AI-Assisted Autocompletion:** Cursor not only leverages standard SourceKit completion but also provides AI-based suggestions that adapt to your project’s context. This helps you write code faster and keeps your style intact.
-  
-- **Inline Editing via CMD+K:** Quickly generate context-specific code or initiate refactorings by using an in-editor prompt.
-  
-- **Integrated Chat:** Use the chat panel (triggered by CMD+L) to query coding questions, discuss design decisions, or request code edits. This keeps your workflow smooth without switching contexts.
-
-- **Composer for Bulk Edits:** Automate generation of multiple files or large-scale refactoring tasks using detailed prompts—a robust addition to the development workflow.
-
-## Conclusion
-
-This Swift environment template with Cursor as an alternative to Xcode harnesses modern developer tools to offer a faster, more modular, and AI-enhanced development experience. Whether you are building a SwiftUI Mastodon client or any other iOS project, you now have a setup that promises efficiency and enhanced productivity.
-
-Happy coding!
+ReelAI is built to empower creators with cutting-edge AI and a privacy-first approach—welcome to the future of video sharing.

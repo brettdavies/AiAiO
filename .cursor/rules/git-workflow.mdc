@@ -1,0 +1,138 @@
+---
+description: Step-by-step instructions for Git workflow, including branch management, commits, and PR process
+globs: **/*.*
+---
+---
+description: "Step-by-step instructions for Git workflow, including branch management, commits, and PR process"
+globs: ["**/*.*"]
+source: "https://github.com/EugenEistrach/tanstack-boilerplate/blob/main/.cursor/rules/commit-conventions.mdc"
+version: "1.1.0"
+last_updated: "2025-02-10"
+---
+
+# Git Workflow Guidelines
+
+## Branch Management
+
+1. **Create Feature Branch**
+
+   ```bash
+   git checkout development
+   git pull origin development
+   git checkout -b feature/slice<N>-task<N.N>-<description>
+   ```
+
+2. **During Development**
+   - Make frequent, atomic commits with descriptive messages
+   - Push regularly to remote to backup work
+   - Keep branch up to date with development:
+
+     ```bash
+     git fetch origin development
+     git rebase origin/development
+     ```
+
+## Commit Process
+
+1. Always follow the process laid out in [git-commit-conventions.mdc](mdc:.cursor/rules/git-commit-conventions.mdc)
+
+## Pull Request Process
+
+1. **Before Creating PR**
+   - Ensure all tests pass locally
+   - Rebase on latest development branch
+   - Review your changes for cleanup opportunities
+
+2. **Creating PR**
+   - Use GitHub's web interface or:
+
+     ```bash
+     gh pr create --base development --head feature/slice<N>-task<N.N>-<description>
+     ```
+
+   - Fill out PR template with:
+     - Clear description of changes
+     - Link to related issues/tasks
+     - Testing steps
+     - Screenshots (if UI changes)
+
+3. **During PR Review**
+   - Address feedback with new commits
+   - Keep commits atomic and well-described
+   - Rebase and force-push if needed:
+
+     ```bash
+     git rebase -i origin/development
+     git push --force-with-lease
+     ```
+
+4. **Merging PR**
+   - Always use squash merge to maintain clean history
+   - Via GitHub UI: Select "Squash and merge"
+   - Via command line:
+
+     ```bash
+     git checkout development
+     git pull origin development
+     git merge --squash feature/slice<N>-task<N.N>-<description>
+     git commit -m "feat(scope): comprehensive merge message"
+     git push origin development
+     ```
+
+5. **After Merge**
+   - Delete feature branch:
+
+     ```bash
+     git branch -d feature/slice<N>-task<N.N>-<description>
+     git push origin --delete feature/slice<N>-task<N.N>-<description>
+     ```
+
+   - Verify changes in development environment
+
+## Best Practices
+
+1. **Commit Messages**
+   - Use imperative mood ("Add" not "Added")
+   - Keep first line under 75 characters
+   - Reference issue numbers when applicable
+   - Be descriptive but concise
+
+2. **Branch Management**
+   - One branch per feature/task
+   - Keep branches short-lived
+   - Regular rebases to stay current with development
+
+3. **Code Review**
+   - Review your own changes before requesting review
+   - Respond promptly to review comments
+   - Keep discussions focused and constructive
+
+4. **Merge Strategy**
+   - Always squash when merging to development
+   - Write comprehensive squash commit messages
+   - Clean up branches after merge
+
+## Common Issues and Solutions
+
+1. **Merge Conflicts**
+
+   ```bash
+   git fetch origin development
+   git rebase origin/development
+   # Resolve conflicts
+   git add .
+   git rebase --continue
+   ```
+
+2. **Undo Last Commit**
+
+   ```bash
+   git reset --soft HEAD~1
+   ```
+
+3. **Clean Up Local Branches**
+
+   ```bash
+   git fetch -p
+   git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -D
+   ```

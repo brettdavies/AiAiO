@@ -5,6 +5,12 @@
 **/.env
 **/.env.*
 !**/.env.example
+**/*.xcconfig
+*.xcconfig
+
+# App Configuration
+**/Info.plist
+!**/Info.plist.template
 
 # Cursor
 .cursor/
@@ -13,6 +19,46 @@
 .cursorconfig
 .cursorrules
 .cursorignore
+
+# Firebase
+**/GoogleService-Info.plist
+**/firebase-debug.log
+**/firebase-debug.*.log*
+**/.firebase/
+Firebase/Config/api-keys.env
+**/ServiceAccount.json
+**/*-service-account.json
+**/.runtimeconfig.json
+Firebase/logs/
+**/firestore-debug.log
+**/ui-debug.log
+
+# Firebase Functions (Python)
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+**/.Python
+**/venv/
+**/.env/
+**/.venv/
+**/ENV/
+**/env.bak/
+**/venv.bak/
+**/.pytest_cache/
+**/.coverage
+**/htmlcov/
+**/.tox/
+**/.nox/
+**/.coverage
+**/.coverage.*
+**/.cache
+**/nosetests.xml
+**/coverage.xml
+**/*.cover
+**/*.py,cover
+**/.hypothesis/
+**/.pytype/
+**/cython_debug/
 
 # macOS
 .DS_Store
@@ -30,7 +76,11 @@
 !default.perspectivev3
 xcuserdata/
 *.xccheckout
+*.moved-aside
+*.xcuserstate
 *.xcscmblueprint
+*.xcworkspace/xcshareddata/
+*.xcworkspace/xcuserdata/
 
 # Build artifacts
 DerivedData/
@@ -39,6 +89,7 @@ build/
 # Swift Package Manager
 .build/
 .swiftpm/
+Package.resolved
 
 # CocoaPods
 Pods/
@@ -49,8 +100,21 @@ Carthage/Build/
 # Fastlane
 fastlane/report.xml
 fastlane/Preview.html
-fastlane/screenshots/
+fastlane/screenshots
+fastlane/test_output
 
 # Bundler
 .bundle/
 
+# Code Coverage
+*.xcresult
+*.profraw
+*.coverage.txt
+
+# SwiftLint
+!.swiftlint.yml
+
+# Build artifacts
+*.ipa
+*.dSYM.zip
+*.dSYM

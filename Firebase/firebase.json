@@ -1,0 +1,80 @@
+{
+  "emulators": {
+    "auth": {
+      "port": 9099,
+      "logFile": "Logs/auth-debug.log"
+    },
+    "firestore": {
+      "port": 8080,
+      "logFile": "Logs/firestore-debug.log"
+    },
+    "functions": {
+      "port": 5001,
+      "logFile": "Logs/functions-debug.log"
+    },
+    "storage": {
+      "port": 9199,
+      "logFile": "Logs/storage-debug.log"
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4000,
+      "logFile": "Logs/ui-debug.log"
+    },
+    "singleProjectMode": true,
+    "logging": {
+      "file": "Logs/hub-debug.log"
+    }
+  },
+  "firestore": {
+    "rules": "SecurityRules/firestore.rules",
+    "indexes": "Config/firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "SecurityRules/storage.rules"
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "venv",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ],
+  "auth": {
+    "providers": {
+      "email": {
+        "enabled": true,
+        "passwordPolicy": {
+          "minLength": 6,
+          "requireNumbers": true,
+          "requireSpecialCharacters": true,
+          "requireUppercase": true
+        }
+      },
+      "google": {
+        "enabled": true,
+        "clientId": "${GOOGLE_CLIENT_ID}",
+        "clientSecret": "${GOOGLE_CLIENT_SECRET}"
+      }
+    }
+  },
+  "logging": {
+    "development": {
+      "level": "debug",
+      "emulator": true,
+      "crashlytics": false,
+      "logFile": "Logs/tbs-debug.log"
+    },
+    "production": {
+      "level": "warning",
+      "emulator": false,
+      "crashlytics": true
+    }
+  }
+}
