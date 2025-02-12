@@ -5,8 +5,24 @@ struct TeamListView: View {
 
     // In a real app, teams would be fetched from Firestore.
     @State private var teams: [Team] = [
-        Team(id: "1", name: "U10 Soccer Team", description: "Our U10 soccer team for the season.", ownerUID: "1", members: ["1": true], createdAt: Date(), updatedAt: Date()),
-        Team(id: "2", name: "U12 Basketball Team", description: "Team roster for the U12 basketball team.", ownerUID: "2", members: ["2": true], createdAt: Date(), updatedAt: Date())
+        Team(
+            id: "1",
+            name: "U10 Soccer Team",
+            description: "Our U10 soccer team for the season.",
+            ownerUID: "1",
+            members: ["1": true],
+            createdAt: Date(),
+            updatedAt: Date()
+        ),
+        Team(
+            id: "2",
+            name: "U12 Basketball Team",
+            description: "Team roster for the U12 basketball team.",
+            ownerUID: "2",
+            members: ["2": true],
+            createdAt: Date(),
+            updatedAt: Date()
+        )
     ]
     
     @State private var isPresentingNewTeam = false
@@ -14,8 +30,10 @@ struct TeamListView: View {
     var body: some View {
         NavigationStack {
             List(teams) { team in
-                NavigationLink(destination: TeamDetailView(team: team)
-                                .environmentObject(teamViewModel)) {
+                NavigationLink(
+                    destination: TeamDetailView(team: team)
+                        .environmentObject(teamViewModel)
+                ) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(team.name)
                             .font(.headline)

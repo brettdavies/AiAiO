@@ -31,8 +31,8 @@ struct TeamDetailView: View {
     init(team: Team, onDismiss: @escaping () -> Void = {}) {
         _team = State(initialValue: team)
         self.onDismiss = onDismiss
-        isCreating = team.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-                     team.description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        isCreating = team.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty 
+            && team.description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
     
     var body: some View {
@@ -43,14 +43,18 @@ struct TeamDetailView: View {
                     TextField("Team Name", text: $team.name)
                         .autocapitalization(.words)
                     if !team.name.isEmpty {
-                        Button(action: { team.name = "" }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.gray)
-                        }
+                        Button(
+                            action: { team.name = "" },
+                            label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(.gray)
+                            }
+                        )
                         .buttonStyle(BorderlessButtonStyle())
                     }
                 }
-                if hasAttemptedSave && team.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                if hasAttemptedSave && 
+                    team.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                     Text("Team Name is required")
                         .foregroundColor(.red)
                         .font(.caption)
@@ -60,14 +64,18 @@ struct TeamDetailView: View {
                 HStack {
                     TextField("Description", text: $team.description)
                     if !team.description.isEmpty {
-                        Button(action: { team.description = "" }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.gray)
-                        }
+                        Button(
+                            action: { team.description = "" },
+                            label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(.gray)
+                            }
+                        )
                         .buttonStyle(BorderlessButtonStyle())
                     }
                 }
-                if hasAttemptedSave && team.description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                if hasAttemptedSave && 
+                    team.description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                     Text("Description is required")
                         .foregroundColor(.red)
                         .font(.caption)
@@ -82,20 +90,24 @@ struct TeamDetailView: View {
                     if isFormValid {
                         Task {
                             if isCreating {
-                                if let _ = await teamViewModel.createTeam(name: team.name, description: team.description) {
+                                if await teamViewModel.createTeam(
+                                    name: team.name,
+                                    description: team.description
+                                ) != nil {
                                     toastMessage = "Team Created"
                                     withAnimation { showToast = true }
                                     try await Task.sleep(nanoseconds: 1_000_000_000)
                                     onDismiss()
                                 } else {
-                                    // Creation failed—show a failure toast.
                                     toastMessage = "Failed to create team"
                                     withAnimation { showToast = true }
                                     try await Task.sleep(nanoseconds: 1_000_000_000)
-                                    // Optionally, you can let the user try again.
                                 }
                             } else {
-                                let success = await teamViewModel.updateTeam(team, userUID: team.ownerUID)
+                                let success = await teamViewModel.updateTeam(
+                                    team,
+                                    userUID: team.ownerUID
+                                )
                                 if success {
                                     toastMessage = "Team Updated"
                                     withAnimation { showToast = true }

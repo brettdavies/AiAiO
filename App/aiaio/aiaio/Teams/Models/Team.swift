@@ -76,12 +76,12 @@ extension Team {
     /// Convenience method for creating a new team instance with default values.
     /// Note: The `ownerUID` remains empty here and should be set later from the authenticated session.
     static func new() -> Team {
-        return Team(id: UUID().uuidString,
-                    name: "",
-                    description: "",
-                    ownerUID: "",
-                    members: [:],
-                    createdAt: Date(),
-                    updatedAt: Date())
+        Team(id: UUID().uuidString,
+             name: "",
+             description: "",
+             ownerUID: "",
+             members: [:],
+             createdAt: Date(),
+             updatedAt: Date())
     }
 }

@@ -40,7 +40,6 @@ class TeamViewModel: ObservableObject {
     ///   - name: Team name.
     ///   - description: Team description.
     /// - Returns: The created Team or nil if creation failed.
-    // (TeamViewModel.swift remains mostly the same.)
     func createTeam(name: String, description: String) async -> Team? {
         guard let ownerUID = sessionManager.currentUser?.uid else {
             self.error = .authenticationFailed
