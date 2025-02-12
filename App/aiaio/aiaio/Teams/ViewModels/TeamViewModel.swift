@@ -54,7 +54,7 @@ class TeamViewModel: ObservableObject {
             name: name,
             description: description,
             ownerUID: ownerUID,
-            members: [ownerUID: true],
+            memberUIDs: [ownerUID],
             createdAt: Date(),
             updatedAt: Date()
         )
@@ -81,6 +81,24 @@ class TeamViewModel: ObservableObject {
                 self.error = .unknown(err.localizedDescription)
             }
             return nil
+        }
+    }
+
+    /// Fetches all teams for the current user.
+    /// - Returns: An array of Team objects.
+    func fetchTeams() async {
+        isLoading = true
+        defer { isLoading = false }
+        do {
+            if let uid = sessionManager.currentUser?.uid {
+                let query = teamsRef.whereField("memberUIDs", arrayContains: uid)
+                let snapshot = try await query.getDocuments()
+                let fetchedTeams = snapshot.documents.compactMap { try? Team.from($0) }
+                self.teams = fetchedTeams
+            }
+        } catch {
+            UnifiedLogger.error("Failed to fetch teams: \(error.localizedDescription)", context: "Teams")
+            self.error = GlobalError.unknown(error.localizedDescription)
         }
     }
     
@@ -149,13 +167,13 @@ class TeamViewModel: ObservableObject {
         
         do {
             try await teamsRef.document(teamID).updateData([
-                "members.\(userUID)": true,
+                "memberUIDs": team.memberUIDs + [userUID],
                 "updatedAt": Timestamp(date: Date())
             ])
             
             if let index = teams.firstIndex(where: { $0.id == teamID }) {
                 var updatedTeam = teams[index]
-                updatedTeam.members[userUID] = true
+                updatedTeam.memberUIDs.append(userUID)
                 updatedTeam.updatedAt = Date()
                 teams[index] = updatedTeam
             }

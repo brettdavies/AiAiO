@@ -13,7 +13,7 @@ struct Team: Identifiable, Codable {
     /// Firebase UID of the team owner
     var ownerUID: String
     /// Dictionary of member UIDs and their roles (true for inclusion)
-    var members: [String: Bool]
+    var memberUIDs: [String]
     /// Timestamp when the team was created
     var createdAt: Date
     /// Timestamp of the last update
@@ -25,14 +25,14 @@ struct Team: Identifiable, Codable {
          name: String = "",
          description: String = "",
          ownerUID: String,
-         members: [String: Bool] = [:],
+         memberUIDs: [String] = [],
          createdAt: Date = Date(),
          updatedAt: Date = Date()) {
         self.id = id
         self.name = name
         self.description = description
         self.ownerUID = ownerUID
-        self.members = members
+        self.memberUIDs = memberUIDs
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }
@@ -46,7 +46,7 @@ extension Team {
             "name": name,
             "description": description,
             "ownerUID": ownerUID,
-            "members": members,
+            "memberUIDs": memberUIDs,
             "createdAt": Timestamp(date: createdAt),
             "updatedAt": Timestamp(date: updatedAt)
         ]
@@ -65,7 +65,7 @@ extension Team {
             name: data["name"] as? String ?? "",
             description: data["description"] as? String ?? "",
             ownerUID: data["ownerUID"] as? String ?? "",
-            members: data["members"] as? [String: Bool] ?? [:],
+            memberUIDs: data["memberUIDs"] as? [String] ?? [],
             createdAt: (data["createdAt"] as? Timestamp)?.dateValue() ?? Date(),
             updatedAt: (data["updatedAt"] as? Timestamp)?.dateValue() ?? Date()
         )
@@ -80,7 +80,7 @@ extension Team {
              name: "",
              description: "",
              ownerUID: "",
-             members: [:],
+             memberUIDs: [],
              createdAt: Date(),
              updatedAt: Date())
     }

@@ -1,74 +1,60 @@
 import SwiftUI
 
 struct TeamListView: View {
-    @EnvironmentObject var teamViewModel: TeamViewModel
-
-    // In a real app, teams would be fetched from Firestore.
-    @State private var teams: [Team] = [
-        Team(
-            id: "1",
-            name: "U10 Soccer Team",
-            description: "Our U10 soccer team for the season.",
-            ownerUID: "1",
-            members: ["1": true],
-            createdAt: Date(),
-            updatedAt: Date()
-        ),
-        Team(
-            id: "2",
-            name: "U12 Basketball Team",
-            description: "Team roster for the U12 basketball team.",
-            ownerUID: "2",
-            members: ["2": true],
-            createdAt: Date(),
-            updatedAt: Date()
-        )
-    ]
-    
+    @EnvironmentObject var teamViewModel: TeamViewModel    
     @State private var isPresentingNewTeam = false
     
     var body: some View {
         NavigationStack {
-            List(teams) { team in
-                NavigationLink(
-                    destination: TeamDetailView(team: team, teamViewModel: teamViewModel)
-                        .environmentObject(teamViewModel)
-                ) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(team.name)
-                            .font(.headline)
-                        Text(team.description)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
+            if teamViewModel.isLoading {
+                ProgressView("Loading Teams...")
+            } else if teamViewModel.teams.isEmpty {
+                Text("No teams found.")
+            } else {
+                List(teamViewModel.teams) { team in
+                    NavigationLink(
+                        destination: TeamDetailView(team: team, teamViewModel: teamViewModel)
+                            .environmentObject(teamViewModel)
+                    ) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(team.name)
+                                .font(.headline)
+                            Text(team.description)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
                     }
                 }
-            }
-            .navigationTitle("Teams")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        isPresentingNewTeam = true
-                    }, label: {
-                        Image(systemName: "plus")
-                    })
+                .navigationTitle("Teams")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button(action: {
+                            isPresentingNewTeam = true
+                        }, label: {
+                            Image(systemName: "plus")
+                        })
+                    }
                 }
-            }
-            .sheet(isPresented: $isPresentingNewTeam) {
-                NavigationStack {
-                    // Present TeamDetailView in creation mode using the convenience initializer.
-                    TeamDetailView(team: Team.new(), teamViewModel: teamViewModel, onDismiss: {
-                        isPresentingNewTeam = false
-                    })
-                    .environmentObject(teamViewModel)
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button("Cancel") {
-                                isPresentingNewTeam = false
+                .sheet(isPresented: $isPresentingNewTeam) {
+                    NavigationStack {
+                        // Present TeamDetailView in creation mode using the convenience initializer.
+                        TeamDetailView(team: Team.new(), teamViewModel: teamViewModel, onDismiss: {
+                            isPresentingNewTeam = false
+                        })
+                        .environmentObject(teamViewModel)
+                        .toolbar {
+                            ToolbarItem(placement: .cancellationAction) {
+                                Button("Cancel") {
+                                    isPresentingNewTeam = false
+                                }
                             }
                         }
                     }
                 }
             }
+        }
+        .task {
+            await teamViewModel.fetchTeams()
         }
     }
 }
