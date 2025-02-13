@@ -1,6 +1,7 @@
 import SwiftUI
 import PhotosUI
 import AVKit
+import FirebaseFirestore
 
 /// Defines the sort order (ascending or descending by date).
 enum VideoSortOrder {
@@ -37,7 +38,15 @@ class VideoViewModel: ObservableObject {
             }
         }
     }
+
+    private let uploadService: VideoUploadService
     
+    init(uploadService: VideoUploadService = VideoUploadService()) {
+        self.uploadService = uploadService
+    }
+
+    // MARK: - Handling New Selections
+
     /// Processes newly selected items from the PhotosPicker, skipping duplicates by partial hashing.
     /// - Returns: (newlyAdded, duplicates)
     ///   - newlyAdded: The new videos that were not duplicates.
@@ -82,11 +91,68 @@ class VideoViewModel: ObservableObject {
         return (newlyAdded, duplicateCount)
     }
     
+    // MARK: - Finalizing Videos
+    
     /// Finalizes newly assigned videos after the user picks a team for each.
-    func finalizeNewVideos(_ videos: [VideoItem]) {
+    /// Uploads them to Storage and creates a Firestore doc referencing that upload.
+    /// - Parameters:
+    ///   - videos: The videos to finalize (each has exactly one assigned team).
+    ///   - ownerUID: The UID of the user who owns these videos (e.g., sessionManager.currentUser?.uid).
+    func finalizeNewVideos(_ videos: [VideoItem], ownerUID: String) {
+        // 1. Append the videos locally so they appear in the UI.
         videoItems.append(contentsOf: videos)
+
+        // 2. Immediately upload each new video to Firebase Storage.
+        Task {
+            for video in videos {
+                let videoID = UUID().uuidString
+                do {
+                    // Upload from video.videoURL using our service
+                    let downloadURL = try await uploadService.uploadVideo(
+                        localFileURL: video.videoURL,
+                        videoID: videoID
+                    )
+                    UnifiedLogger.info("Video \(videoID) successfully uploaded to Firebase Storage.", context: "VideoViewModel")
+
+                    // 3. Now that we have a downloadURL, create a Firestore doc.
+                    // For example:
+                    try await createVideoDoc(
+                        videoID: videoID,
+                        downloadURL: downloadURL,
+                        teamID: video.team?.id ?? "",
+                        date: video.date,
+                        ownerUID: ownerUID
+                    )
+
+                    UnifiedLogger.info("Video \(videoID) successfully uploaded Doc to Firestore.", context: "VideoViewModel")
+                } catch {
+                    UnifiedLogger.error("Failed to upload or create Firestore doc for video: \(error.localizedDescription)", context: "VideoViewModel")
+                }
+            }
+        }
     }
     
+    // MARK: - Private Helpers
+
+    /// Creates the Firestore doc for an uploaded video.
+    private func createVideoDoc(
+        videoID: String,
+        downloadURL: URL,
+        teamID: String,
+        date: Date,
+        ownerUID: String
+    ) async throws {
+        let docRef = Firestore.firestore().collection("videos").document(videoID)
+        let data: [String: Any] = [
+            "ownerUID": ownerUID,
+            "teamID": teamID,
+            "videoURL": downloadURL.absoluteString,
+            "createdAt": Timestamp(date: date),
+            "updatedAt": Timestamp(date: Date())
+        ]
+        try await docRef.setData(data)
+    }
+
     /// Generates a thumbnail from a given video URL.
     private func generateThumbnail(url: URL) async -> Image {
         let asset = AVURLAsset(url: url)
@@ -110,5 +176,4 @@ class VideoViewModel: ObservableObject {
         let chunkSize = min(data.count, limit)
         return data.prefix(chunkSize).hashValue
     }
-    
 }

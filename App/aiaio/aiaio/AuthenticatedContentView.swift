@@ -71,7 +71,8 @@ struct AuthenticatedContentView: View {
                 teams: teamViewModel.alphabeticalTeams,
                 videosNeedingTeam: $pendingVideosForTeamAssignment
             ) {
-                videoVM.finalizeNewVideos(pendingVideosForTeamAssignment)
+                // Pass sessionManager here:
+                videoVM.finalizeNewVideos(pendingVideosForTeamAssignment, ownerUID: sessionManager.currentUser?.uid ?? "")
                 pendingVideosForTeamAssignment.removeAll()
                 showingTeamPickerSheet = false
             }
