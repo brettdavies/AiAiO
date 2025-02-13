@@ -7,6 +7,11 @@ class TeamViewModel: ObservableObject {
     /// Published array of teams for UI updates.
     @Published private(set) var teams: [Team] = []
     
+    /// A computed property returning teams in alphabetical order by name.
+    var alphabeticalTeams: [Team] {
+        teams.sorted { $0.name < $1.name }
+    }
+    
     /// Loading state for UI feedback.
     @Published private(set) var isLoading = false
     

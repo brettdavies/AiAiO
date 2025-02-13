@@ -6,23 +6,18 @@ struct AuthenticatedContentView: View {
     @EnvironmentObject var sessionManager: SessionManager
     @EnvironmentObject var teamViewModel: TeamViewModel
     
-    // Our dedicated video VM for duplicates, filtering, sorting, etc.
     @StateObject private var videoVM = VideoViewModel()
     
-    // Multiple PhotosPicker selections
     @State private var selectedItems: [PhotosPickerItem] = []
     
-    // Modals & alerts
     @State private var activeVideo: VideoItem?
     @State private var showingTeamList = false
     @State private var showingFilterSheet = false
     @State private var showingTeamPickerSheet = false
     
-    // Duplicate detection
     @State private var showDuplicateAlert = false
     @State private var duplicateCount = 0
     
-    // Newly added videos that need a team
     @State private var pendingVideosForTeamAssignment: [VideoItem] = []
     
     var body: some View {
@@ -32,7 +27,6 @@ struct AuthenticatedContentView: View {
         }
         .navigationTitle("Videos")
         .toolbar {
-            // Hamburger menu
             ToolbarItem(placement: .navigationBarLeading) {
                 Menu {
                     Button("View Teams") {
@@ -45,7 +39,6 @@ struct AuthenticatedContentView: View {
                     Image(systemName: "line.horizontal.3")
                 }
             }
-            // Filter button
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
                     showingFilterSheet = true
@@ -54,50 +47,65 @@ struct AuthenticatedContentView: View {
                 }
             }
         }
-        // 1) TeamListView sheet
+        // 1) TeamListView
         .sheet(isPresented: $showingTeamList) {
             TeamListView()
                 .environmentObject(teamViewModel)
         }
-        // 2) Video player sheet
+        // 2) Video Player
         .sheet(item: $activeVideo) { video in
             VideoPlayerModalView(videoURL: video.videoURL)
         }
-        // 3) Filter sheet
+        // 3) FilterSheet
         .sheet(isPresented: $showingFilterSheet) {
-            FilterSheet(videoVM: videoVM, userTeams: teamViewModel.teams)
+            FilterSheet(
+                videoVM: videoVM,
+                userTeams: teamViewModel.alphabeticalTeams
+            ) {
+                showingFilterSheet = false  // dismiss the sheet
+            }
         }
-        // 4) Team picker sheet
+        // 4) TeamPickerSheet
         .sheet(isPresented: $showingTeamPickerSheet) {
             TeamPickerSheet(
-                teams: teamViewModel.teams,
+                teams: teamViewModel.alphabeticalTeams,
                 videosNeedingTeam: $pendingVideosForTeamAssignment
             ) {
-                // Called when user taps Done in TeamPickerSheet
                 videoVM.finalizeNewVideos(pendingVideosForTeamAssignment)
                 pendingVideosForTeamAssignment.removeAll()
                 showingTeamPickerSheet = false
             }
         }
-        // Duplicate alert
-        .alert("Duplicate Videos", isPresented: $showDuplicateAlert) {
+        // Duplicate Alert
+        .alert(duplicateCount == 1 ? "Duplicate Video" : "Duplicate Videos", isPresented: $showDuplicateAlert) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text("You selected \(duplicateCount) video(s) that were already uploaded.")
+            if duplicateCount == 1 {
+                Text("You selected 1 video that was already uploaded.")
+            } else {
+                Text("You selected \(duplicateCount) videos that were already uploaded.")
+            }
         }
         // PhotosPicker changes
         .onChange(of: selectedItems) { _, newValue in
             Task {
-                await handlePhotosPickerChange(newValue)
+                let (newlyAdded, duplicates) = await videoVM.handleNewSelections(newValue)
+                if duplicates > 0 {
+                    duplicateCount = duplicates
+                    showDuplicateAlert = true
+                }
+                selectedItems = []
+                
+                if !newlyAdded.isEmpty {
+                    pendingVideosForTeamAssignment = newlyAdded
+                    showingTeamPickerSheet = true
+                }
             }
         }
     }
 }
 
-// MARK: - Subviews & Helpers
 extension AuthenticatedContentView {
-    
-    /// The main video grid, showing videoVM.displayedVideos.
     private var videoGrid: some View {
         ScrollView {
             if videoVM.displayedVideos.isEmpty {
@@ -105,7 +113,6 @@ extension AuthenticatedContentView {
                     .foregroundStyle(.secondary)
                     .padding()
             } else {
-                // Minimal spacing, 3 columns
                 LazyVGrid(
                     columns: [
                         GridItem(.flexible(), spacing: 1),
@@ -130,7 +137,6 @@ extension AuthenticatedContentView {
         }
     }
     
-    /// A floating button that opens the PhotosPicker to add new videos.
     private var floatingAddButton: some View {
         VStack {
             Spacer()

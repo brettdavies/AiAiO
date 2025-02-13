@@ -13,7 +13,7 @@ struct TeamListView: View {
                 } else if teamViewModel.teams.isEmpty {
                     Text("No teams found.")
                 } else {
-                    List(teamViewModel.teams) { team in
+                    List(teamViewModel.alphabeticalTeams) { team in
                         Button {
                             // Edit existing team
                             selectedTeam = team

@@ -4,7 +4,9 @@ import SwiftUI
 struct FilterSheet: View {
     @ObservedObject var videoVM: VideoViewModel
     let userTeams: [Team]
-    
+
+    let onDismiss: () -> Void
+
     var body: some View {
         NavigationStack {
             Form {
@@ -40,11 +42,7 @@ struct FilterSheet: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
-                        // Dismiss via Xcode's "magic" approach
-                        UIApplication.shared.sendAction(
-                            #selector(UIResponder.resignFirstResponder),
-                            to: nil, from: nil, for: nil
-                        )
+                        onDismiss()
                     }
                 }
             }
