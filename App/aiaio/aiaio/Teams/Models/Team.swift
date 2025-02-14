@@ -85,3 +85,13 @@ extension Team {
              updatedAt: Date())
     }
 }
+
+extension Team: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id) // or combine(name) if ID might be empty
+    }
+    
+    static func == (lhs: Team, rhs: Team) -> Bool {
+        lhs.id == rhs.id
+    }
+}
