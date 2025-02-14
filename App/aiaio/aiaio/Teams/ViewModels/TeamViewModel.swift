@@ -1,5 +1,6 @@
 import Foundation
 @preconcurrency import FirebaseFirestore
+@preconcurrency import Combine
 import SwiftUI
 
 @MainActor
@@ -7,38 +8,55 @@ class TeamViewModel: ObservableObject {
     /// Published array of teams for UI updates.
     @Published private(set) var teams: [Team] = []
     
+    /// Loading state for UI feedback.
+    @Published private(set) var isLoading = false
+
+    /// Error state for UI feedback.
+    @Published var error: GlobalError?
+
+    /// The session manager providing the current user's UID.
+    private let sessionManager: SessionManager
+
+    private var cancellables = Set<AnyCancellable>()
+
+    /// Firestore reference.
+    private let db = Firestore.firestore()
+
+    // MARK: Initialization
+
+    init(sessionManager: SessionManager) {
+        self.sessionManager = sessionManager
+
+        sessionManager.$currentUser
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] user in
+                if user != nil {
+                    Task { await self?.fetchTeams() }
+                } else {
+                    self?.teams = []
+                }
+            }
+            .store(in: &cancellables)
+    }
+x
+    deinit {
+        cancellables.removeAll()
+    }
+
+    // MARK: - Computed Properties
+
     /// A computed property returning teams in alphabetical order by name.
     var alphabeticalTeams: [Team] {
         teams.sorted { $0.name < $1.name }
     }
     
-    /// Loading state for UI feedback.
-    @Published private(set) var isLoading = false
-    
-    /// Error state for UI feedback.
-    @Published var error: GlobalError?
-    
-    /// Firestore reference.
-    private let db = Firestore.firestore()
     
     /// Reference to the teams collection.
     private var teamsRef: CollectionReference {
         db.collection("teams")
     }
     
-    /// Any active listeners that need to be cleaned up.
-    private var listeners: [ListenerRegistration] = []
-    
-    /// The session manager providing the current user's UID.
-    private let sessionManager: SessionManager
-    
-    init(sessionManager: SessionManager) {
-        self.sessionManager = sessionManager
-    }
-    
-    deinit {
-        listeners.forEach { $0.remove() }
-    }
+    // MARK: - Team Operations
     
     /// Creates a new team.
     /// - Parameters:
@@ -199,6 +217,24 @@ class TeamViewModel: ObservableObject {
                 self.error = .unknown(err.localizedDescription)
             }
             return false
+        }
+    }
+
+
+    // MARK: - Error Mapping
+
+    private func mapFirestoreError(_ error: NSError) {
+        if error.domain == FirestoreErrorDomain {
+            switch error.code {
+            case FirestoreErrorCode.unavailable.rawValue:
+                self.error = .networkFailure
+            case FirestoreErrorCode.permissionDenied.rawValue:
+                self.error = .authenticationFailed
+            default:
+                self.error = .serverError
+            }
+        } else {
+            self.error = .unknown(error.localizedDescription)
         }
     }
 }
