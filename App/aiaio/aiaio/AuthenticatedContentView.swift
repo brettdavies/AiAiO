@@ -3,22 +3,35 @@ import PhotosUI
 import AVKit
 
 struct AuthenticatedContentView: View {
-    @EnvironmentObject var sessionManager: SessionManager
+    // Explicitly injected dependency.
+    let sessionManager: SessionManager
+    
+    // The VideoViewModel is now initialized using the provided sessionManager.
+    @StateObject private var videoVM: VideoViewModel
+    
+    // Other dependencies (like TeamViewModel) still come from the environment.
     @EnvironmentObject var teamViewModel: TeamViewModel
-    
-    @StateObject private var videoVM = VideoViewModel()
-    
+
+    // Local state properties.
     @State private var selectedItems: [PhotosPickerItem] = []
-    
     @State private var activeVideo: VideoItem?
     @State private var showingTeamList = false
     @State private var showingFilterSheet = false
     @State private var showingTeamPickerSheet = false
-    
     @State private var showDuplicateAlert = false
     @State private var duplicateCount = 0
-    
     @State private var pendingVideosForTeamAssignment: [VideoItem] = []
+    
+    // MARK: - Initializer
+    
+    /// The initializer now explicitly requires a SessionManager,
+    /// which is used to create the VideoViewModel.
+    init(sessionManager: SessionManager) {
+        self.sessionManager = sessionManager
+        _videoVM = StateObject(wrappedValue: VideoViewModel(sessionManager: sessionManager))
+    }
+    
+    // MARK: - Body
     
     var body: some View {
         ZStack {
@@ -47,37 +60,36 @@ struct AuthenticatedContentView: View {
                 }
             }
         }
-        // 1) TeamListView
+        // Present the TeamListView modally.
         .sheet(isPresented: $showingTeamList) {
             TeamListView()
                 .environmentObject(teamViewModel)
         }
-        // 2) Video Player
+        // Present the VideoPlayer when a video is selected.
         .sheet(item: $activeVideo) { video in
             VideoPlayerModalView(videoURL: video.videoURL)
         }
-        // 3) FilterSheet
+        // Present a filter sheet.
         .sheet(isPresented: $showingFilterSheet) {
             FilterSheet(
                 videoVM: videoVM,
                 userTeams: teamViewModel.alphabeticalTeams
             ) {
-                showingFilterSheet = false  // dismiss the sheet
+                showingFilterSheet = false
             }
         }
-        // 4) TeamPickerSheet
+        // Present the team assignment sheet.
         .sheet(isPresented: $showingTeamPickerSheet) {
             TeamPickerSheet(
                 teams: teamViewModel.alphabeticalTeams,
                 videosNeedingTeam: $pendingVideosForTeamAssignment
             ) {
-                // Pass sessionManager here:
-                videoVM.finalizeNewVideos(pendingVideosForTeamAssignment, ownerUID: sessionManager.currentUser?.uid ?? "")
+                videoVM.finalizeNewVideos(pendingVideosForTeamAssignment)
                 pendingVideosForTeamAssignment.removeAll()
                 showingTeamPickerSheet = false
             }
         }
-        // Duplicate Alert
+        // Alert for duplicate video selection.
         .alert(duplicateCount == 1 ? "Duplicate Video" : "Duplicate Videos", isPresented: $showDuplicateAlert) {
             Button("OK", role: .cancel) {}
         } message: {
@@ -87,7 +99,7 @@ struct AuthenticatedContentView: View {
                 Text("You selected \(duplicateCount) videos that were already uploaded.")
             }
         }
-        // PhotosPicker changes
+        // Listen for changes to the PhotosPicker selection.
         .onChange(of: selectedItems) { _, newValue in
             Task {
                 let (newlyAdded, duplicates) = await videoVM.handleNewSelections(newValue)
@@ -96,13 +108,26 @@ struct AuthenticatedContentView: View {
                     showDuplicateAlert = true
                 }
                 selectedItems = []
-                
                 if !newlyAdded.isEmpty {
                     pendingVideosForTeamAssignment = newlyAdded
                     showingTeamPickerSheet = true
                 }
             }
         }
+    }
+}
+
+// MARK: - Thin Wrapper
+
+/// A thin wrapper that reads SessionManager (and other dependencies)
+/// from the environment and passes them into AuthenticatedContentView.
+struct AuthenticatedContentViewWrapper: View {
+    @EnvironmentObject var sessionManager: SessionManager
+    @EnvironmentObject var teamViewModel: TeamViewModel
+    
+    var body: some View {
+        AuthenticatedContentView(sessionManager: sessionManager)
+            .environmentObject(teamViewModel)
     }
 }
 
@@ -154,22 +179,6 @@ extension AuthenticatedContentView {
                         .padding()
                 }
             }
-        }
-    }
-    
-    /// Handle newly selected videos from the PhotosPicker.
-    private func handlePhotosPickerChange(_ items: [PhotosPickerItem]) async {
-        let (newlyAdded, duplicates) = await videoVM.handleNewSelections(items)
-        if duplicates > 0 {
-            duplicateCount = duplicates
-            showDuplicateAlert = true
-        }
-        selectedItems = []
-        
-        // If user added new videos, prompt for team assignment
-        if !newlyAdded.isEmpty {
-            pendingVideosForTeamAssignment = newlyAdded
-            showingTeamPickerSheet = true
         }
     }
 }

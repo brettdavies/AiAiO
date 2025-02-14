@@ -8,7 +8,7 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             if sessionManager.isSignedIn {
-                AuthenticatedContentView()
+                AuthenticatedContentView(sessionManager: sessionManager)
                     .navigationTitle("My Videos")
             } else {
                 UnauthenticatedContentView()

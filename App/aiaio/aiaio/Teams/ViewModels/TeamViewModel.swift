@@ -38,7 +38,7 @@ class TeamViewModel: ObservableObject {
             }
             .store(in: &cancellables)
     }
-x
+
     deinit {
         cancellables.removeAll()
     }
