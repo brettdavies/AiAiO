@@ -151,7 +151,7 @@ extension AuthenticatedContentView {
                         Button {
                             activeVideo = video
                         } label: {
-                            video.thumbnail
+                            video.thumbnailImage
                                 .resizable()
                                 .aspectRatio(1, contentMode: .fill)
                                 .clipped()

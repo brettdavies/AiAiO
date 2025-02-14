@@ -22,13 +22,12 @@ struct TeamPickerSheet: View {
                     List(videosNeedingTeam.indices, id: \.self) { index in
                         let video = videosNeedingTeam[index]
                         HStack {
-                            // Thumbnail
-                            video.thumbnail
+                            // Use the computed thumbnailImage for SwiftUI rendering.
+                            video.thumbnailImage
                                 .resizable()
                                 .frame(width: 60, height: 60)
                                 .clipped()
                             
-                            // If the video already has a team, display its name; otherwise, "Pick Team"
                             if let assignedTeam = video.team {
                                 Menu(assignedTeam.name) {
                                     ForEach(teams, id: \.id) { team in
@@ -52,7 +51,7 @@ struct TeamPickerSheet: View {
             }
             .navigationTitle("Assign Teams")
             .toolbar {
-                // "Assign All" menu to bulk-assign one team to every video
+                // "Assign All" menu to bulk-assign one team to every video.
                 ToolbarItem(placement: .navigationBarLeading) {
                     if !videosNeedingTeam.isEmpty {
                         Menu("Assign All") {
@@ -66,7 +65,7 @@ struct TeamPickerSheet: View {
                         }
                     }
                 }
-                // "Done" button, disabled if any video is missing a team
+                // "Done" button, disabled if any video is missing a team.
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
                         onDismiss()

@@ -49,21 +49,16 @@ final class VideoViewModel: ObservableObject {
     /// Returns the videos that pass the current team filter and are sorted by date.
     var displayedVideos: [VideoItem] {
         let filtered = videoItems.filter { video in
-            // If no teams are selected, show all. Otherwise only show if video.team is in selectedFilterTeams.
-            selectedFilterTeams.isEmpty
-            || (video.team != nil && selectedFilterTeams.contains(video.team!))
+            selectedFilterTeams.isEmpty ||
+            (video.team != nil && selectedFilterTeams.contains(video.team!))
         }
         return filtered.sorted { lhs, rhs in
             switch sortOrder {
-            case .ascending: return lhs.date < rhs.date
+            case .ascending:  return lhs.date < rhs.date
             case .descending: return lhs.date > rhs.date
             }
         }
     }
-
-    // init(uploadService: VideoUploadService = VideoUploadService()) {
-    //     self.uploadService = uploadService
-    // }
 
     // MARK: - Initialization
 
@@ -99,16 +94,28 @@ final class VideoViewModel: ObservableObject {
         do {
             let query = db.collection("videos").whereField("ownerUID", isEqualTo: uid)
             let snapshot = try await query.getDocuments()
-            let fetchedVideos: [VideoItem] = snapshot.documents.compactMap { document in
-                try? VideoItem.from(document)
+            
+            // Use a task group to asynchronously convert each document
+            let fetchedVideos = try await withThrowingTaskGroup(of: VideoItem.self) { group -> [VideoItem] in
+                for document in snapshot.documents {
+                    group.addTask {
+                        return try await VideoItem.from(document)
+                    }
+                }
+                var videos: [VideoItem] = []
+                for try await video in group {
+                    videos.append(video)
+                }
+                return videos
             }
+            
             self.videoItems = fetchedVideos
         } catch {
             UnifiedLogger.error("Failed to fetch videos: \(error.localizedDescription)", context: "VideoViewModel")
             self.error = GlobalError.unknown(error.localizedDescription)
         }
     }
-
+    
     // MARK: - Handling New Video Selections
 
     /// Processes newly selected video items from the PhotosPicker, filtering out duplicates.
@@ -131,6 +138,7 @@ final class VideoViewModel: ObservableObject {
                     .appendingPathComponent("\(UUID().uuidString).mov")
                 try? data.write(to: tempURL)
                 
+                // Assume generateThumbnail now produces a UIImage.
                 let thumbnailImage = await generateThumbnail(url: tempURL)
                 // For simplicity, assign a random date; in production, use actual metadata.
                 let randomDate = Date().addingTimeInterval(Double.random(in: -100_000...100_000))
@@ -154,50 +162,34 @@ final class VideoViewModel: ObservableObject {
             for video in videos {
                 let videoID = UUID().uuidString
                 do {
-                    let downloadURL = try await uploadService.uploadVideo(
-                        localFileURL: video.videoURL,
-                        videoID: videoID
-                    )
-                    UnifiedLogger.info("Video \(videoID) successfully uploaded to Firebase Storage.", context: "VideoViewModel")
-                    
-                    try await createVideoDoc(
+                    try await uploadService.finalizeUpload(
                         videoID: videoID,
-                        downloadURL: downloadURL,
+                        localFileURL: video.videoURL,
+                        thumbnail: video.thumbnail,
                         teamID: video.team?.id ?? "",
                         date: video.date,
                         ownerUID: sessionManager.currentUser?.uid ?? ""
                     )
-                    UnifiedLogger.info("Video \(videoID) successfully created in Firestore.", context: "VideoViewModel")
+                    UnifiedLogger.info("Video \(videoID) successfully finalized in Firestore.", context: "VideoViewModel")
                 } catch {
                     UnifiedLogger.error("Failed to finalize video \(videoID): \(error.localizedDescription)", context: "VideoViewModel")
                 }
             }
         }
     }
-
-    /// Creates the Firestore doc for an uploaded video.
-    private func createVideoDoc(
-        videoID: String,
-        downloadURL: URL,
-        teamID: String,
-        date: Date,
-        ownerUID: String
-    ) async throws {
-        let docRef = db.collection("videos").document(videoID)
-        let data: [String: Any] = [
-            "ownerUID": ownerUID,
-            "teamID": teamID,
-            "videoURL": downloadURL.absoluteString,
-            "createdAt": Timestamp(date: date),
-            "updatedAt": Timestamp(date: Date())
-        ]
-        try await docRef.setData(data)
+    
+    // MARK: - Helper Methods
+    
+    /// Computes a lightweight partial hash of data to detect duplicates.
+    private func partialHash(of data: Data, limit: Int = 64_000) -> Int {
+        let chunkSize = min(data.count, limit)
+        return data.prefix(chunkSize).hashValue
     }
-
-    // MARK: - Thumbnail Generation
-
-    /// Generates a thumbnail from a given video URL.
-    private func generateThumbnail(url: URL) async -> Image {
+    
+    /// Generates a thumbnail image for a given video URL.
+    /// - Parameter url: The URL of the video file.
+    /// - Returns: A UIImage thumbnail.
+    private func generateThumbnail(url: URL) async -> UIImage {
         let asset = AVURLAsset(url: url)
         let generator = AVAssetImageGenerator(asset: asset)
         generator.appliesPreferredTrackTransform = true
@@ -205,40 +197,12 @@ final class VideoViewModel: ObservableObject {
             let time = CMTime(seconds: 1, preferredTimescale: 600)
             generator.generateCGImagesAsynchronously(forTimes: [NSValue(time: time)]) { _, cgImage, _, result, _ in
                 if let cgImage = cgImage, result == .succeeded {
-                    continuation.resume(returning: Image(uiImage: UIImage(cgImage: cgImage)))
+                    continuation.resume(returning: UIImage(cgImage: cgImage))
                 } else {
-                    continuation.resume(returning: Image(systemName: "video"))
+                    // Fallback thumbnail image.
+                    continuation.resume(returning: UIImage(systemName: "video")!)
                 }
             }
         }
-    }
-    
-    // MARK: - Duplicate Detection
-
-    /// Computes a lightweight, partial hash of up to the first 64 KB of data
-    /// to detect duplicates in the same session without big memory usage.
-    private func partialHash(of data: Data, limit: Int = 64_000) -> Int {
-        let chunkSize = min(data.count, limit)
-        return data.prefix(chunkSize).hashValue
-    }
-}
-
-// MARK: - Firestore Conversion for VideoItem
-
-extension VideoItem {
-    /// Creates a VideoItem from a Firestore document.
-    /// Assumes that the Firestore doc contains at least a videoURL and createdAt timestamp.
-    static func from(_ document: DocumentSnapshot) throws -> VideoItem {
-        guard let data = document.data(),
-              let urlString = data["videoURL"] as? String,
-              let videoURL = URL(string: urlString),
-              let createdAtTimestamp = data["createdAt"] as? Timestamp else {
-            throw GlobalError.invalidData
-        }
-        let createdAt = createdAtTimestamp.dateValue()
-        // For simplicity, a placeholder thumbnail is used.
-        let thumbnail = Image(systemName: "video")
-        // Optionally, parse team information if available.
-        return VideoItem(videoURL: videoURL, thumbnail: thumbnail, date: createdAt, team: nil)
     }
 }
