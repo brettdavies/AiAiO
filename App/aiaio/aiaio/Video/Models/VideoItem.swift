@@ -3,7 +3,7 @@ import PhotosUI
 import AVKit
 import FirebaseFirestore
 
-/// MARK: - VideoItem Model
+// MARK: - VideoItem Model
 struct VideoItem: Identifiable {
     let id = UUID()
     let videoURL: URL

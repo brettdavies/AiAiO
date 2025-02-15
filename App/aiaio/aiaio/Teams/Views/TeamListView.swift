@@ -3,7 +3,7 @@ import SwiftUI
 struct TeamListView: View {
     @EnvironmentObject var teamViewModel: TeamViewModel
     // When a team is selected (either an existing one or a new team), we present the detail view modally.
-    @State private var selectedTeam: Team? = nil
+    @State private var selectedTeam: Team?
 
     var body: some View {
         NavigationStack {

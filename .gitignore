@@ -7,6 +7,8 @@
 !**/.env.example
 **/*.xcconfig
 *.xcconfig
+**/*.secret.*
+!**/.secret.example
 
 # App Configuration
 **/Info.plist

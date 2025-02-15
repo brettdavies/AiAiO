@@ -8,7 +8,7 @@ from firebase_functions import https_fn, storage_fn
 from firebase_admin import initialize_app, credentials
 import functions_framework
 from logger import Logger
-from video_summary.main import process_video  # Import your function
+from video_summary.main import process_video_handler  # Import your function
 
 # Configure logging
 logging.basicConfig(
@@ -24,6 +24,4 @@ initialize_app(cred, {
 })
 
 # Export the function with region only
-video_summary = storage_fn.on_object_finalized(
-    region="us-central1"
-)(process_video)
+video_summary = storage_fn.on_object_finalized(region="us-central1")(process_video_handler)

@@ -1,25 +1,30 @@
 {
   "emulators": {
     "auth": {
+      "host": "127.0.0.1",
       "port": 9099,
       "logFile": "Logs/auth-debug.log"
     },
     "firestore": {
+      "host": "127.0.0.1",
       "port": 8080,
       "logFile": "Logs/firestore-debug.log"
     },
     "functions": {
+      "host": "127.0.0.1",
       "port": 5001,
       "logFile": "Logs/functions-debug.log",
       "source": "functions",
       "runtime": "python312"
     },
     "storage": {
+      "host": "127.0.0.1",
       "port": 9199,
       "logFile": "Logs/storage-debug.log"
     },
     "ui": {
       "enabled": true,
+      "host": "127.0.0.1",
       "port": 4000,
       "logFile": "Logs/ui-debug.log"
     },
@@ -60,11 +65,6 @@
           "requireSpecialCharacters": true,
           "requireUppercase": true
         }
-      },
-      "google": {
-        "enabled": true,
-        "clientId": "${GOOGLE_CLIENT_ID}",
-        "clientSecret": "${GOOGLE_CLIENT_SECRET}"
       }
     }
   },

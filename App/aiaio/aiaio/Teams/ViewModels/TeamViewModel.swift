@@ -50,7 +50,6 @@ class TeamViewModel: ObservableObject {
         teams.sorted { $0.name < $1.name }
     }
     
-    
     /// Reference to the teams collection.
     private var teamsRef: CollectionReference {
         db.collection("teams")
@@ -219,7 +218,6 @@ class TeamViewModel: ObservableObject {
             return false
         }
     }
-
 
     // MARK: - Error Mapping
 

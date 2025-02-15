@@ -1,183 +1,251 @@
+# main.py
+
 import os
+import json
+import logging
 import tempfile
 import base64
 import time
-from enum import Enum
-from typing import Optional, Dict, Any
-
 import cv2
 import firebase_admin
-from firebase_admin import credentials, firestore, storage
+from firebase_admin import firestore, storage
+from firebase_functions import storage_fn
+from firebase_functions.params import StringParam, SecretParam
 from openai import OpenAI
 from google.cloud import storage as google_storage
-from dotenv import load_dotenv
-import firebase_functions
 
-# Try to load from .env first (local development)
-load_dotenv()
+logger = logging.getLogger("video_summary")
+logging.basicConfig(level=logging.INFO)
+
+STORAGE_BUCKET = StringParam("STORAGE_BUCKET")
+OPENAI_API_KEY = SecretParam("OPENAI_API_KEY")
+
+openai_client = None
+
+class SummaryStatus(str):
+    PENDING = "pending"
+    PROCESSING = "processing"
+    COMPLETED = "completed"
+    ERROR = "error"
 
 def get_openai_client():
-    """Get OpenAI client with proper API key"""
-    try:
-        # Try Firebase config first
-        config = firebase_functions.get_config()
-        print("Firebase config:", config)
-        openai_key = config.get('openai', {}).get('api_key')
-        if not openai_key:
-            # Try direct environment variable
-            openai_key = os.getenv('OPENAI_API_KEY')
-            print("Using env var for OpenAI key")
-    except Exception as e:
-        print(f"Error getting Firebase config: {str(e)}")
-        # Fallback to env var
-        openai_key = os.getenv('OPENAI_API_KEY')
+    global openai_client
+    if openai_client is not None:
+        logger.info("Reusing existing OpenAI client")
+        return openai_client
+    key = os.environ.get("OPENAI_API_KEY")
+    if not key:
+        logger.error("OPENAI_API_KEY is missing from environment")
+        raise ValueError("Missing OPENAI_API_KEY secret")
+    logger.info("Creating new OpenAI client")
+    openai_client = OpenAI(api_key=key)
+    logger.info("OpenAI client created successfully")
+    return openai_client
 
-    if not openai_key:
-        raise ValueError("OPENAI_API_KEY must be set in Firebase config or environment")
-
-    return OpenAI(api_key=openai_key)
-
-class SummaryStatus(str, Enum):
-    PENDING = 'pending'
-    PROCESSING = 'processing'
-    COMPLETED = 'completed'
-    ERROR = 'error'
+def update_summary_status(video_id: str, status: str, error: str = None) -> None:
+    logger.info("Updating summary status for video_id=%s to %s, error=%s", video_id, status, error)
+    db = firestore.client()
+    doc_ref = db.collection("videos").document(video_id)
+    data = {
+        "summary": {
+            "status": status,
+            "updatedAt": firestore.SERVER_TIMESTAMP
+        }
+    }
+    if error:
+        data["summary"]["error"] = error
+    result = doc_ref.set(data, merge=True)
+    logger.info("Firestore update complete -> %s", result)
 
 def extract_frames(video_path: str, output_dir: str) -> list[str]:
-    """
-    Extracts I-frames from video using ffmpeg and returns list of frame paths
-    """
-    # Use ffmpeg to extract I-frames
-    os.system(f'ffmpeg -i "{video_path}" -vf "select=\'eq(pict_type,PICT_TYPE_I)\'" -vsync vfr -f image2 "{output_dir}/frame-%04d.jpg"')
-    
-    # Get list of generated frame paths
-    frames = [f for f in os.listdir(output_dir) if f.endswith('.jpg')]
-    frames.sort()  # Ensure frames are in order
-    
-    return [os.path.join(output_dir, f) for f in frames]
+    logger.info("Extracting frames from video_path=%s into output_dir=%s", video_path, output_dir)
+    cmd = (
+        f'ffmpeg -i "{video_path}" '
+        f'-vf "select=\'eq(pict_type,PICT_TYPE_I)\'" '
+        f'-vsync vfr -f image2 "{output_dir}/frame-%04d.jpg"'
+    )
+    logger.info("Running ffmpeg command: %s", cmd)
+    os.system(cmd)
+    frames = [f for f in os.listdir(output_dir) if f.endswith(".jpg")]
+    frames.sort()
+    results = [os.path.join(output_dir, f) for f in frames]
+    logger.info("Extracted frames: %s", results)
+    return results
 
-async def update_summary_status(video_id: str, status: SummaryStatus, error: Optional[str] = None) -> None:
-    """
-    Updates the summary status in Firestore
-    """
-    db = firestore.client()
-    doc_ref = db.collection('videos').document(video_id)
-    
-    update_data = {
-        'summary.status': status.value,
-        'summary.updatedAt': firestore.SERVER_TIMESTAMP
-    }
-    
-    if error:
-        update_data['summary.error'] = error
-    
-    await doc_ref.update(update_data)
-
-def generate_summary(frames: list[str], max_frames: int = 248) -> Dict[str, str]:
-    """
-    Generates video summary using OpenAI's GPT-4 Vision
-    """
-    # Convert frames to base64 and sample if needed
+def generate_summary(frames: list[str], max_frames: int = 248) -> dict:
+    logger.info("Generating summary for %d frames, max_frames=%d", len(frames), max_frames)
     base64_frames = []
     interval = max(1, len(frames) // max_frames)
-    
     for frame_path in frames[::interval]:
-        with open(frame_path, 'rb') as f:
-            img_data = f.read()
-            base64_frames.append(base64.b64encode(img_data).decode('utf-8'))
-
-    # Prepare prompt for OpenAI
-    messages = [{
-        "role": "user",
-        "content": [
-            "Generate two descriptions for this video: a short 1-2 sentence summary and a detailed paragraph.",
-            *map(lambda x: {"image": x, "resize": 768}, base64_frames),
-        ],
-    }]
-
-    # Call OpenAI with exponential retry
-    max_retries = 3
-    base_delay = 1
-    
-    for attempt in range(max_retries):
         try:
-            response = client.chat.completions.create(
+            with open(frame_path, "rb") as f:
+                img_data = f.read()
+            base64_frames.append(base64.b64encode(img_data).decode("utf-8"))
+        except Exception as e:
+            logger.error("Error reading frame %s: %s", frame_path, e)
+    messages = [
+        {
+            "role": "system",
+            "content": (
+                "You are an expert sports commentator providing live-play narration and analysis "
+                "of competitive sports events. Deliver highly detailed, real-time insight that captures the "
+                "speed, strategy, and excitement of the match. Emphasize the significance of key plays, "
+                "and player emotions. Use broadcast-quality language akin to professional sports "
+                "coverage. Return valid JSON with exactly two fields: shortDescription and detailedDescription."
+            )
+        },
+        {
+            "role": "user",
+            "content": [
+                "Please provide a two-sentence highlight capturing the most exciting action, "
+                "and then a long-form commentary including player strategies, pivotal moments, "
+                "and remarkable individual performances. Only return a JSON object "
+                "with shortDescription and detailedDescription.",
+                *map(lambda x: {"image": x, "resize": 768}, base64_frames),
+            ]
+        }
+    ]
+    logger.info("Calling OpenAI with %d frames", len(base64_frames))
+    client = get_openai_client()
+    retries = 3
+    delay = 1
+    for attempt in range(retries):
+        try:
+            logger.info("Attempt %d: requesting completion from OpenAI", attempt)
+            resp = client.chat.completions.create(
                 model="gpt-4o",
                 messages=messages,
-                max_tokens=500
+                max_tokens=1000,
+                response_format={"type": "json_object"}
             )
-            
-            # Parse response into short and detailed descriptions
-            content = response.choices[0].message.content
-            parts = content.split('\n\n', 1)
-            
+            raw_text = resp.choices[0].message.content
+            logger.info("OpenAI raw response: %s", raw_text)
+            try:
+                parsed_json = json.loads(raw_text)
+            except json.JSONDecodeError as decode_err:
+                logger.error("JSON decode error: %s", decode_err)
+                if attempt < retries - 1:
+                    wait_time = delay * (2 ** attempt)
+                    logger.warning("Retrying in %ds after JSON decode failure", wait_time)
+                    time.sleep(wait_time)
+                    continue
+                logger.warning("All attempts exhausted, returning placeholder summary")
+                return {
+                    "shortDescription": "No summary",
+                    "detailedDescription": "No summary"
+                }
+            short_desc = parsed_json.get("shortDescription", "").strip()
+            long_desc = parsed_json.get("detailedDescription", "").strip()
+            if not short_desc or not long_desc:
+                logger.warning(
+                    "Parsed JSON is missing one or both fields. shortDescription=%s, detailedDescription=%s",
+                    short_desc,
+                    long_desc
+                )
+                if attempt < retries - 1:
+                    wait_time = delay * (2 ** attempt)
+                    logger.warning("Retrying in %ds due to missing fields", wait_time)
+                    time.sleep(wait_time)
+                    continue
+                logger.warning("All attempts failed, returning placeholder summary")
+                return {
+                    "shortDescription": "No summary",
+                    "detailedDescription": "No summary"
+                }
+            logger.info("Received valid JSON from OpenAI on attempt %d", attempt)
             return {
-                'shortDescription': parts[0].strip(),
-                'detailedDescription': parts[1].strip() if len(parts) > 1 else parts[0].strip()
+                "shortDescription": short_desc,
+                "detailedDescription": long_desc
             }
-            
-        except Exception as e:
-            if 'invalid_api_key' in str(e).lower() or 'expired' in str(e).lower():
-                raise  # Don't retry auth errors
-                
-            if attempt == max_retries - 1:
-                raise  # Last attempt failed
-                
-            delay = base_delay * (2 ** attempt)  # Exponential backoff
-            time.sleep(delay)
+        except Exception as exc:
+            logger.error("generate_summary attempt %d exception: %s", attempt, exc)
+            if attempt < retries - 1:
+                wait_time = delay * (2 ** attempt)
+                logger.warning("Retrying in %ds", wait_time)
+                time.sleep(wait_time)
+            else:
+                logger.warning("All attempts failed, returning placeholder summary")
+                return {
+                    "shortDescription": "No summary",
+                    "detailedDescription": "No summary"
+                }
 
-async def process_video(event: Dict[str, Any], context: Any) -> None:
-    """
-    Cloud Function triggered by new video upload
-    """
-    # Initialize OpenAI client when function runs
-    client = get_openai_client()
-    
+def process_video_impl(event_data: dict) -> str:
+    bucket_name = os.environ.get("STORAGE_BUCKET")
+    if not bucket_name:
+        logger.error("STORAGE_BUCKET not set in environment")
+        raise ValueError("STORAGE_BUCKET is missing")
+    content_type = event_data.get("contentType", "")
+    file_path = event_data.get("name", "")
+    if not content_type:
+        logger.error("No content_type found in event data")
+        return "No content_type in event data"
+    if not content_type.startswith("video/"):
+        logger.info("Ignoring non-video contentType=%s", content_type)
+        return "Not a video file"
+    if not file_path:
+        logger.error("No file_path in event data")
+        return "Invalid event data"
+    if not file_path.endswith("original.mov"):
+        logger.info("Not an original.mov upload, ignoring: %s", file_path)
+        return "Not an original video upload"
+    parts = file_path.split("/")
+    if len(parts) < 2:
+        logger.error("Invalid path structure for file_path=%s", file_path)
+        return "Invalid path structure"
+    video_id = parts[1]
+    logger.info("Extracted video_id=%s from file_path=%s", video_id, file_path)
     try:
-        file_path = event['name']
-        video_id = file_path.split('/')[1]  # Assuming path: videos/{videoId}/original.mov
-        
-        if not file_path.endswith('original.mov'):
-            return  # Only process original video uploads
-            
-        await update_summary_status(video_id, SummaryStatus.PROCESSING)
-        
-        # Create temporary directory for frame extraction
-        with tempfile.TemporaryDirectory() as temp_dir:
-            # Download video file
-            bucket = storage.bucket()
-            video_blob = bucket.blob(file_path)
-            temp_video_path = os.path.join(temp_dir, 'video.mov')
-            video_blob.download_to_filename(temp_video_path)
-            
-            # Extract frames
-            frame_paths = extract_frames(temp_video_path, temp_dir)
-            
-            # Upload frames to Cloud Storage
-            frames_dir = f'videos/{video_id}/frames'
-            for frame_path in frame_paths:
-                frame_name = os.path.basename(frame_path)
-                frame_blob = bucket.blob(f'{frames_dir}/{frame_name}')
-                frame_blob.upload_from_filename(frame_path)
-            
-            # Generate summary
-            summary = generate_summary(frame_paths)
-            
-            # Update Firestore
+        logger.info("Updating summary status to PROCESSING for video_id=%s", video_id)
+        update_summary_status(video_id, SummaryStatus.PROCESSING)
+        with tempfile.TemporaryDirectory() as tmp:
+            logger.info("Created temporary directory: %s", tmp)
+            bucket_ref = storage.bucket(bucket_name)
+            logger.info("Using bucket_ref=%s", bucket_name)
+            blob = bucket_ref.blob(file_path)
+            local_video_path = os.path.join(tmp, "video.mov")
+            logger.info("Downloading %s -> %s", file_path, local_video_path)
+            blob.download_to_filename(local_video_path)
+            logger.info("Download complete")
+            frames = extract_frames(local_video_path, tmp)
+            logger.info("Extracted %d frames for video_id=%s", len(frames), video_id)
+            frames_dir = f"videos/{video_id}/frames"
+            logger.info("Uploading frames to %s", frames_dir)
+            for frm in frames:
+                remote_path = f"{frames_dir}/{os.path.basename(frm)}"
+                logger.info("Uploading frame %s -> %s", frm, remote_path)
+                bucket_ref.blob(remote_path).upload_from_filename(frm)
+            logger.info("Generating summary for video_id=%s", video_id)
+            summary = generate_summary(frames)
+            logger.info("Summary result: %s", summary)
             db = firestore.client()
-            doc_ref = db.collection('videos').document(video_id)
-            await doc_ref.update({
-                'summary.status': SummaryStatus.COMPLETED.value,
-                'summary.shortDescription': summary['shortDescription'],
-                'summary.detailedDescription': summary['detailedDescription'],
-                'summary.updatedAt': firestore.SERVER_TIMESTAMP
-            })
-            
-            # # Cleanup frames
-            # for blob in bucket.list_blobs(prefix=frames_dir):
-            #     blob.delete()
-                
+            doc_ref = db.collection("videos").document(video_id)
+            update_data = {
+                "summary": {
+                    "status": SummaryStatus.COMPLETED,
+                    "shortDescription": summary["shortDescription"],
+                    "detailedDescription": summary["detailedDescription"],
+                    "updatedAt": firestore.SERVER_TIMESTAMP
+                }
+            }
+            logger.info("Upserting existing Firestore doc with final summary: %s", update_data)
+            write_result = doc_ref.set(update_data, merge=True)
+            logger.info("Firestore doc upsert -> %s", write_result)
+        logger.info("Video processed successfully for video_id=%s", video_id)
+        return "Video processed successfully"
     except Exception as e:
-        print(f"Error processing video {video_id}: {str(e)}")
-        await update_summary_status(video_id, SummaryStatus.ERROR, str(e))
-        raise 
+        logger.error("Exception while processing video_id=%s: %s", video_id, e)
+        try:
+            update_summary_status(video_id, SummaryStatus.ERROR, str(e))
+        except Exception as e2:
+            logger.error("Failed update_summary_status after exception: %s", e2)
+        return f"Error processing video: {str(e)}"
+
+@storage_fn.on_object_finalized(bucket=STORAGE_BUCKET, secrets=[OPENAI_API_KEY])
+def process_video_handler(raw_event):
+    data_dict = {
+        "bucket": getattr(raw_event.data, "bucket", None),
+        "contentType": getattr(raw_event.data, "content_type", None),
+        "name": getattr(raw_event.data, "name", None),
+    }
+    return process_video_impl(data_dict)
