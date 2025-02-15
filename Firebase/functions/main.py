@@ -2,11 +2,13 @@
 # To get started, simply uncomment the below code or create your own.
 # Deploy with `firebase deploy`
 
+import os
 import logging
-from firebase_functions import https_fn
-from firebase_admin import initialize_app
+from firebase_functions import https_fn, storage_fn
+from firebase_admin import initialize_app, credentials
 import functions_framework
 from logger import Logger
+from video_summary.main import process_video  # Import your function
 
 # Configure logging
 logging.basicConfig(
@@ -15,51 +17,13 @@ logging.basicConfig(
 )
 logger = logging.getLogger('aiaio')
 
-initialize_app()
+# Initialize Firebase Admin once
+cred = credentials.ApplicationDefault()
+initialize_app(cred, {
+    'storageBucket': os.getenv('FIREBASE_STORAGE_BUCKET')
+})
 
-@https_fn.on_request()
-def on_request_example(req: https_fn.Request) -> https_fn.Response:
-    """Handle HTTP requests to the function.
-    
-    This is a test function that demonstrates logging and error handling.
-    It's used to verify our CI pipeline is working correctly.
-    
-    Args:
-        req: The HTTP request object
-        
-    Returns:
-        https_fn.Response: A simple response with "Hello world!" or error status
-    """
-    try:
-        logger.info(f"Received request from {req.headers.get('X-Forwarded-For', 'unknown')}")
-        
-        # Process request here
-        response_text = "Hello world!"
-        
-        logger.info("Request processed successfully")
-        return https_fn.Response(response_text)
-        
-    except Exception as e:
-        logger.error(f"Error processing request: {str(e)}", exc_info=True)
-        return https_fn.Response(
-            "Internal server error", 
-            status=500
-        )
-
-@functions_framework.http
-def example_function(request):
-    """Example function demonstrating logger usage"""
-    Logger.info("Function invoked", "ExampleFunction")
-
-    try:
-        # Example processing
-        Logger.debug("Processing request", "ExampleFunction")
-
-        # Example success case
-        Logger.info("Request processed successfully", "ExampleFunction")
-        return {"success": True}
-
-    except Exception as error:
-        # Example error handling
-        Logger.error_with_exception(error, "ExampleFunction")
-        return {"error": "Internal server error"}, 500
+# Export the function with region only
+video_summary = storage_fn.on_object_finalized(
+    region="us-central1"
+)(process_video)
