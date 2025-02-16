@@ -2,7 +2,7 @@ import SwiftUI
 
 struct TeamDetailView: View {
     @StateObject private var viewModel: TeamDetailViewModel
-    private let onDismiss: () -> Void
+    var onDismiss: () -> Void = {}
     
     init(team: Team, teamViewModel: TeamViewModel, onDismiss: @escaping () -> Void = {}) {
         _viewModel = StateObject(wrappedValue: TeamDetailViewModel(team: team, teamViewModel: teamViewModel))
@@ -26,17 +26,33 @@ struct TeamDetailView: View {
                         }
                     }
                 }
-                .disabled(!viewModel.isFormValid)
+                .disabled(!viewModel.isFormValid || !viewModel.hasChanges)
             }
         }
         .alert(isPresented: $viewModel.showValidationError) {
             Alert(
                 title: Text("Validation Error"),
-                message: Text("Please fill in all required fields."),
+                message: Text("Please fill in all required fields and make changes before saving."),
                 dismissButton: .default(Text("OK"))
             )
         }
-        .overlay(ToastOverlay(isVisible: viewModel.showToast, message: viewModel.toastMessage))
+        .overlay(
+            Group {
+                if viewModel.showToast {
+                    VStack {
+                        Text(viewModel.toastMessage)
+                            .padding()
+                            .background(Color.black.opacity(0.7))
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                        Spacer()
+                    }
+                    .padding()
+                    .transition(.opacity)
+                }
+            }
+        )
+        .animation(.easeInOut, value: viewModel.showToast)
     }
     
     @ViewBuilder private var teamNameField: some View {
@@ -73,11 +89,8 @@ struct TeamDetailView: View {
     }
 }
 
-// MARK: - Helper Views
-
 private struct ClearButton: View {
     let action: () -> Void
-    
     var body: some View {
         Button(action: action) {
             Image(systemName: "xmark.circle.fill")
@@ -89,33 +102,10 @@ private struct ClearButton: View {
 
 private struct ValidationErrorText: View {
     let message: String
-    
     var body: some View {
         Text(message)
             .foregroundColor(.red)
             .font(.caption)
-    }
-}
-
-private struct ToastOverlay: View {
-    let isVisible: Bool
-    let message: String
-    
-    var body: some View {
-        Group {
-            if isVisible {
-                VStack {
-                    Text(message)
-                        .padding()
-                        .background(Color.black.opacity(0.7))
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                    Spacer()
-                }
-                .padding()
-                .transition(.opacity)
-            }
-        }
     }
 }
 

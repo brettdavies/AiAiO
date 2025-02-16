@@ -1,31 +1,46 @@
+# test_main.py
+
+import os
 import pytest
-from firebase_functions import https_fn
-from main import on_request_example
+from unittest.mock import patch, MagicMock
+from video_summary.main import process_video_impl
 
-def test_on_request_example_success(mocker):
-    """Test successful request handling."""
-    # Create a mock request
-    mock_request = mocker.Mock(spec=https_fn.Request)
-    mock_request.headers = {'X-Forwarded-For': '127.0.0.1'}
-    mock_request.method = 'GET'
-    mock_request.url = 'http://localhost/test'
-    
-    # Call the function
-    response = on_request_example(mock_request)
-    
-    # Verify response
-    assert response.status_code == 200
-    assert response.data.decode() == "Hello world!"
+@pytest.fixture
+def mock_env():
+    os.environ["STORAGE_BUCKET"] = "my-test-bucket"
+    os.environ["OPENAI_API_KEY"] = "dummy_key"
+    yield
+    os.environ.pop("STORAGE_BUCKET", None)
+    os.environ.pop("OPENAI_API_KEY", None)
 
-def test_on_request_example_with_error(mocker):
-    """Test error handling in the request handler."""
-    # Create a mock request that will trigger an error
-    mock_request = mocker.Mock(spec=https_fn.Request)
-    mock_request.headers = None  # This will cause an attribute error
-    
-    # Call the function
-    response = on_request_example(mock_request)
-    
-    # Verify error response
-    assert response.status_code == 500
-    assert response.data.decode() == "Internal server error" 
+@patch("video_summary.main.firebase_admin.get_app", return_value=MagicMock())
+@patch("video_summary.main.firebase_admin.initialize_app")
+@patch("video_summary.main.firestore")
+@patch("video_summary.main.OpenAI")
+def test_process_video_success(mock_openai, mock_firestore, mock_init_app, mock_get_app, mock_env):
+    mock_db = MagicMock()
+    mock_firestore.client.return_value = mock_db
+
+    mock_openai_instance = MagicMock()
+    mock_openai.return_value = mock_openai_instance
+    mock_openai_instance.chat.completions.create.return_value = MagicMock(
+        choices=[
+            MagicMock(
+                message=MagicMock(
+                    content='{"shortDescription": "Test short", "detailedDescription": "Test detail"}'
+                )
+            )
+        ]
+    )
+
+    event_data = {
+        "bucket": "my-test-bucket",
+        "contentType": "video/quicktime",
+        "name": "videos/TEST_ID/original.mov"
+    }
+
+    result = process_video_impl(event_data)
+
+    assert "Video processed successfully" in result
+    mock_db.collection.assert_called_with("videos")
+    mock_openai_instance.chat.completions.create.assert_called_once()

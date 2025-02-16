@@ -1,114 +1,144 @@
-[![iOS CI](https://github.com/brettdavies/ReelAI/actions/workflows/ios-ci.yml/badge.svg)](https://github.com/brettdavies/ReelAI/actions/workflows/ios-ci.yml)
+# AiAiO – Repository-Wide Overview
 
-# ReelAI
+[![iOS CI](https://github.com/brettdavies/AiAiO/actions/workflows/ios-ci.yml/badge.svg)](https://github.com/brettdavies/AiAiO/actions/workflows/ios-ci.yml)
 
-## Reimagining TikTok with AI
+Welcome to the **AiAiO** monorepo! This repository powers a secure, AI-enabled video sharing platform built with modern **SwiftUI** and **Firebase** technologies. AiAiO merges intuitive mobile workflows with a flexible cloud infrastructure to accelerate video uploads, AI-driven metadata generation, and secure sharing among teams, parents, and coaches.
 
-ReelAI is a secure, AI-enabled video sharing platform built with modern SwiftUI and Firebase technologies. Designed for creators—including parents, coaches, and teachers—ReelAI rethinks short-form video by leveraging artificial intelligence to simplify content creation, enhance privacy, and deliver a personalized experience for both content creators and consumers.
+---
 
-## Overview
+## Table of Contents
 
-ReelAI transforms the way videos are captured, edited, and shared. By automating tedious tasks (such as video editing, metadata generation, and format validations) with AI, ReelAI enables creators to focus on their content while ensuring a privacy-first, zero-trust experience for all users.
+- [AiAiO – Repository-Wide Overview](#aiaio--repository-wide-overview)
+  - [Table of Contents](#table-of-contents)
+  - [What Is AiAiO?](#what-is-aiaio)
+  - [Core Components](#core-components)
+  - [Key Features](#key-features)
+  - [Repository Structure](#repository-structure)
+  - [Getting Started](#getting-started)
+  - [Where to Find More Details](#where-to-find-more-details)
+  - [Contributing](#contributing)
 
-Key features include:
+---
 
-- Authentication & Secure Access:
-Robust sign-up and sign-in flows with Firebase Auth and zero-trust security rules.
+## What Is AiAiO?
 
-- Team Management:
-Create and manage teams (previously known as groups) to control who can view and interact with content.
+AiAiO rethinks short-form video by leveraging AI to simplify content creation and ensure a privacy-centric experience. Originally inspired by the needs of sports coaches, parents, and instructors, it scales across various use cases: from robust video analysis and highlights to secure team-based collaboration and face-blurring for minors.
 
-- Video Upload & Offline Caching:
-A SwiftUI interface for video selection/recording with client-side validations and offline caching using SwiftData.
+---
 
-- AI-Enabled Metadata Generation:
-Cloud Functions process videos to generate summaries, transcriptions, and perform facial/jersey recognition.
+## Core Components
 
-- Robust Logging & Error Handling:
-A unified logging system captures events and errors, ensuring high observability and streamlined debugging.
+- **iOS App (SwiftUI)**: A modern, Swifty interface for video capture, offline caching, and team-based collaboration.  
+- **Firebase Backend**: A suite of services, including Firestore, Storage, Authentication, and Cloud Functions, providing real-time data sync and serverless compute capabilities.  
+- **AI Integration**: Specialized Cloud Functions for automated metadata generation (e.g., video summaries, transcripts, and face detection or blurring).  
 
-## Technology Stack
+---
 
-- iOS: Swift 6 with SwiftUI on iOS 18 (minimum deployment target iOS 18.2)
-- Firebase:
-- Authentication, Firestore, Storage, Cloud Functions, and Remote Config
-- Local development via the Firebase Emulator Suite
-- AI Processing: Cloud Functions (Python 3.12) for video metadata and content analysis
-- Cursor IDE: AI-assisted code editing and project management (as an alternative to Xcode)
-- SwiftPM: All dependencies are managed via Swift Package Manager (no Node-based packages)
+## Key Features
+
+1. **Authentication & Secure Access**  
+   - Email/password sign-up, multi-factor flows, and token-based session management via Firebase Auth.  
+   - Role-based permissions to control video visibility, face “unblurring,” and team membership.
+
+2. **Video Upload & Processing**  
+   - SwiftUI-based upload flows with built-in validations, offline caching, and progress indicators.  
+   - Automatic AI tasks (e.g., summarization, frame extraction, transcriptions) triggered on file finalize events in Firebase Storage.
+
+3. **Privacy-First Face Blurring**  
+   - Ensures that minors’ faces are blurred by default.  
+   - Granular permissions allow parents or owners to selectively “unblur” specific subjects for an authorized audience.
+
+4. **Team Management**  
+   - Create, manage, and collaborate within teams (groups).  
+   - Assign videos to a team, track ownership, and share curated content with coaches, parents, or staff.
+
+5. **Logging & Observability**  
+   - Comprehensive logging from both the iOS client and Cloud Functions.  
+   - Error handling and notifications in Firebase console or third-party monitoring solutions.
+
+---
 
 ## Repository Structure
 
-The repository is organized as a monorepo:
+Below is a high-level look at the folders in this monorepo:
 
-- App/
-  Contains the iOS application built in SwiftUI, organized into feature folders such as:
-  - Authentication/ (Views, ViewModels, Services)
-  - Teams/ (formerly Groups – Views, ViewModels, Models)
-  - VideoUpload/ (Views, ViewModels, Services)
-  - Utilities/ (GlobalError, GlobalValidator, ToastManager, etc.)
-  - Localization/ (Language-specific .lproj folders)
-  - Logging/ (UnifiedLogger, Crashlytics integration)
+- **App/**  
+  - The SwiftUI iOS application. Handles video capture, uploads, local caching, AI triggers, and user-facing features.  
+  - See [App/README.md](App/README.md) for a more detailed overview of app architecture and user flows.
 
-- Firebase/
-  Contains backend code and configurations:
-  - Functions/ – Cloud Functions code for video processing and AI metadata
-  - Config/ – firebase.json, Firestore indexes, and environment configuration files
-  - SecurityRules/ – Firestore and Storage rules (managed via the Firebase CLI)
-  - Emulators/ – Local emulator configurations for Auth, Firestore, Storage, and Functions
+- **Firebase/**  
+  - Firebase project configuration, security rules, and Cloud Functions.  
+  - Has subfolders like:
+    - **Functions/**: Python-based (or Node.js-based) Cloud Functions for serverless video processing.  
+    - **Config/**: Environment-specific configs, `.env` files, Firestore indexes, etc.  
+    - **SecurityRules/**: Firestore and Storage rules for controlling data access.  
+  - See [Firebase/README.md](Firebase/README.md) for more details on how these pieces fit together.
 
-- Tests/
-  Contains Unit, Integration, and UITests
+- **Tests/**  
+  - Contains unit, integration, and UI tests.  
+  - Helps ensure reliability across both iOS and backend components.
 
-- Docs/
-  Project documentation, design documents, and user guides
+- **Docs/**  
+  - Houses design documents, project plans, or any additional references.  
+  - Ideal for deeper architectural discussions or advanced usage guides.
 
-## Setup Instructions
+---
 
-1. Install Prerequisites:
+## Getting Started
 
-   - Cursor IDE for AI-assisted editing (or use your preferred IDE)
-   - Homebrew
-   - Xcode 15.2 (or later) with Swift 6 support
+1. **Install Prerequisites**  
+   - Xcode 15.2+ (with Swift 6) for iOS development.  
+   - Homebrew or your preferred package manager for tools like `swiftformat`, `xcbeautify`, and the Firebase CLI.  
+   - Python 3.12+ (if working on Cloud Functions in Python).
 
-2. Install Command-Line Tools:
+2. **Clone the Repo**  
+   - Clone this repository to your local machine and check out the `development` branch or an appropriate feature branch.
 
-   - xcbeautify: brew install xcbeautify
-   - swiftformat: brew install swiftformat
-   - Firebase CLI: brew install firebase-cli
+3. **Configure Firebase**  
+   - Set up your Firebase project in the `Firebase/Config` folder.  
+   - Run the local emulator suite (`firebase emulators:start`) for safer testing.
 
-3. Configure Firebase:
+4. **Build & Run**  
+   - Open the `App/` project in Xcode, resolve SwiftPM dependencies, and run on a device or simulator.  
+   - For Firebase Functions, ensure you install the required Python dependencies (see function-specific `requirements.txt` if you’re using Python).
 
-   - Ensure you have a Firebase project set up.
-   - In the Firebase/Config folder, verify your firebase.json and other config files.
-   - Use the Firebase Emulator Suite for local development:
+5. **Emulator Testing**  
+   - Use the Firebase local emulator for verifying Firestore rules, upload triggers, and function executions end-to-end.
 
-   ```bash
-   firebase emulators:start --project <your_project_id>
-   ```
+---
 
-4. Build & Run:
+## Where to Find More Details
 
-   - Open the project in Xcode (all dependencies are managed via SwiftPM).
-   - Use the Sweetpad extension (or build server commands) as described in the documentation to build and run the app.
-   - Use the integrated debugging tools in Cursor for a streamlined development experience.
+- **iOS App**  
+  - [App/README.md](App/README.md) – Overview of SwiftUI design, user flows, AI-driven face blurring, and offline caching strategies.
 
-5. Debugging & Logging:
+- **Firebase**  
+  - [Firebase/README.md](Firebase/README.md) – High-level summary of rules, emulator usage, and expansions (e.g., hosting).  
 
-   - All significant events and errors are logged via the UnifiedLogger and surfaced in the console.
-   - For toast notifications and error feedback, the app uses a global ToastManager that you can trigger from any view.
+- **Video Summary Function**  
+  - [Firebase/functions/video_summary/README.md](Firebase/functions/video_summary/README.md) – Explains how the summarization edge function extracts frames with FFmpeg and calls AI endpoints to generate insights.
+
+- **Project Documentation**  
+  - [Docs/](Docs/) – Contains design documents, development guidelines, and any specialized documentation or proposals.
+
+---
 
 ## Contributing
 
-- Branch per Task:
-Create feature branches (e.g., feature/slice3-team-management) for each task.
+1. **Create a Branch**  
+   - Follow the [Git Workflow Guidelines](.cursor/rules/git-workflow.mdc) for feature branches and commits.
 
-- PR Guidelines:
-Ensure that all tests pass and follow the coding guidelines provided in the documentation.
+2. **Make Changes & Test**  
+   - Ensure you run all relevant tests before committing.  
+   - Use local emulators to validate Firebase changes.
 
-## CI/CD:
-GitHub Actions handle linting, unit tests, integration tests, and deployment steps.
+3. **Pull Request & Review**  
+   - Open a PR into `development` when your changes are ready.  
+   - Reference additional instructions in each component’s README for testing or environment details.
 
-## Happy coding!
+4. **Merge & Deploy**  
+   - On successful review and testing, your changes can be squash-merged into `development` and deployed after final validations.
 
-ReelAI is built to empower creators with cutting-edge AI and a privacy-first approach—welcome to the future of video sharing.
+---
+
+Thank you for exploring the **AiAiO** repository! We’re excited you’re here to build a more intelligent, secure, and user-friendly video platform. For questions, issues, or suggestions, feel free to [open an issue](https://github.com/brettdavies/AiAiO/issues) or reach out to the project maintainers. Happy coding!

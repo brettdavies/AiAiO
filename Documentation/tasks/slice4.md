@@ -62,13 +62,13 @@ Before starting any task:
 
 ### Task 4.1 Video Selection/Recording UI
 
-**Objective**: Provide SwiftUI views to pick or record a video.
+**Objective**: Provide SwiftUI views to pick a video.
 
 1. **Step 1**: `feature/slice4-task4.1-video-ui`.  
-2. **Step 2**: In `/App/Video/Views/VideoUploadView.swift`:
-   - Button(s) for "Select from library" or "Record new video."  
-   - Use Swift's native APIs or a small SwiftPM library if needed (still no `package.json`).  
-3. **Step 3**: Preview with mock data.  
+2. **Step 2**: In `/App/aiaio/aiaio/Video/Views/VideoUploadView.swift`:
+   - Button(s) for "Select from library".
+   - Use Swift's native APIs or a small SwiftPM library if needed (still no `package.json`).
+3. **Step 3**: Preview with mock data.
 4. **Step 4**: Merge after local testing.
 
 **Definition of Done** (Machine-Readable):

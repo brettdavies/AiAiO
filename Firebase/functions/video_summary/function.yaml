@@ -1,0 +1,23 @@
+specVersion: v2
+name: video-summary
+entryPoint: process_video
+runtime: python312
+region: us-central1
+
+# Add resource configuration here
+availableMemoryMb: 1024
+timeoutSeconds: 540
+minInstances: 0
+maxInstances: 10
+
+environmentVariables:
+  FIREBASE_STORAGE_BUCKET: ${FIREBASE_STORAGE_BUCKET}
+  OPENAI_API_KEY: ${OPENAI_API_KEY}
+
+eventTrigger:
+  eventType: google.cloud.storage.object.v1.finalized
+  resource: projects/reelai-ffe67/buckets/${FIREBASE_STORAGE_BUCKET}
+  path: videos/{videoId}/original.mov
+
+labels:
+  deployment-tool: firebase-cli 

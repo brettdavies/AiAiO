@@ -2,73 +2,63 @@ import SwiftUI
 
 struct TeamListView: View {
     @EnvironmentObject var teamViewModel: TeamViewModel
+    // When a team is selected (either an existing one or a new team), we present the detail view modally.
+    @State private var selectedTeam: Team?
 
-    // In a real app, teams would be fetched from Firestore.
-    @State private var teams: [Team] = [
-        Team(
-            id: "1",
-            name: "U10 Soccer Team",
-            description: "Our U10 soccer team for the season.",
-            ownerUID: "1",
-            members: ["1": true],
-            createdAt: Date(),
-            updatedAt: Date()
-        ),
-        Team(
-            id: "2",
-            name: "U12 Basketball Team",
-            description: "Team roster for the U12 basketball team.",
-            ownerUID: "2",
-            members: ["2": true],
-            createdAt: Date(),
-            updatedAt: Date()
-        )
-    ]
-    
-    @State private var isPresentingNewTeam = false
-    
     var body: some View {
         NavigationStack {
-            List(teams) { team in
-                NavigationLink(
-                    destination: TeamDetailView(team: team, teamViewModel: teamViewModel)
-                        .environmentObject(teamViewModel)
-                ) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(team.name)
-                            .font(.headline)
-                        Text(team.description)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
+            Group {
+                if teamViewModel.isLoading {
+                    ProgressView("Loading Teams...")
+                } else if teamViewModel.teams.isEmpty {
+                    Text("No teams found.")
+                } else {
+                    List(teamViewModel.alphabeticalTeams) { team in
+                        Button {
+                            // Edit existing team
+                            selectedTeam = team
+                        } label: {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(team.name)
+                                    .font(.headline)
+                                Text(team.description)
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
                     }
                 }
             }
             .navigationTitle("Teams")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        isPresentingNewTeam = true
-                    }, label: {
+                    Button {
+                        // Create new team: use the convenience initializer.
+                        selectedTeam = Team.new()
+                    } label: {
                         Image(systemName: "plus")
-                    })
+                    }
                 }
             }
-            .sheet(isPresented: $isPresentingNewTeam) {
-                NavigationStack {
-                    // Present TeamDetailView in creation mode using the convenience initializer.
-                    TeamDetailView(team: Team.new(), teamViewModel: teamViewModel, onDismiss: {
-                        isPresentingNewTeam = false
-                    })
-                    .environmentObject(teamViewModel)
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button("Cancel") {
-                                isPresentingNewTeam = false
-                            }
+        }
+        // Use .sheet(item:) to present the detail view modally.
+        .sheet(item: $selectedTeam) { team in
+            NavigationStack {
+                TeamDetailView(team: team, teamViewModel: teamViewModel, onDismiss: {
+                    selectedTeam = nil
+                })
+                .environmentObject(teamViewModel)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") {
+                            selectedTeam = nil
                         }
                     }
                 }
             }
+        }
+        .task {
+            await teamViewModel.fetchTeams()
         }
     }
 }
