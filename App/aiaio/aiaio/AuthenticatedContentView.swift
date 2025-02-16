@@ -1,18 +1,15 @@
+// AuthenticatedContentView.swift
+
 import SwiftUI
 import PhotosUI
 import AVKit
 
 struct AuthenticatedContentView: View {
-    // Explicitly injected dependency.
     let sessionManager: SessionManager
     
-    // The VideoViewModel is now initialized using the provided sessionManager.
     @StateObject private var videoVM: VideoViewModel
-    
-    // Other dependencies (like TeamViewModel) still come from the environment.
     @EnvironmentObject var teamViewModel: TeamViewModel
-
-    // Local state properties.
+    
     @State private var selectedItems: [PhotosPickerItem] = []
     @State private var activeVideo: VideoItem?
     @State private var showingTeamList = false
@@ -22,19 +19,16 @@ struct AuthenticatedContentView: View {
     @State private var duplicateCount = 0
     @State private var pendingVideosForTeamAssignment: [VideoItem] = []
     
-    // MARK: - Initializer
-    
-    /// The initializer now explicitly requires a SessionManager,
-    /// which is used to create the VideoViewModel.
     init(sessionManager: SessionManager) {
+        UnifiedLogger.info("AuthenticatedContentView init called", context: "AuthenticatedContentView")
         self.sessionManager = sessionManager
         _videoVM = StateObject(wrappedValue: VideoViewModel(sessionManager: sessionManager))
     }
     
-    // MARK: - Body
-    
     var body: some View {
-        ZStack {
+        UnifiedLogger.info("AuthenticatedContentView body computed", context: "AuthenticatedContentView")
+        
+        let baseContent = ZStack {
             videoGrid
             floatingAddButton
         }
@@ -43,9 +37,11 @@ struct AuthenticatedContentView: View {
             ToolbarItem(placement: .navigationBarLeading) {
                 Menu {
                     Button("View Teams") {
+                        UnifiedLogger.info("View Teams tapped", context: "AuthenticatedContentView")
                         showingTeamList = true
                     }
                     Button("Sign Out") {
+                        UnifiedLogger.info("Sign Out tapped", context: "AuthenticatedContentView")
                         sessionManager.signOut()
                     }
                 } label: {
@@ -54,44 +50,52 @@ struct AuthenticatedContentView: View {
             }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
+                    UnifiedLogger.info("Filter button tapped", context: "AuthenticatedContentView")
                     showingFilterSheet = true
                 } label: {
                     Image(systemName: "line.3.horizontal.decrease.circle")
                 }
             }
         }
-        // Present the TeamListView modally.
-        .sheet(isPresented: $showingTeamList) {
+        
+        let withTeamListSheet = baseContent.sheet(isPresented: $showingTeamList) {
             TeamListView()
                 .environmentObject(teamViewModel)
         }
-        // Present the VideoPlayer when a video is selected.
-        .sheet(item: $activeVideo) { video in
-            VideoPlayerModalView(videoURL: video.videoURL)
+        
+        let withVideoSheet = withTeamListSheet.sheet(item: $activeVideo) { vid in
+            VideoPlayerModalView(videoItem: vid, videoVM: videoVM)
         }
-        // Present a filter sheet.
-        .sheet(isPresented: $showingFilterSheet) {
+        
+        let withFilterSheet = withVideoSheet.sheet(isPresented: $showingFilterSheet) {
             FilterSheet(
                 videoVM: videoVM,
                 userTeams: teamViewModel.alphabeticalTeams
             ) {
+                UnifiedLogger.info("FilterSheet dismissed", context: "AuthenticatedContentView")
                 showingFilterSheet = false
             }
         }
-        // Present the team assignment sheet.
-        .sheet(isPresented: $showingTeamPickerSheet) {
+        
+        let withTeamPickerSheet = withFilterSheet.sheet(isPresented: $showingTeamPickerSheet) {
             TeamPickerSheet(
                 teams: teamViewModel.alphabeticalTeams,
                 videosNeedingTeam: $pendingVideosForTeamAssignment
             ) {
+                UnifiedLogger.info("TeamPickerSheet completion called, finalizing new videos", context: "AuthenticatedContentView")
                 videoVM.finalizeNewVideos(pendingVideosForTeamAssignment)
                 pendingVideosForTeamAssignment.removeAll()
                 showingTeamPickerSheet = false
             }
         }
-        // Alert for duplicate video selection.
-        .alert(duplicateCount == 1 ? "Duplicate Video" : "Duplicate Videos", isPresented: $showDuplicateAlert) {
-            Button("OK", role: .cancel) {}
+        
+        let withDuplicateAlert = withTeamPickerSheet.alert(
+            duplicateCount == 1 ? "Duplicate Video" : "Duplicate Videos",
+            isPresented: $showDuplicateAlert
+        ) {
+            Button("OK", role: .cancel) {
+                UnifiedLogger.info("Duplicate alert OK tapped", context: "AuthenticatedContentView")
+            }
         } message: {
             if duplicateCount == 1 {
                 Text("You selected 1 video that was already uploaded.")
@@ -99,10 +103,12 @@ struct AuthenticatedContentView: View {
                 Text("You selected \(duplicateCount) videos that were already uploaded.")
             }
         }
-        // Listen for changes to the PhotosPicker selection.
-        .onChange(of: selectedItems) { _, newValue in
+        
+        let finalView = withDuplicateAlert.onChange(of: selectedItems) { oldValue, newValue in
+            UnifiedLogger.info("onChange of selectedItems triggered. oldValue count: \(oldValue.count), newValue count: \(newValue.count)", context: "AuthenticatedContentView")
             Task {
                 let (newlyAdded, duplicates) = await videoVM.handleNewSelections(newValue)
+                UnifiedLogger.info("handleNewSelections returned. newlyAdded count: \(newlyAdded.count), duplicates: \(duplicates)", context: "AuthenticatedContentView")
                 if duplicates > 0 {
                     duplicateCount = duplicates
                     showDuplicateAlert = true
@@ -114,26 +120,14 @@ struct AuthenticatedContentView: View {
                 }
             }
         }
+        
+        return finalView
     }
-}
-
-// MARK: - Thin Wrapper
-
-/// A thin wrapper that reads SessionManager (and other dependencies)
-/// from the environment and passes them into AuthenticatedContentView.
-struct AuthenticatedContentViewWrapper: View {
-    @EnvironmentObject var sessionManager: SessionManager
-    @EnvironmentObject var teamViewModel: TeamViewModel
     
-    var body: some View {
-        AuthenticatedContentView(sessionManager: sessionManager)
-            .environmentObject(teamViewModel)
-    }
-}
-
-extension AuthenticatedContentView {
     private var videoGrid: some View {
-        ScrollView {
+        UnifiedLogger.info("videoGrid computed", context: "AuthenticatedContentView")
+        
+        return ScrollView {
             if videoVM.displayedVideos.isEmpty {
                 Text("No Videos")
                     .foregroundStyle(.secondary)
@@ -147,11 +141,18 @@ extension AuthenticatedContentView {
                     ],
                     spacing: 1
                 ) {
-                    ForEach(videoVM.displayedVideos) { video in
+                    ForEach(videoVM.displayedVideos) { vid in
                         Button {
-                            activeVideo = video
+                            UnifiedLogger.info("Video tapped: \(vid.id). Refreshing summary...", context: "AuthenticatedContentView")
+                            Task {
+                                let updated = await videoVM.refreshSummary(for: vid)
+                                UnifiedLogger.info("refreshSummary returned for video: \(vid.id). Replacing local video...", context: "AuthenticatedContentView")
+                                videoVM.replaceLocalVideo(updated)
+                                activeVideo = updated
+                                UnifiedLogger.info("Set activeVideo to updated video: \(updated.id)", context: "AuthenticatedContentView")
+                            }
                         } label: {
-                            video.thumbnailImage
+                            vid.thumbnailImage
                                 .resizable()
                                 .aspectRatio(1, contentMode: .fill)
                                 .clipped()
@@ -180,5 +181,15 @@ extension AuthenticatedContentView {
                 }
             }
         }
+    }
+}
+
+struct AuthenticatedContentViewWrapper: View {
+    @EnvironmentObject var sessionManager: SessionManager
+    @EnvironmentObject var teamViewModel: TeamViewModel
+    
+    var body: some View {
+        AuthenticatedContentView(sessionManager: sessionManager)
+            .environmentObject(teamViewModel)
     }
 }
