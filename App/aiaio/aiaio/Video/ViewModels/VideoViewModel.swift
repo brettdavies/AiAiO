@@ -27,7 +27,7 @@ final class VideoViewModel: ObservableObject {
     var displayedVideos: [VideoItem] {
         let filtered = videoItems.filter {
             selectedFilterTeams.isEmpty ||
-            ($0.team != nil && selectedFilterTeams.contains($0.team!))
+            ($0.team.map { selectedFilterTeams.contains($0) } ?? false)
         }
         let sorted = filtered.sorted {
             switch sortOrder {
@@ -226,7 +226,7 @@ final class VideoViewModel: ObservableObject {
                     continuation.resume(returning: UIImage(cgImage: cgImage))
                 } else {
                     UnifiedLogger.info("Thumbnail generation failed, returning placeholder", context: "VideoViewModel")
-                    continuation.resume(returning: UIImage(systemName: "video")!)
+                    continuation.resume(returning: UIImage(systemName: "video") ?? UIImage())
                 }
             }
         }

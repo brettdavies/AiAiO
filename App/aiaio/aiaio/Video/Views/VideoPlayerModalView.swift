@@ -34,8 +34,7 @@ struct VideoPlayerModalView: View {
             
             if videoItem.summaryStatus == .completed,
                let shortDesc = videoItem.shortDescription,
-               showDescriptionOverlay
-            {
+               showDescriptionOverlay {
                 ZStack(alignment: .topTrailing) {
                     Color.black
                         .opacity(0.5)

@@ -8,7 +8,6 @@ import UIKit
 
 @MainActor
 final class VideoUploadService: ObservableObject {
-    
     /// Uploads a video file from a local URL to Firebase Storage.
     /// - Parameters:
     ///   - localFileURL: The URL of the video on disk.
