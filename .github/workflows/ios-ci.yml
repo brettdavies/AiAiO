@@ -19,20 +19,23 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   ios-build:
     name: iOS Build and Test
     runs-on: macos-15
     
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
     
     - name: Select Xcode
       run: sudo xcode-select -s /Applications/Xcode_16.2.app
     
     - name: Cache SwiftLint
       id: cache-swiftlint
-      uses: actions/cache@v3
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: /usr/local/bin/swiftlint
         key: ${{ runner.os }}-swiftlint
@@ -43,7 +46,7 @@ jobs:
 
     - name: Cache xcbeautify
       id: cache-xcbeautify
-      uses: actions/cache@v3
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: /usr/local/bin/xcbeautify
         key: ${{ runner.os }}-xcbeautify
@@ -61,7 +64,7 @@ jobs:
         fi
 
     - name: Cache SPM dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: |
           ~/Library/Caches/org.swift.swiftpm
@@ -112,11 +115,11 @@ jobs:
       FIREBASE_CONFIG: '{"storageBucket": "${{ secrets.CI_STORAGE_BUCKET }}"}'
     
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
     
     - name: Cache Python Binary
       id: cache-python
-      uses: actions/cache@v3
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: /opt/hostedtoolcache/Python
         key: ${{ runner.os }}-python-3.12-${{ hashFiles('Firebase/functions/requirements.txt') }}
@@ -125,7 +128,7 @@ jobs:
           ${{ runner.os }}-python-
     
     - name: Setup Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
       with:
         python-version: '3.12'
         cache: 'pip'
@@ -134,7 +137,7 @@ jobs:
 
     - name: Cache Firebase CLI
       id: cache-firebase-cli
-      uses: actions/cache@v3
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ~/.cache/firebase/tools
         key: ${{ runner.os }}-firebase-cli-${{ hashFiles('Firebase/functions/**') }}
